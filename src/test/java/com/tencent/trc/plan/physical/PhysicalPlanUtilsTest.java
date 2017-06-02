@@ -1,0 +1,188 @@
+package com.tencent.trc.plan.physical;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Stack;
+
+import org.ini4j.Ini;
+import org.ini4j.Profile.Section;
+
+import prefuse.data.Graph;
+import prefuse.data.io.GraphMLReader;
+
+import com.tencent.trc.conf.TrcConfiguration;
+import com.tencent.trc.metastore.MetaData;
+import com.tencent.trc.metastore.MetaUtils;
+import com.tencent.trc.parse.ASTNodeTRC;
+import com.tencent.trc.parse.ParseDriver;
+import com.tencent.trc.parse.ParseUtils;
+import com.tencent.trc.parse.QB;
+import com.tencent.trc.plan.logical.LogicalPlan;
+import com.tencent.trc.plan.logical.LogicalPlanGenerator;
+import com.tencent.trc.plan.logical.OpDesc;
+import com.tencent.trc.util.graph.GraphDrawer;
+import com.tencent.trc.util.graph.GraphPrinter;
+import com.tencent.trc.util.graph.GraphXmlBuilder;
+import com.tencent.trc.util.graph.GraphPrinter.CallBack;
+import com.tencent.trc.util.graph.GraphWalker;
+import com.tencent.trc.util.graph.GraphWalker.Dispatcher;
+import com.tencent.trc.util.graph.GraphWalker.Node;
+import com.tencent.trc.util.graph.GraphWalker.WalkMode;
+
+public class PhysicalPlanUtilsTest {
+
+	public static void main(String[] args) throws Exception {
+
+		// String sql =
+		// "INSERT INTO xxx SELECT a, sum(b) FROM (SELECT * FROM lll) yy LEFT JOIN xx ON xx.a=yy.a WHERE x>100 AND y!=1000 GROUP BY a";
+		// String sql =
+		// "WITH (SELECT * FROM xx WHERE cc=10 AND dd<1000) subt1, "
+		// +
+		// "(SELECT A, B, C, COUNT(1) FROM yy GROUP BY A, B, C HAVING(COUNT(1) > 100) ) subt2, "
+		// +
+		// "(SELECT * FROM zz UNION ALL SELECT * FROM subt1 UNION ALL SELECT * FROM subt2) subt3 "
+		// +
+		// "INSERT INTO xxx SELECT a, sum(b) FROM (SELECT * FROM subt1) yyy LEFT JOIN subt2 xxx , subt3 zzz "
+		// +
+		// "ON xxx.a=yyy.a AND xxx.a=zzz.a WHERE x>100 AND y!=1000 GROUP BY a";
+
+		// String sql = "INSERT INTO yy SELECT a,b FROM xx WHERE c > 100";
+		String sql = "INSERT INTO yy SELECT a, count(b), sum(x), sum(y), sum(z), sum(p) FROM (SELECT a, b, sum(c) x, sum(d) y, sum(c) + sum(d) z, count(1) p FROM xx WHERE c + d >= 0 GROUP BY a, b) tmp GROUP BY a";
+		sql = "INSERT INTO ieg_bd_dl_result SELECT from_unixtime(AGGRTIME DIV 1000, 'yyyyMMddHHmm'),custom_id,count(1),sum(complete),avg(total_filesize / total_duration),collect_set(CASE complete WHEN '1' THEN uin ELSE null END),collect_set(CASE complete WHEN '0' THEN uin ELSE null END) FROM ieg_bd_download GROUP BY custom_id COORDINATE BY unix_timestamp(time_t, 'yyyyMMddHHmmss')*1000 WITH AGGR INTERVAL 60 SECONDS, INSERT INTO ieg_bd_dl_result1 SELECT from_unixtime(AGGRTIME DIV 1000, 'yyyyMMddHHmm'),province,isp,custom_id,count(1),sum(complete),avg(total_filesize / total_duration),collect_set(CASE complete WHEN '1' THEN uin ELSE null END),collect_set(CASE complete WHEN '0' THEN uin ELSE null END) FROM ieg_bd_download GROUP BY custom_id,province,isp COORDINATE BY unix_timestamp(time_t, 'yyyyMMddHHmmss')*1000 WITH AGGR INTERVAL 60 SECONDS";
+
+		ParseDriver pd = new ParseDriver();
+		ASTNodeTRC tree = pd.parse(sql);
+		System.out.println(tree.toStringTree());
+		QB qb = ParseUtils.generateQb(tree);
+
+		// for (Node n : qb.getRootQueryNodes()) {
+		// System.out.println(n + " " + ((Query) n).getN().toStringTree());
+		// }
+		TrcConfiguration config = new TrcConfiguration();
+		URL url = new File(config.get("configfile", "lanzuan.ini")).toURI()
+				.toURL();
+		Ini ini = new Ini(url);
+		int secIdx = 0;
+		for (String seckey : ini.keySet()) {
+			Section section = ini.get(seckey);
+			for (String key : section.keySet()) {
+				if (config.get(key) != null) {
+					continue;
+				}
+				String value = section.get(key);
+				config.set(seckey.equals("system") ? key : "sec-" + secIdx
+						+ "::" + key, value);
+			}
+			secIdx++;
+		}
+
+		MetaData md = MetaUtils.getMetaData(qb, config, ini);
+		LogicalPlan lPlan = new LogicalPlanGenerator(tree, qb, md)
+				.generateLogicalPlan();
+
+		ArrayList<Node> rootOpDescs = new ArrayList<Node>();
+		for (OpDesc op : lPlan.getRootOps()) {
+			rootOpDescs.add(op);
+			// System.out.println(op.getName());
+			// for (Node node : op.getChildren()) {
+			// System.out.println(node.getName());
+			// }
+		}
+
+		PhysicalPlan pPlan = new PhysicalPlanGenerator(qb, md, lPlan)
+				.generatePhysicalPlan();
+
+		final HashMap<OpDesc, Integer> opDesc2TaskId = pPlan.getOpDesc2TaskId();
+
+		GraphPrinter.print(qb.getRootQueryNodes(), null);
+
+		final GraphXmlBuilder builder = new GraphXmlBuilder();
+
+		GraphWalker<String> walker = new GraphWalker<String>(
+				new Dispatcher<String>() {
+
+					@Override
+					public String dispatch(Node nd, Stack<Node> stack,
+							ArrayList<String> nodeOutputs,
+							HashMap<Node, String> retMap) {
+						builder.addNode(nd.toString(), nd.getName(),
+								String.valueOf(opDesc2TaskId.get(nd)));
+
+						for (Node node : nd.getChildren()) {
+							builder.addEdge(nd.toString(), node.toString());
+						}
+						return "";
+					}
+
+					@Override
+					public boolean needToDispatchChildren(Node nd,
+							Stack<Node> stack, ArrayList<String> nodeOutputs,
+							HashMap<Node, String> retMap) {
+						return true;
+					}
+				}, WalkMode.CHILD_FIRST);
+		walker.walk(rootOpDescs);
+
+		String xml = builder.build();
+		System.out.println(xml);
+
+		final ByteBuffer buffer = ByteBuffer.wrap(xml.getBytes());
+
+		InputStream is = new InputStream() {
+
+			@Override
+			public int read() throws IOException {
+				if (!buffer.hasRemaining()) {
+					return -1;
+				}
+				return buffer.get();
+			}
+		};
+		final Graph graph = new GraphMLReader().readGraph(is);
+
+		GraphDrawer.draw(graph);
+
+		// final GraphJungBuilder gjbuilder = new GraphJungBuilder();
+		// GraphWalker<Vertex> walker1 = new GraphWalker<Vertex>(
+		// new Dispatcher<Vertex>() {
+		//
+		// @Override
+		// public Vertex dispatch(Node nd, Stack<Node> stack,
+		// ArrayList<Vertex> nodeOutputs,
+		// HashMap<Node, Vertex> retMap) {
+		// Vertex r = gjbuilder.addVertex(nd.getName());
+		// for (Node node : nd.getChildren()) {
+		// gjbuilder.addEdge(r, retMap.get(node));
+		// }
+		// return r;
+		// }
+		//
+		// @Override
+		// public boolean needToDispatchChildren(Node nd,
+		// Stack<Node> stack, ArrayList<Vertex> nodeOutputs) {
+		// return true;
+		// }
+		// }, WalkMode.CHILD_FIRST);
+		// walker1.walk(rootOpDescs);
+		// gjbuilder.draw();
+
+		GraphPrinter.print(rootOpDescs, null);
+		// System.out.println(pPlan.getRootWorksNodes());
+		// System.out.println(pPlan.getRootWorksNodes().get(0).getChildren());
+		GraphPrinter.print(pPlan.getRootWorksNodes(), new CallBack() {
+
+			@Override
+			public void call(Node nd) {
+				TaskWork tw = (TaskWork) nd;
+				System.out.println("allOp : " + tw.getOpDescs());
+				System.out.println("rootOp : " + tw.getRootOpDescs());
+				System.out.println("destOp : " + tw.getDestOpDescs());
+			}
+		});
+	}
+}
