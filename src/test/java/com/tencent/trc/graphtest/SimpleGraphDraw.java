@@ -10,7 +10,7 @@
 /*
  * Created on Jun 23, 2003
  */
-package com.tencent.trc.graphtest;
+package com.tencent.easycount.graphtest;
 
 import java.io.IOException;
 

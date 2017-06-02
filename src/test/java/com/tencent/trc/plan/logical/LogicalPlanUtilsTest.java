@@ -1,16 +1,13 @@
-package com.tencent.trc.plan.logical;
+package com.tencent.easycount.plan.logical;
 
 import java.util.ArrayList;
 
-import com.tencent.trc.metastore.MetaData;
-import com.tencent.trc.metastore.MetaUtils;
-import com.tencent.trc.parse.ASTNodeTRC;
-import com.tencent.trc.parse.ParseDriver;
-import com.tencent.trc.parse.ParseUtils;
-import com.tencent.trc.parse.QB;
-import com.tencent.trc.parse.Query;
-import com.tencent.trc.util.graph.GraphPrinter;
-import com.tencent.trc.util.graph.GraphWalker.Node;
+import com.tencent.easycount.metastore.MetaUtils;
+import com.tencent.easycount.parse.ASTNodeTRC;
+import com.tencent.easycount.plan.logical.LogicalPlan;
+import com.tencent.easycount.plan.logical.LogicalPlanGenerator;
+import com.tencent.easycount.plan.logical.OpDesc;
+import com.tencent.easycount.util.graph.GraphPrinter;
 
 public class LogicalPlanUtilsTest {
 	public static void main(String[] args) throws Exception {

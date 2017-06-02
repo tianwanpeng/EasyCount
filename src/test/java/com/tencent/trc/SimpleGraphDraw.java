@@ -10,7 +10,7 @@
 /*
  * Created on Jun 23, 2003
  */
-package com.tencent.trc;
+package com.tencent.easycount;
 
 import java.io.IOException;
 

@@ -1,4 +1,4 @@
-package com.tencent.trc;
+package com.tencent.easycount;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

@@ -1,4 +1,4 @@
-package com.tencent.trc.util.graph;
+package com.tencent.easycount.util.graph;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,30 +9,27 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.tencent.trc.util.graph.GraphWalker.Dispatcher;
-import com.tencent.trc.util.graph.GraphWalker.Node;
-import com.tencent.trc.util.graph.GraphWalker.WalkMode;
-
 public class GraphWalkerTest {
 
 	@Test
 	public void walkTest() throws Exception {
 		final StringBuffer sb = new StringBuffer();
 
-		Dispatcher<Boolean> dispather = new Dispatcher<Boolean>() {
+		final Dispatcher<Boolean> dispather = new Dispatcher<Boolean>() {
 
 			@Override
-			public Boolean dispatch(Node nd, Stack<Node> stack,
-					ArrayList<Boolean> nodeOutputs,
-					HashMap<Node, Boolean> retMap) {
+			public Boolean dispatch(final Node nd, final Stack<Node> stack,
+					final ArrayList<Boolean> nodeOutputs,
+					final HashMap<Node, Boolean> retMap) {
 				sb.append(nd.getName()).append("%");
 				return null;
 			}
 
 			@Override
-			public boolean needToDispatchChildren(Node nd, Stack<Node> stack,
-					ArrayList<Boolean> nodeOutputs,
-					HashMap<Node, Boolean> retMap) {
+			public boolean needToDispatchChildren(final Node nd,
+					final Stack<Node> stack,
+					final ArrayList<Boolean> nodeOutputs,
+					final HashMap<Node, Boolean> retMap) {
 				return true;
 			}
 		};
@@ -50,12 +47,6 @@ public class GraphWalkerTest {
 		gw1.walk(rootNodes);
 		Assert.assertEquals(sb.toString(), "d%f%g%e%b%h%c%a%");
 
-		GraphWalker<Boolean> gw2 = new GraphWalker<Boolean>(dispather,
-				WalkMode.LEAF_FIRST);
-		sb.setLength(0);
-		gw2.walk(rootNodes);
-		Assert.assertEquals(sb.toString(), "d%f%g%h%e%c%b%a%");
-
 		rootNodes = generateNodes1();
 
 		gw = new GraphWalker<Boolean>(dispather, WalkMode.ROOT_FIRST);
@@ -67,11 +58,6 @@ public class GraphWalkerTest {
 		sb.setLength(0);
 		gw1.walk(rootNodes);
 		Assert.assertEquals(sb.toString(), "d%f%g%e%b%h%c%a%");
-
-		gw2 = new GraphWalker<Boolean>(dispather, WalkMode.LEAF_FIRST);
-		sb.setLength(0);
-		gw2.walk(rootNodes);
-		Assert.assertEquals(sb.toString(), "d%f%g%h%e%b%c%a%");
 
 		rootNodes = generateNodes2();
 
@@ -85,23 +71,18 @@ public class GraphWalkerTest {
 		gw1.walk(rootNodes);
 		Assert.assertEquals(sb.toString(), "d%g%e%c%a%h%f%b%");
 
-		gw2 = new GraphWalker<Boolean>(dispather, WalkMode.LEAF_FIRST);
-		sb.setLength(0);
-		gw2.walk(rootNodes);
-		Assert.assertEquals(sb.toString(), "d%g%e%h%c%f%a%b%");
-
 	}
 
 	private ArrayList<Node> generateNodes2() {
-		ArrayList<Node> nodes = new ArrayList<GraphWalker.Node>();
-		TestNode a = new TestNode("a");
-		TestNode b = new TestNode("b");
-		TestNode c = new TestNode("c");
-		TestNode d = new TestNode("d");
-		TestNode e = new TestNode("e");
-		TestNode f = new TestNode("f");
-		TestNode g = new TestNode("g");
-		TestNode h = new TestNode("h");
+		final ArrayList<Node> nodes = new ArrayList<GraphWalker.Node>();
+		final TestNode a = new TestNode("a");
+		final TestNode b = new TestNode("b");
+		final TestNode c = new TestNode("c");
+		final TestNode d = new TestNode("d");
+		final TestNode e = new TestNode("e");
+		final TestNode f = new TestNode("f");
+		final TestNode g = new TestNode("g");
+		final TestNode h = new TestNode("h");
 		a.addChild(c);
 		b.addChild(c);
 		b.addChild(d);
@@ -117,15 +98,15 @@ public class GraphWalkerTest {
 	}
 
 	private ArrayList<Node> generateNodes1() {
-		ArrayList<Node> nodes = new ArrayList<GraphWalker.Node>();
-		TestNode a = new TestNode("a");
-		TestNode b = new TestNode("b");
-		TestNode c = new TestNode("c");
-		TestNode d = new TestNode("d");
-		TestNode e = new TestNode("e");
-		TestNode f = new TestNode("f");
-		TestNode g = new TestNode("g");
-		TestNode h = new TestNode("h");
+		final ArrayList<Node> nodes = new ArrayList<GraphWalker.Node>();
+		final TestNode a = new TestNode("a");
+		final TestNode b = new TestNode("b");
+		final TestNode c = new TestNode("c");
+		final TestNode d = new TestNode("d");
+		final TestNode e = new TestNode("e");
+		final TestNode f = new TestNode("f");
+		final TestNode g = new TestNode("g");
+		final TestNode h = new TestNode("h");
 		a.addChild(b);
 		a.addChild(c);
 		b.addChild(d);
@@ -140,15 +121,15 @@ public class GraphWalkerTest {
 	}
 
 	private ArrayList<Node> generateNodes() {
-		ArrayList<Node> nodes = new ArrayList<GraphWalker.Node>();
-		TestNode a = new TestNode("a");
-		TestNode b = new TestNode("b");
-		TestNode c = new TestNode("c");
-		TestNode d = new TestNode("d");
-		TestNode e = new TestNode("e");
-		TestNode f = new TestNode("f");
-		TestNode g = new TestNode("g");
-		TestNode h = new TestNode("h");
+		final ArrayList<Node> nodes = new ArrayList<GraphWalker.Node>();
+		final TestNode a = new TestNode("a");
+		final TestNode b = new TestNode("b");
+		final TestNode c = new TestNode("c");
+		final TestNode d = new TestNode("d");
+		final TestNode e = new TestNode("e");
+		final TestNode f = new TestNode("f");
+		final TestNode g = new TestNode("g");
+		final TestNode h = new TestNode("h");
 		a.addChild(b);
 		a.addChild(c);
 		b.addChild(d);
@@ -160,7 +141,7 @@ public class GraphWalkerTest {
 		return nodes;
 	}
 
-	public static void main(String[] args) throws Exception {
+	public static void main(final String[] args) throws Exception {
 		new GraphWalkerTest().walkTest();
 	}
 
@@ -168,23 +149,23 @@ public class GraphWalkerTest {
 		final String name;
 		final ArrayList<Node> children;
 
-		public TestNode(String name) {
+		public TestNode(final String name) {
 			this.name = name;
 			this.children = new ArrayList<GraphWalker.Node>();
 		}
 
-		public void addChild(Node n) {
+		public void addChild(final Node n) {
 			this.children.add(n);
 		}
 
 		@Override
 		public List<? extends Node> getChildren() {
-			return children;
+			return this.children;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 	}
 }

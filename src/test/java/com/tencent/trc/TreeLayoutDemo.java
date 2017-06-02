@@ -6,7 +6,7 @@
  * or http://jung.sourceforge.net/license.txt for a description.
  * 
  */
-package com.tencent.trc;
+package com.tencent.easycount;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

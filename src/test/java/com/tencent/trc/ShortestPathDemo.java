@@ -1,7 +1,7 @@
 /*
  * Created on Jan 2, 2004
  */
-package com.tencent.trc;
+package com.tencent.easycount;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
@@ -34,8 +34,8 @@ import edu.uci.ics.jung.graph.Vertex;
 import edu.uci.ics.jung.graph.decorators.AbstractEdgePaintFunction;
 import edu.uci.ics.jung.graph.decorators.EdgeStrokeFunction;
 import edu.uci.ics.jung.graph.decorators.StringLabeller;
-import edu.uci.ics.jung.graph.decorators.VertexPaintFunction;
 import edu.uci.ics.jung.graph.decorators.StringLabeller.UniqueLabelException;
+import edu.uci.ics.jung.graph.decorators.VertexPaintFunction;
 import edu.uci.ics.jung.random.generators.EppsteinPowerLawGenerator;
 import edu.uci.ics.jung.utils.GraphUtils;
 import edu.uci.ics.jung.visualization.FRLayout;

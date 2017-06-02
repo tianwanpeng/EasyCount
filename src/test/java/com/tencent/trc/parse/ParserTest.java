@@ -1,4 +1,4 @@
-package com.tencent.trc.parse;
+package com.tencent.easycount.parse;
 
 import junit.framework.Assert;
 
@@ -6,6 +6,9 @@ import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.TokenRewriteStream;
 import org.junit.Test;
+
+import com.tencent.easycount.parse.TrcLexer;
+import com.tencent.easycount.parse.TrcParser;
 
 public class ParserTest {
 	private String genAstTree(String cmd) {

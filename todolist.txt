@@ -1,0 +1,5 @@
+20170603
+1、输入输出插件通过反射机制实现
+2、公共组建抽象到common依赖工程中去。例如walk，mon，tdmsg，config，packager等
+3、梳理好和hive之间的关系
+4、kafka，scribe，flume，hdfs，http，hbase等对接

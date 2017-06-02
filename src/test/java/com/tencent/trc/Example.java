@@ -1,4 +1,4 @@
-package com.tencent.trc;
+package com.tencent.easycount;
 
 import javax.swing.JFrame;
 

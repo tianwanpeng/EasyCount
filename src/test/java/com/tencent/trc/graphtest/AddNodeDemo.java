@@ -8,7 +8,7 @@
  */
 
 
-package com.tencent.trc.graphtest;
+package com.tencent.easycount.graphtest;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;

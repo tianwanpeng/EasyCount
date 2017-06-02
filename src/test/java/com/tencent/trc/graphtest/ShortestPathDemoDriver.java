@@ -1,7 +1,7 @@
 /*
  * Created on Jan 2, 2004
  */
-package com.tencent.trc.graphtest;
+package com.tencent.easycount.graphtest;
 
 import javax.swing.JApplet;
 

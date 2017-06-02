@@ -5,7 +5,7 @@
  * This software is open-source under the BSD license; see either "license.txt"
  * or http://jung.sourceforge.net/license.txt for a description.
  */
-package com.tencent.trc.graphtest;
+package com.tencent.easycount.graphtest;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;

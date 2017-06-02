@@ -1,9 +1,11 @@
-package com.tencent.trc.parse;
+package com.tencent.easycount.parse;
 
 import junit.framework.Assert;
 
 import org.antlr.runtime.tree.Tree;
 import org.junit.Test;
+
+import com.tencent.easycount.parse.ASTNodeTRC;
 
 public class ParserUtilsTest {
 	private ASTNodeTRC genAstTree(String cmd) throws Exception {

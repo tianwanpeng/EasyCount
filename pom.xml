@@ -3,14 +3,23 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.tencent.trc</groupId>
-	<artifactId>trc.stream</artifactId>
+	<artifactId>easycount</artifactId>
 	<version>0.0.1.new-SNAPSHOT</version>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties> 
+	</properties>
 
 	<dependencies>
+		<!-- https://mvnrepository.com/artifact/org.apache.storm/storm-core -->
+		<dependency>
+			<groupId>org.apache.storm</groupId>
+			<artifactId>storm-core</artifactId>
+			<version>1.1.0</version>
+		</dependency>
+
+
+
 		<dependency>
 			<groupId>postgresql</groupId>
 			<artifactId>postgresql</artifactId>
@@ -22,75 +31,22 @@
 			<version>5.1.6</version>
 		</dependency>
 		<dependency>
-			<artifactId>jackson-mapper-asl</artifactId>
-			<groupId>org.codehaus.jackson</groupId>
-			<version>1.9.2</version>
-		</dependency>
-		<dependency>
-			<artifactId>jackson-core-asl</artifactId>
-			<groupId>org.codehaus.jackson</groupId>
-			<version>1.9.2</version>
-		</dependency>
-		<dependency>
-			<artifactId>jackson-core-lgpl</artifactId>
-			<groupId>org.codehaus.jackson</groupId>
-			<version>1.9.2</version>
-		</dependency>
-		<dependency>
-			<artifactId>jackson-mapper-lgpl</artifactId>
-			<groupId>org.codehaus.jackson</groupId>
-			<version>1.9.2</version>
-		</dependency>
-		<dependency>
 			<artifactId>zkclient</artifactId>
 			<groupId>com.101tec</groupId>
 			<version>0.3</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.apache.hive/hive-exec -->
 		<dependency>
 			<groupId>org.apache.hive</groupId>
 			<artifactId>hive-exec</artifactId>
-			<version>0.12.0</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>log4j</artifactId>
-					<groupId>log4j</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>slf4j-log4j12</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>protobuf-java</artifactId>
-					<groupId>com.google.protobuf</groupId>
-				</exclusion>
-			</exclusions>
+			<version>2.1.1</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.antlr</groupId>
 			<artifactId>antlr</artifactId>
 			<version>3.5.1</version>
-		</dependency>
-		<dependency>
-			<groupId>com.tencent.tdbank</groupId>
-			<artifactId>tdbank-message-center</artifactId>
-			<version>0.0.1-trc</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>protobuf-java</artifactId>
-					<groupId>com.google.protobuf</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>log4j</artifactId>
-					<groupId>log4j</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>slf4j-log4j12</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-			</exclusions>
-
 		</dependency>
 
 		<dependency>
@@ -99,21 +55,11 @@
 			<version>0.5.1</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.apache.storm/storm-core -->
 		<dependency>
-			<groupId>storm</groupId>
-			<artifactId>storm</artifactId>
-			<version>0.8.2</version>
-			<scope>provided</scope>
-			<exclusions>
-				<exclusion>
-					<artifactId>slf4j-log4j12</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>log4j</artifactId>
-					<groupId>log4j</groupId>
-				</exclusion>
-			</exclusions>
+			<groupId>org.apache.storm</groupId>
+			<artifactId>storm-core</artifactId>
+			<version>1.1.0</version>
 		</dependency>
 
 		<dependency>
@@ -125,54 +71,26 @@
 		<dependency>
 			<groupId>com.clearspring.analytics</groupId>
 			<artifactId>stream</artifactId>
-			<version>2.6.0.trc</version>
+			<version>2.9.5</version>
 		</dependency>
+
+
+
+		<!-- https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-hdfs -->
 		<dependency>
 			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-core</artifactId>
-			<version>1.2.1</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>jackson-mapper-asl</artifactId>
-					<groupId>org.codehaus.jackson</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jersey-json</artifactId>
-					<groupId>com.sun.jersey</groupId>
-				</exclusion>
-			</exclusions>
+			<artifactId>hadoop-hdfs</artifactId>
+			<version>2.8.0</version>
 		</dependency>
-		<dependency>
-			<groupId>com.tencent.tube</groupId>
-			<artifactId>tube</artifactId>
-			<version>1.1.5</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>log4j</artifactId>
-					<groupId>log4j</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>slf4j-log4j12</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>protobuf-java</artifactId>
-					<groupId>com.google.protobuf</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>netty</artifactId>
-					<groupId>io.netty</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
+
+
+
+
 		<dependency>
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
 			<version>2.5.0</version>
 		</dependency>
-		<!-- <dependency> <groupId>com.google.code.maven-play-plugin.org.apache.hadoop</groupId> 
-			<artifactId>hadoop-core</artifactId> <version>0.20.2-with-200-826</version> 
-			</dependency> -->
 		<dependency>
 			<groupId>org.prefuse</groupId>
 			<artifactId>prefuse</artifactId>
@@ -208,40 +126,9 @@
 			<artifactId>jedis</artifactId>
 			<version>2.4.1</version>
 		</dependency>
-		<dependency>
-			<groupId>com.tencent.tdengine.api</groupId>
-			<artifactId>tde-java</artifactId>
-			<version>1.1.0</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>netty</artifactId>
-					<groupId>io.netty</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.hbase</groupId>
-			<artifactId>hbase</artifactId>
-			<version>0.94.11</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>log4j</artifactId>
-					<groupId>log4j</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>slf4j-log4j12</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>protobuf-java</artifactId>
-					<groupId>com.google.protobuf</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>netty</artifactId>
-					<groupId>org.jboss.netty</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.hbase/hbase -->
+		<!-- <dependency> <groupId>org.apache.hbase</groupId> <artifactId>hbase</artifactId> 
+			<version>1.2.1</version> </dependency> -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
@@ -263,6 +150,14 @@
 			<artifactId>guava</artifactId>
 			<version>17.0</version>
 		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/junit/junit -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+		</dependency>
+
 	</dependencies>
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
@@ -306,8 +201,8 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>1.7</source>
+					<target>1.7</target>
 				</configuration>
 			</plugin>
 		</plugins>

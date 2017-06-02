@@ -1,4 +1,4 @@
-package com.tencent.trc.plan.physical;
+package com.tencent.easycount.plan.physical;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,24 +15,18 @@ import org.ini4j.Profile.Section;
 import prefuse.data.Graph;
 import prefuse.data.io.GraphMLReader;
 
-import com.tencent.trc.conf.TrcConfiguration;
-import com.tencent.trc.metastore.MetaData;
-import com.tencent.trc.metastore.MetaUtils;
-import com.tencent.trc.parse.ASTNodeTRC;
-import com.tencent.trc.parse.ParseDriver;
-import com.tencent.trc.parse.ParseUtils;
-import com.tencent.trc.parse.QB;
-import com.tencent.trc.plan.logical.LogicalPlan;
-import com.tencent.trc.plan.logical.LogicalPlanGenerator;
-import com.tencent.trc.plan.logical.OpDesc;
-import com.tencent.trc.util.graph.GraphDrawer;
-import com.tencent.trc.util.graph.GraphPrinter;
-import com.tencent.trc.util.graph.GraphXmlBuilder;
-import com.tencent.trc.util.graph.GraphPrinter.CallBack;
-import com.tencent.trc.util.graph.GraphWalker;
-import com.tencent.trc.util.graph.GraphWalker.Dispatcher;
-import com.tencent.trc.util.graph.GraphWalker.Node;
-import com.tencent.trc.util.graph.GraphWalker.WalkMode;
+import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.metastore.MetaUtils;
+import com.tencent.easycount.parse.ASTNodeTRC;
+import com.tencent.easycount.plan.logical.LogicalPlan;
+import com.tencent.easycount.plan.logical.LogicalPlanGenerator;
+import com.tencent.easycount.plan.logical.OpDesc;
+import com.tencent.easycount.plan.physical.PhysicalPlan;
+import com.tencent.easycount.plan.physical.PhysicalPlanGenerator;
+import com.tencent.easycount.plan.physical.TaskWork;
+import com.tencent.easycount.util.graph.GraphDrawer;
+import com.tencent.easycount.util.graph.GraphPrinter;
+import com.tencent.easycount.util.graph.GraphXmlBuilder;
 
 public class PhysicalPlanUtilsTest {
 

@@ -1,4 +1,6 @@
-package com.tencent.trc.parse;
+package com.tencent.easycount.parse;
+
+import com.tencent.easycount.parse.ASTNodeTRC;
 
 public class ParseDriverTest {
 	public static void main(String[] args) throws Exception {

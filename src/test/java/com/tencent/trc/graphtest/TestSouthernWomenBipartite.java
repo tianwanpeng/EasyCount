@@ -1,7 +1,7 @@
 /*
  * Created on Jan 7, 2004
  */
-package com.tencent.trc.graphtest;
+package com.tencent.easycount.graphtest;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

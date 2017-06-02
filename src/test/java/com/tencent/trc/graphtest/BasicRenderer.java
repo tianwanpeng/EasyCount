@@ -7,7 +7,7 @@
 * "license.txt" or
 * http://jung.sourceforge.net/license.txt for a description.
 */
-package com.tencent.trc.graphtest;
+package com.tencent.easycount.graphtest;
 
 import java.awt.Color;
 import java.awt.Font;

@@ -1,4 +1,4 @@
-package com.tencent.trc;
+package com.tencent.easycount;
 
 import java.io.FileWriter;
 import java.io.IOException;
