@@ -17,6 +17,11 @@ import com.tencent.easycount.util.graph.GraphWalker.Dispatcher;
 import com.tencent.easycount.util.graph.GraphWalker.Node;
 import com.tencent.easycount.util.graph.GraphWalker.WalkMode;
 
+/**
+ *
+ * @author steven
+ *
+ */
 public class PhysicalPlanGenerator {
 	@SuppressWarnings("unused")
 	final private QB qb;
@@ -63,6 +68,7 @@ public class PhysicalPlanGenerator {
 
 		TaskWork1Spout rootWork = null;
 		for (final Integer taskId : taskid2OpDescs.keySet()) {
+			// 为每个taskid生成一个taskwork
 			if (!taskId2Works.containsKey(taskId)) {
 				if (taskId == 0) {
 					rootWork = new TaskWork1Spout(taskId,
@@ -75,15 +81,19 @@ public class PhysicalPlanGenerator {
 				}
 			}
 			final TaskWork work = taskId2Works.get(taskId);
+			// 当前的task可能包含多个op，每个op的子节点可能属于不同的task
+			// 找出所有不同的task作为当前task的子节点
 			for (final OpDesc opDesc : taskid2OpDescs.get(taskId)) {
 				for (final OpDesc childOp : opDesc.childrenOps()) {
 					final int childTaskId = opDesc2TaskId.get(childOp);
+					// 如果子节点的task还没有创建，那么就创建一个
 					if (!taskId2Works.containsKey(childTaskId)) {
 						taskId2Works.put(childTaskId, new TaskWork2Bolt(
 								childTaskId, taskid2OpDescs.get(childTaskId),
 								opDesc2TaskId));
 					}
 
+					// 如果子节点taskid和当前taskid相同，就不用处理了，否则设置为子节点task
 					if (taskId != childTaskId) {
 						final TaskWork childWork = taskId2Works
 								.get(childTaskId);
@@ -99,6 +109,11 @@ public class PhysicalPlanGenerator {
 				taskId2Works);
 	}
 
+	/**
+	 *
+	 * @author steven
+	 *
+	 */
 	public static class PhysicalPlanDispatcher implements
 	Dispatcher<AtomicInteger> {
 

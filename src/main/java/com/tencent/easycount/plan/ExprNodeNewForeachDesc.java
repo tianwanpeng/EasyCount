@@ -29,8 +29,8 @@ public class ExprNodeNewForeachDesc extends ExprNodeDesc {
 	public ExprNodeNewForeachDesc() {
 	}
 
-	public ExprNodeNewForeachDesc(ExprNodeDesc fromListDesc,
-			ExprNodeNewGenerateDesc generateDesc, RefMode fmode) {
+	public ExprNodeNewForeachDesc(final ExprNodeDesc fromListDesc,
+			final ExprNodeNewGenerateDesc generateDesc, final RefMode fmode) {
 		super(TypeInfoFactory.getListTypeInfo(generateDesc.getTypeInfo()));
 		this.fromListDesc = fromListDesc;
 		this.generateDesc = generateDesc;
@@ -38,28 +38,28 @@ public class ExprNodeNewForeachDesc extends ExprNodeDesc {
 	}
 
 	public ExprNodeDesc getFromListDesc() {
-		return fromListDesc;
+		return this.fromListDesc;
 	}
 
-	public void setFromListDesc(ExprNodeDesc fromListDesc) {
+	public void setFromListDesc(final ExprNodeDesc fromListDesc) {
 		this.fromListDesc = fromListDesc;
 	}
 
 	public ExprNodeNewGenerateDesc getGenerateDesc() {
-		return generateDesc;
+		return this.generateDesc;
 	}
 
-	public void setGenerateDesc(ExprNodeNewGenerateDesc generateDesc) {
+	public void setGenerateDesc(final ExprNodeNewGenerateDesc generateDesc) {
 		this.generateDesc = generateDesc;
 	}
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append("(");
-		sb.append(fromListDesc.toString());
+		sb.append(this.fromListDesc.toString());
 		sb.append(", ");
-		sb.append(generateDesc.toString());
+		sb.append(this.generateDesc.toString());
 		sb.append(")");
 		return sb.toString();
 	}
@@ -67,18 +67,18 @@ public class ExprNodeNewForeachDesc extends ExprNodeDesc {
 	@Explain(displayName = "expr")
 	@Override
 	public String getExprString() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append("(");
-		sb.append(fromListDesc.getExprString());
+		sb.append(this.fromListDesc.getExprString());
 		sb.append(", ");
-		sb.append(generateDesc.getExprString());
+		sb.append(this.generateDesc.getExprString());
 		sb.append(")");
 		return sb.toString();
 	}
 
 	@Override
 	public ExprNodeNewForeachDesc clone() {
-		ExprNodeNewForeachDesc clone = new ExprNodeNewForeachDesc(
+		final ExprNodeNewForeachDesc clone = new ExprNodeNewForeachDesc(
 				this.fromListDesc.clone(), this.generateDesc.clone(),
 				this.fmode);
 		return clone;
@@ -87,12 +87,15 @@ public class ExprNodeNewForeachDesc extends ExprNodeDesc {
 	/**
 	 * Create a exprNodeGenericFuncDesc based on the genericUDFClass and the
 	 * children parameters.
-	 * 
+	 *
 	 * @throws UDFArgumentException
 	 */
-	public static ExprNodeGenericFuncDesc newInstance(GenericUDF genericUDF,
-			List<ExprNodeDesc> children) throws UDFArgumentException {
-		ObjectInspector[] childrenOIs = new ObjectInspector[children.size()];
+	@SuppressWarnings("deprecation")
+	public static ExprNodeGenericFuncDesc newInstance(
+			final GenericUDF genericUDF, final List<ExprNodeDesc> children)
+			throws UDFArgumentException {
+		final ObjectInspector[] childrenOIs = new ObjectInspector[children
+				.size()];
 		for (int i = 0; i < childrenOIs.length; i++) {
 			childrenOIs[i] = children.get(i).getWritableObjectInspector();
 		}
@@ -101,13 +104,14 @@ public class ExprNodeNewForeachDesc extends ExprNodeDesc {
 		// comparison
 		// Perform the check here instead of in GenericUDFBaseCompare to
 		// guarantee it is only run once per operator
-		if (genericUDF instanceof GenericUDFBaseCompare && children.size() == 2) {
+		if ((genericUDF instanceof GenericUDFBaseCompare)
+				&& (children.size() == 2)) {
 
-			TypeInfo oiTypeInfo0 = children.get(0).getTypeInfo();
-			TypeInfo oiTypeInfo1 = children.get(1).getTypeInfo();
+			final TypeInfo oiTypeInfo0 = children.get(0).getTypeInfo();
+			final TypeInfo oiTypeInfo1 = children.get(1).getTypeInfo();
 
-			SessionState ss = SessionState.get();
-			Configuration conf = (ss != null) ? ss.getConf()
+			final SessionState ss = SessionState.get();
+			final Configuration conf = (ss != null) ? ss.getConf()
 					: new Configuration();
 
 			// For now, if a bigint is going to be cast to a double throw an
@@ -137,24 +141,25 @@ public class ExprNodeNewForeachDesc extends ExprNodeDesc {
 			}
 		}
 
-		ObjectInspector oi = genericUDF.initializeAndFoldConstants(childrenOIs);
+		final ObjectInspector oi = genericUDF
+				.initializeAndFoldConstants(childrenOIs);
 
-		String[] requiredJars = genericUDF.getRequiredJars();
-		String[] requiredFiles = genericUDF.getRequiredFiles();
-		SessionState ss = SessionState.get();
+		final String[] requiredJars = genericUDF.getRequiredJars();
+		final String[] requiredFiles = genericUDF.getRequiredFiles();
+		final SessionState ss = SessionState.get();
 
 		if (requiredJars != null) {
-			SessionState.ResourceType t = SessionState
+			final SessionState.ResourceType t = SessionState
 					.find_resource_type("JAR");
-			for (String jarPath : requiredJars) {
+			for (final String jarPath : requiredJars) {
 				ss.add_resource(t, jarPath);
 			}
 		}
 
 		if (requiredFiles != null) {
-			SessionState.ResourceType t = SessionState
+			final SessionState.ResourceType t = SessionState
 					.find_resource_type("FILE");
-			for (String filePath : requiredFiles) {
+			for (final String filePath : requiredFiles) {
 				ss.add_resource(t, filePath);
 			}
 		}
@@ -163,11 +168,11 @@ public class ExprNodeNewForeachDesc extends ExprNodeDesc {
 	}
 
 	@Override
-	public boolean isSame(Object o) {
+	public boolean isSame(final Object o) {
 		if (!(o instanceof ExprNodeNewForeachDesc)) {
 			return false;
 		}
-		ExprNodeNewForeachDesc dest = (ExprNodeNewForeachDesc) o;
+		final ExprNodeNewForeachDesc dest = (ExprNodeNewForeachDesc) o;
 		if (!getTypeInfo().equals(dest.getTypeInfo())
 				|| !this.fromListDesc.isSame(dest.fromListDesc)
 				|| !this.generateDesc.isSame(dest.generateDesc)) {
@@ -179,19 +184,19 @@ public class ExprNodeNewForeachDesc extends ExprNodeDesc {
 
 	@Override
 	public int hashCode() {
-		int superHashCode = super.hashCode();
-		HashCodeBuilder builder = new HashCodeBuilder();
+		final int superHashCode = super.hashCode();
+		final HashCodeBuilder builder = new HashCodeBuilder();
 		builder.appendSuper(superHashCode);
-		builder.append(fromListDesc);
-		builder.append(generateDesc);
+		builder.append(this.fromListDesc);
+		builder.append(this.generateDesc);
 		return builder.toHashCode();
 	}
 
 	public RefMode getFmode() {
-		return fmode;
+		return this.fmode;
 	}
 
-	public void setFmode(RefMode fmode) {
+	public void setFmode(final RefMode fmode) {
 		this.fmode = fmode;
 	}
 

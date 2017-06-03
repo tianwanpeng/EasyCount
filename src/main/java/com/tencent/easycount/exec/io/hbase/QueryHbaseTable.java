@@ -7,6 +7,11 @@ import java.util.Iterator;
 import java.util.NavigableMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.hadoop.hbase.client.HTableInterface;
+import org.apache.hadoop.hbase.client.HTablePool;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hive.serde2.SerDeException;
 import org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe;
 import org.apache.hadoop.hive.serde2.lazy.LazyStruct;
@@ -24,9 +29,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.tencent.easycount.exec.io.DataIOUtils;
+import com.tencent.easycount.exec.io.Queryable;
 import com.tencent.easycount.metastore.TableHbase;
 import com.tencent.easycount.metastore.TableUtils;
 import com.tencent.easycount.util.exec.ExecutorProcessor;
+import com.tencent.easycount.util.exec.ExecutorProcessor.Processor;
 import com.tencent.easycount.util.status.TDBankUtils;
 
 @SuppressWarnings("deprecation")
@@ -45,16 +52,16 @@ public class QueryHbaseTable implements Queryable {
 	final HTablePool htablePool;
 
 	@Override
-	public void printStatus(int printId) {
+	public void printStatus(final int printId) {
 		int avgtime = 0;
 		for (int i = 0; i < 10; i++) {
-			avgtime += times[i];
+			avgtime += this.times[i];
 		}
 		avgtime /= 10;
-		log.info(printPrefix + "hbaseDim : " + tbl.getTableName()
-				+ " queryNum : " + queryNum.get() + "-" + avgtime);
-		if (asyncMode) {
-			log.info(printPrefix + "hbaseDim : " + eps.getStatus());
+		log.info(this.printPrefix + "hbaseDim : " + this.tbl.getTableName()
+				+ " queryNum : " + this.queryNum.get() + "-" + avgtime);
+		if (this.asyncMode) {
+			log.info(this.printPrefix + "hbaseDim : " + this.eps.getStatus());
 		}
 	}
 
@@ -62,28 +69,28 @@ public class QueryHbaseTable implements Queryable {
 		String key;
 		CallBack cb;
 
-		public GetInfo(String key, CallBack cb) {
+		public GetInfo(final String key, final CallBack cb) {
 			this.key = key;
 			this.cb = cb;
 		}
 	}
 
-	public QueryHbaseTable(final TableHbase tbl, boolean asyncMode,
-			String printPrefix) {
+	public QueryHbaseTable(final TableHbase tbl, final boolean asyncMode,
+			final String printPrefix) {
 		this.tbl = tbl;
 		this.tableName = tbl.getTableName();
 		this.printPrefix = printPrefix;
 		this.queryNum = new AtomicLong(0);
 		this.asyncMode = asyncMode;
-		byte[] separators = TableUtils.generateSeparators(tbl);
+		final byte[] separators = TableUtils.generateSeparators(tbl);
 		this.valueSerDes = new ArrayList<LazySimpleSerDe>();
 
-		htablePool = DataIOUtils.getHbaseTablePool(tbl);
+		this.htablePool = DataIOUtils.getHbaseTablePool(tbl);
 
-		ArrayList<ObjectInspector> ois = new ArrayList<ObjectInspector>();
+		final ArrayList<ObjectInspector> ois = new ArrayList<ObjectInspector>();
 		ois.add(PrimitiveObjectInspectorFactory.writableStringObjectInspector);
 
-		ArrayList<TypeInfo> hbaseStructType = tbl.getStructTypes();
+		final ArrayList<TypeInfo> hbaseStructType = tbl.getStructTypes();
 		for (int i = 0; i < hbaseStructType.size(); i++) {
 			if (i != 0) {
 				final TypeInfo valuetype = ((MapTypeInfo) hbaseStructType
@@ -102,22 +109,23 @@ public class QueryHbaseTable implements Queryable {
 				// add(valuetype);
 				// }
 				// });
-				LazySimpleSerDe serde = DataIOUtils.generateHbaseValueSerDe(
-						separators, "hbase_value", valuetype);
-				valueSerDes.add(serde);
+				final LazySimpleSerDe serde = DataIOUtils
+						.generateHbaseValueSerDe(separators, "hbase_value",
+								valuetype);
+				this.valueSerDes.add(serde);
 				ois.add(TypeInfoUtils
 						.getStandardWritableObjectInspectorFromTypeInfo(hbaseStructType
 								.get(i)));
 			}
 		}
 
-		int hbaseQueryParallel = TableUtils.getHbaseQueryParallel(tbl);
-		int hbaseQueryQueueSize = TableUtils.getHbaseQueryQueueSize(tbl);
+		final int hbaseQueryParallel = TableUtils.getHbaseQueryParallel(tbl);
+		final int hbaseQueryQueueSize = TableUtils.getHbaseQueryQueueSize(tbl);
 
-		objectInspector = ObjectInspectorFactory
+		this.objectInspector = ObjectInspectorFactory
 				.getStandardStructObjectInspector(tbl.getFieldNames(), ois);
 
-		eps = (!asyncMode) ? null
+		this.eps = (!asyncMode) ? null
 				: new ExecutorProcessor<QueryHbaseTable.GetInfo>(
 						new Processor<QueryHbaseTable.GetInfo>() {
 							{
@@ -131,32 +139,33 @@ public class QueryHbaseTable implements Queryable {
 							}
 
 							@Override
-							public int hash(GetInfo t) {
+							public int hash(final GetInfo t) {
 								return t.key.hashCode() % 499;
 							}
 
 							@Override
-							public void process(GetInfo t, int executorid) {
+							public void process(final GetInfo t,
+									final int executorid) {
 								processGet(t.key, t.cb);
 							}
 						}, hbaseQueryParallel, hbaseQueryQueueSize,
 						"HbaseQueryEPS");
 		if (asyncMode) {
-			eps.start();
+			this.eps.start();
 		}
 	}
 
 	@Override
-	public void get(String key, final CallBack cb) {
-		if (asyncMode) {
+	public void get(final String key, final CallBack cb) {
+		if (this.asyncMode) {
 			int xxx = 0;
-			while (!eps.addTuple(new GetInfo(key, cb))) {
+			while (!this.eps.addTuple(new GetInfo(key, cb))) {
 				xxx++;
 				log.warn("hbase query queue full so sleep for 30 ms ... for "
 						+ xxx + " times");
 				try {
 					Thread.sleep(30);
-				} catch (InterruptedException e) {
+				} catch (final InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
@@ -165,41 +174,42 @@ public class QueryHbaseTable implements Queryable {
 		}
 	}
 
-	private int[] times = new int[10];
+	private final int[] times = new int[10];
 	private int timeidx = 0;
 
-	private void processGet(String key, final CallBack cb) {
+	private void processGet(final String key, final CallBack cb) {
 		try {
-			queryNum.incrementAndGet();
-			byte[] startKeys = key.getBytes();
-			byte[] endKeys = key.getBytes();
+			this.queryNum.incrementAndGet();
+			final byte[] startKeys = key.getBytes();
+			final byte[] endKeys = key.getBytes();
 			if (key.endsWith("$")) {
 				startKeys[startKeys.length - 1] = 0;
 				endKeys[startKeys.length - 1] = -1;
 			}
-			long t = System.currentTimeMillis();
-			HTableInterface hti = htablePool.getTable(tableName);
-			ResultScanner resScan = hti
-					.getScanner(new Scan(startKeys, endKeys));
+			final long t = System.currentTimeMillis();
+			final HTableInterface hti = this.htablePool
+					.getTable(this.tableName);
+			final ResultScanner resScan = hti.getScanner(new Scan(startKeys,
+					endKeys));
 			hti.close();
 			// Result result = hti.get(new Get(key.getBytes()));
-			times[timeidx] = (int) (System.currentTimeMillis() - t);
-			timeidx = (timeidx + 1) % 10;
-			Iterator<Result> it = resScan.iterator();
-			ArrayList<Object[]> resobjs = new ArrayList<Object[]>();
+			this.times[this.timeidx] = (int) (System.currentTimeMillis() - t);
+			this.timeidx = (this.timeidx + 1) % 10;
+			final Iterator<Result> it = resScan.iterator();
+			final ArrayList<Object[]> resobjs = new ArrayList<Object[]>();
 			while (it.hasNext()) {
 				resobjs.add(processGetResult1(it.next()));
 			}
 			cb.callback(resobjs.toArray(new Object[resobjs.size()]));
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			log.warn(TDBankUtils.getExceptionStack(e));
 			cb.fail();
 		}
 	}
 
-	private Object[] processGetResult1(Result result) {
+	private Object[] processGetResult1(final Result result) {
 
-		NavigableMap<byte[], NavigableMap<byte[], byte[]>> map = result
+		final NavigableMap<byte[], NavigableMap<byte[], byte[]>> map = result
 				.getNoVersionMap();
 		if (map == null) {
 			return null;
@@ -209,36 +219,36 @@ public class QueryHbaseTable implements Queryable {
 			return null;
 		}
 
-		Object[] resobj = new Object[tbl.getFieldNames().size()];
+		final Object[] resobj = new Object[this.tbl.getFieldNames().size()];
 		resobj[0] = new Text(result.getRow());
 
 		int i = 0;
-		for (byte[] family : map.keySet()) {
-			NavigableMap<byte[], byte[]> fcolumnmap = map.get(family);
-			HashMap<Object, Object> familyColumnStandard = new HashMap<Object, Object>();
-			for (byte[] column : fcolumnmap.keySet()) {
-				Text columnKey = new Text(column);
+		for (final byte[] family : map.keySet()) {
+			final NavigableMap<byte[], byte[]> fcolumnmap = map.get(family);
+			final HashMap<Object, Object> familyColumnStandard = new HashMap<Object, Object>();
+			for (final byte[] column : fcolumnmap.keySet()) {
+				final Text columnKey = new Text(column);
 				LazyStruct valueObject;
 				try {
 					// Text vvv = new Text(fcolumnmap.get(column));
-					BytesWritable vvv = new BytesWritable(
+					final BytesWritable vvv = new BytesWritable(
 							fcolumnmap.get(column));
-					valueObject = (LazyStruct) valueSerDes.get(i).deserialize(
-							vvv);
+					valueObject = (LazyStruct) this.valueSerDes.get(i)
+							.deserialize(vvv);
 					@SuppressWarnings("unchecked")
-					ArrayList<Object> valueObjectStandard = (ArrayList<Object>) ObjectInspectorUtils
-							.copyToStandardObject(valueObject,
-									valueSerDes.get(i).getObjectInspector());
+					final ArrayList<Object> valueObjectStandard = (ArrayList<Object>) ObjectInspectorUtils
+					.copyToStandardObject(valueObject, this.valueSerDes
+									.get(i).getObjectInspector());
 					// System.out.println("valueObjectStandard_testtt: "
 					// + new String(vvv.getBytes()) + "   "
 					// + valueObjectStandard);
 
-					familyColumnStandard.put(
-							columnKey,
-							(valueObjectStandard == null || valueObjectStandard
-									.size() == 0) ? null : valueObjectStandard
-									.get(0));
-				} catch (SerDeException e) {
+					familyColumnStandard
+							.put(columnKey,
+									((valueObjectStandard == null) || (valueObjectStandard
+											.size() == 0)) ? null
+											: valueObjectStandard.get(0));
+				} catch (final SerDeException e) {
 					e.printStackTrace();
 					familyColumnStandard.put(columnKey, null);
 				}
@@ -254,6 +264,6 @@ public class QueryHbaseTable implements Queryable {
 
 	@Override
 	public ObjectInspector getObjectInspector() {
-		return objectInspector;
+		return this.objectInspector;
 	}
 }

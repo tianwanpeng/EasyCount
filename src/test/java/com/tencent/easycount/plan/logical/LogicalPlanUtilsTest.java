@@ -2,15 +2,18 @@ package com.tencent.easycount.plan.logical;
 
 import java.util.ArrayList;
 
+import com.tencent.easycount.metastore.MetaData;
 import com.tencent.easycount.metastore.MetaUtils;
 import com.tencent.easycount.parse.ASTNodeTRC;
-import com.tencent.easycount.plan.logical.LogicalPlan;
-import com.tencent.easycount.plan.logical.LogicalPlanGenerator;
-import com.tencent.easycount.plan.logical.OpDesc;
+import com.tencent.easycount.parse.ParseDriver;
+import com.tencent.easycount.parse.ParseUtils;
+import com.tencent.easycount.parse.QB;
+import com.tencent.easycount.parse.Query;
 import com.tencent.easycount.util.graph.GraphPrinter;
+import com.tencent.easycount.util.graph.GraphWalker.Node;
 
 public class LogicalPlanUtilsTest {
-	public static void main(String[] args) throws Exception {
+	public static void main(final String[] args) throws Exception {
 
 		// String sql1 =
 		// "INSERT INTO xxx SELECT a, sum(b) FROM (SELECT * FROM lll) yy LEFT JOIN xx ON xx.a=yy.a WHERE x>100 AND y!=1000 GROUP BY a";
@@ -24,26 +27,26 @@ public class LogicalPlanUtilsTest {
 		// "INSERT INTO xxx SELECT a, sum(b) FROM (SELECT * FROM subt1) yy LEFT JOIN subt2 xx , subt3 zzz "
 		// + "ON xx.a=yy.a AND xx.a=zzz.a WHERE x>100 AND y!=1000 GROUP BY a";
 
-		String sql = "INSERT INTO yy SELECT a, b FROM xx";
+		final String sql = "INSERT INTO yy SELECT a, b FROM xx";
 
-		ParseDriver pd = new ParseDriver();
-		ASTNodeTRC tree = pd.parse(sql);
+		final ParseDriver pd = new ParseDriver();
+		final ASTNodeTRC tree = pd.parse(sql);
 		System.out.println(tree.toStringTree());
-		QB qb = ParseUtils.generateQb(tree);
+		final QB qb = ParseUtils.generateQb(tree);
 
-		for (Node n : qb.getRootQueryNodes()) {
+		for (final Node n : qb.getRootQueryNodes()) {
 			System.out.println(n + " " + ((Query) n).getN().toStringTree());
 		}
 
-		MetaData md = MetaUtils.getTestMetaData(qb);
-		LogicalPlan lPlan = new LogicalPlanGenerator(tree, qb, md)
-				.generateLogicalPlan();
+		final MetaData md = MetaUtils.getTestMetaData(qb);
+		final LogicalPlan lPlan = new LogicalPlanGenerator(tree, qb, md)
+		.generateLogicalPlan();
 
-		ArrayList<Node> rootOpDescs = new ArrayList<Node>();
-		for (OpDesc op : lPlan.getRootOps()) {
+		final ArrayList<Node> rootOpDescs = new ArrayList<Node>();
+		for (final OpDesc op : lPlan.getRootOps()) {
 			rootOpDescs.add(op);
 			System.out.println(op.getName());
-			for (Node node : op.getChildren()) {
+			for (final Node node : op.getChildren()) {
 				System.out.println(node.getName());
 			}
 		}

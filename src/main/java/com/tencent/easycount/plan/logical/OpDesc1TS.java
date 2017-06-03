@@ -4,6 +4,12 @@ import java.util.ArrayList;
 
 import com.tencent.easycount.metastore.Table;
 
+/**
+ * ts 包含以下信息，读取的表描述table，需要输出的字段列表，是否是维表
+ *
+ * @author steven
+ *
+ */
 public class OpDesc1TS extends OpDesc {
 	private static final long serialVersionUID = -4244342859231259475L;
 

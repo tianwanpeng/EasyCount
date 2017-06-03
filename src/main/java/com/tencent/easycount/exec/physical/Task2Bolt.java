@@ -17,12 +17,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.tencent.easycount.conf.TrcConfiguration;
-import com.tencent.easycount.exec.io.Queryable.CallBack;
+import com.tencent.easycount.exec.physical.InnerOp2Sink.CallBack;
 import com.tencent.easycount.plan.logical.OpDesc;
 import com.tencent.easycount.plan.physical.TaskWork2Bolt;
 import com.tencent.easycount.util.exec.ExecutorProcessor;
 import com.tencent.easycount.util.exec.ExecutorProcessor.Processor;
 import com.tencent.easycount.util.exec.SingleThreadAckor;
+import com.tencent.easycount.util.io.TDMsg1;
 import com.tencent.easycount.util.status.TDBankUtils;
 
 public class Task2Bolt extends Task implements IRichBolt {

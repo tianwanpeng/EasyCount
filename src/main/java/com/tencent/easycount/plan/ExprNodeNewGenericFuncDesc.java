@@ -27,7 +27,7 @@ public class ExprNodeNewGenericFuncDesc extends ExprNodeDesc {
 
 	/**
 	 * In case genericUDF is Serializable, we will serialize the object.
-	 * 
+	 *
 	 * In case genericUDF does not implement Serializable, Java will remember
 	 * the class of genericUDF and creates a new instance when deserialized.
 	 * This is exactly what we want.
@@ -40,14 +40,15 @@ public class ExprNodeNewGenericFuncDesc extends ExprNodeDesc {
 	private GenericUDFBridge genericUDFBridge = null;
 
 	public GenericUDFBridge getGenericUDFBridge() {
-		return genericUDFBridge;
+		return this.genericUDFBridge;
 	}
 
 	public Class<? extends GenericUDF> getGenericUDFClass() {
-		return genericUDFClass;
+		return this.genericUDFClass;
 	}
 
-	public void setGenericUDFClass(Class<? extends GenericUDF> genericUDFClass) {
+	public void setGenericUDFClass(
+			final Class<? extends GenericUDF> genericUDFClass) {
 		this.genericUDFClass = genericUDFClass;
 	}
 
@@ -64,19 +65,19 @@ public class ExprNodeNewGenericFuncDesc extends ExprNodeDesc {
 	public ExprNodeNewGenericFuncDesc() {
 	}
 
-	public ExprNodeNewGenericFuncDesc(TypeInfo typeInfo, GenericUDF genericUDF,
-			List<ExprNodeDesc> children) {
+	public ExprNodeNewGenericFuncDesc(final TypeInfo typeInfo,
+			final GenericUDF genericUDF, final List<ExprNodeDesc> children) {
 		this(TypeInfoUtils
 				.getStandardWritableObjectInspectorFromTypeInfo(typeInfo),
 				genericUDF, children);
 	}
 
-	public ExprNodeNewGenericFuncDesc(ObjectInspector oi,
-			GenericUDF genericUDF, List<ExprNodeDesc> children) {
+	public ExprNodeNewGenericFuncDesc(final ObjectInspector oi,
+			final GenericUDF genericUDF, final List<ExprNodeDesc> children) {
 		super(TypeInfoUtils.getTypeInfoFromObjectInspector(oi));
 		this.writableObjectInspector = ObjectInspectorUtils
 				.getWritableObjectInspector(oi);
-		assert (genericUDFClass != null);
+		assert (this.genericUDFClass != null);
 
 		this.genericUDFClass = genericUDF.getClass();
 		this.childExprs = children;
@@ -87,7 +88,7 @@ public class ExprNodeNewGenericFuncDesc extends ExprNodeDesc {
 
 	}
 
-	public ExprNodeNewGenericFuncDesc(ExprNodeGenericFuncDesc resdesc) {
+	public ExprNodeNewGenericFuncDesc(final ExprNodeGenericFuncDesc resdesc) {
 		this(resdesc.getTypeInfo(), resdesc.getGenericUDF(), resdesc
 				.getChildren());
 		// if (resdesc.getGenericUDF().getClass() == GenericUDFBridge.class) {
@@ -100,9 +101,9 @@ public class ExprNodeNewGenericFuncDesc extends ExprNodeDesc {
 		// }
 	}
 
-	public ExprNodeNewGenericFuncDesc(TypeInfo typeInfo,
-			Class<? extends GenericUDF> genericUDFClass,
-			GenericUDFBridge genericUDF, List<ExprNodeDesc> cloneCh) {
+	public ExprNodeNewGenericFuncDesc(final TypeInfo typeInfo,
+			final Class<? extends GenericUDF> genericUDFClass,
+			final GenericUDFBridge genericUDF, final List<ExprNodeDesc> cloneCh) {
 		super(typeInfo);
 		this.genericUDFClass = genericUDFClass;
 		this.genericUDFBridge = genericUDF;
@@ -111,7 +112,7 @@ public class ExprNodeNewGenericFuncDesc extends ExprNodeDesc {
 
 	@Override
 	public ObjectInspector getWritableObjectInspector() {
-		return writableObjectInspector;
+		return this.writableObjectInspector;
 	}
 
 	// public GenericUDFBridge getGenericUDF() {
@@ -123,28 +124,28 @@ public class ExprNodeNewGenericFuncDesc extends ExprNodeDesc {
 	// }
 
 	public List<ExprNodeDesc> getChildExprs() {
-		return childExprs;
+		return this.childExprs;
 	}
 
-	public void setChildExprs(List<ExprNodeDesc> children) {
-		childExprs = children;
+	public void setChildExprs(final List<ExprNodeDesc> children) {
+		this.childExprs = children;
 	}
 
 	@Override
 	public List<ExprNodeDesc> getChildren() {
-		return childExprs;
+		return this.childExprs;
 	}
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(genericUDFClass);
+		final StringBuilder sb = new StringBuilder();
+		sb.append(this.genericUDFClass);
 		sb.append("(");
-		for (int i = 0; i < childExprs.size(); i++) {
+		for (int i = 0; i < this.childExprs.size(); i++) {
 			if (i > 0) {
 				sb.append(", ");
 			}
-			sb.append(childExprs.get(i).toString());
+			sb.append(this.childExprs.get(i).toString());
 		}
 		sb.append("(");
 		sb.append(")");
@@ -155,19 +156,19 @@ public class ExprNodeNewGenericFuncDesc extends ExprNodeDesc {
 	@Override
 	public String getExprString() {
 		// Get the children expr strings
-		String[] childrenExprStrings = new String[childExprs.size()];
+		final String[] childrenExprStrings = new String[this.childExprs.size()];
 		for (int i = 0; i < childrenExprStrings.length; i++) {
-			childrenExprStrings[i] = childExprs.get(i).getExprString();
+			childrenExprStrings[i] = this.childExprs.get(i).getExprString();
 		}
 
 		// return genericUDFClass.getDisplayString(childrenExprStrings);
 
-		StringBuilder sb = new StringBuilder();
-		sb.append(genericUDFClass.getName());
+		final StringBuilder sb = new StringBuilder();
+		sb.append(this.genericUDFClass.getName());
 		sb.append("(");
 		for (int i = 0; i < childrenExprStrings.length; i++) {
 			sb.append(childrenExprStrings[i]);
-			if (i + 1 < childrenExprStrings.length) {
+			if ((i + 1) < childrenExprStrings.length) {
 				sb.append(", ");
 			}
 		}
@@ -179,10 +180,10 @@ public class ExprNodeNewGenericFuncDesc extends ExprNodeDesc {
 	@Override
 	public List<String> getCols() {
 		List<String> colList = new ArrayList<String>();
-		if (childExprs != null) {
+		if (this.childExprs != null) {
 			int pos = 0;
-			while (pos < childExprs.size()) {
-				List<String> colCh = childExprs.get(pos).getCols();
+			while (pos < this.childExprs.size()) {
+				final List<String> colCh = this.childExprs.get(pos).getCols();
 				colList = Utilities.mergeUniqElems(colList, colCh);
 				pos++;
 			}
@@ -193,12 +194,12 @@ public class ExprNodeNewGenericFuncDesc extends ExprNodeDesc {
 
 	@Override
 	public ExprNodeNewGenericFuncDesc clone() {
-		List<ExprNodeDesc> cloneCh = new ArrayList<ExprNodeDesc>(
-				childExprs.size());
-		for (ExprNodeDesc ch : childExprs) {
+		final List<ExprNodeDesc> cloneCh = new ArrayList<ExprNodeDesc>(
+				this.childExprs.size());
+		for (final ExprNodeDesc ch : this.childExprs) {
 			cloneCh.add(ch.clone());
 		}
-		ExprNodeNewGenericFuncDesc clone = new ExprNodeNewGenericFuncDesc(
+		final ExprNodeNewGenericFuncDesc clone = new ExprNodeNewGenericFuncDesc(
 				getTypeInfo(), this.genericUDFClass, this.genericUDFBridge,
 				cloneCh);
 		return clone;
@@ -207,12 +208,15 @@ public class ExprNodeNewGenericFuncDesc extends ExprNodeDesc {
 	/**
 	 * Create a exprNodeGenericFuncDesc based on the genericUDFClass and the
 	 * children parameters.
-	 * 
+	 *
 	 * @throws UDFArgumentException
 	 */
-	public static ExprNodeGenericFuncDesc newInstance(GenericUDF genericUDF,
-			List<ExprNodeDesc> children) throws UDFArgumentException {
-		ObjectInspector[] childrenOIs = new ObjectInspector[children.size()];
+	@SuppressWarnings("deprecation")
+	public static ExprNodeGenericFuncDesc newInstance(
+			final GenericUDF genericUDF, final List<ExprNodeDesc> children)
+			throws UDFArgumentException {
+		final ObjectInspector[] childrenOIs = new ObjectInspector[children
+				.size()];
 		for (int i = 0; i < childrenOIs.length; i++) {
 			childrenOIs[i] = children.get(i).getWritableObjectInspector();
 		}
@@ -221,13 +225,14 @@ public class ExprNodeNewGenericFuncDesc extends ExprNodeDesc {
 		// comparison
 		// Perform the check here instead of in GenericUDFBaseCompare to
 		// guarantee it is only run once per operator
-		if (genericUDF instanceof GenericUDFBaseCompare && children.size() == 2) {
+		if ((genericUDF instanceof GenericUDFBaseCompare)
+				&& (children.size() == 2)) {
 
-			TypeInfo oiTypeInfo0 = children.get(0).getTypeInfo();
-			TypeInfo oiTypeInfo1 = children.get(1).getTypeInfo();
+			final TypeInfo oiTypeInfo0 = children.get(0).getTypeInfo();
+			final TypeInfo oiTypeInfo1 = children.get(1).getTypeInfo();
 
-			SessionState ss = SessionState.get();
-			Configuration conf = (ss != null) ? ss.getConf()
+			final SessionState ss = SessionState.get();
+			final Configuration conf = (ss != null) ? ss.getConf()
 					: new Configuration();
 
 			// For now, if a bigint is going to be cast to a double throw an
@@ -257,24 +262,25 @@ public class ExprNodeNewGenericFuncDesc extends ExprNodeDesc {
 			}
 		}
 
-		ObjectInspector oi = genericUDF.initializeAndFoldConstants(childrenOIs);
+		final ObjectInspector oi = genericUDF
+				.initializeAndFoldConstants(childrenOIs);
 
-		String[] requiredJars = genericUDF.getRequiredJars();
-		String[] requiredFiles = genericUDF.getRequiredFiles();
-		SessionState ss = SessionState.get();
+		final String[] requiredJars = genericUDF.getRequiredJars();
+		final String[] requiredFiles = genericUDF.getRequiredFiles();
+		final SessionState ss = SessionState.get();
 
 		if (requiredJars != null) {
-			SessionState.ResourceType t = SessionState
+			final SessionState.ResourceType t = SessionState
 					.find_resource_type("JAR");
-			for (String jarPath : requiredJars) {
+			for (final String jarPath : requiredJars) {
 				ss.add_resource(t, jarPath);
 			}
 		}
 
 		if (requiredFiles != null) {
-			SessionState.ResourceType t = SessionState
+			final SessionState.ResourceType t = SessionState
 					.find_resource_type("FILE");
-			for (String filePath : requiredFiles) {
+			for (final String filePath : requiredFiles) {
 				ss.add_resource(t, filePath);
 			}
 		}
@@ -283,13 +289,13 @@ public class ExprNodeNewGenericFuncDesc extends ExprNodeDesc {
 	}
 
 	@Override
-	public boolean isSame(Object o) {
+	public boolean isSame(final Object o) {
 		if (!(o instanceof ExprNodeNewGenericFuncDesc)) {
 			return false;
 		}
-		ExprNodeNewGenericFuncDesc dest = (ExprNodeNewGenericFuncDesc) o;
+		final ExprNodeNewGenericFuncDesc dest = (ExprNodeNewGenericFuncDesc) o;
 		if (!getTypeInfo().equals(dest.getTypeInfo())
-				|| !genericUDFClass.equals(dest.getGenericUDFClass())) {
+				|| !this.genericUDFClass.equals(dest.getGenericUDFClass())) {
 			return false;
 		}
 
@@ -303,12 +309,12 @@ public class ExprNodeNewGenericFuncDesc extends ExprNodeDesc {
 		// }
 		// }
 
-		if (childExprs.size() != dest.getChildExprs().size()) {
+		if (this.childExprs.size() != dest.getChildExprs().size()) {
 			return false;
 		}
 
-		for (int pos = 0; pos < childExprs.size(); pos++) {
-			if (!childExprs.get(pos).isSame(dest.getChildExprs().get(pos))) {
+		for (int pos = 0; pos < this.childExprs.size(); pos++) {
+			if (!this.childExprs.get(pos).isSame(dest.getChildExprs().get(pos))) {
 				return false;
 			}
 		}
@@ -318,18 +324,18 @@ public class ExprNodeNewGenericFuncDesc extends ExprNodeDesc {
 
 	@Override
 	public int hashCode() {
-		int superHashCode = super.hashCode();
-		HashCodeBuilder builder = new HashCodeBuilder();
+		final int superHashCode = super.hashCode();
+		final HashCodeBuilder builder = new HashCodeBuilder();
 		builder.appendSuper(superHashCode);
-		builder.append(childExprs);
+		builder.append(this.childExprs);
 		return builder.toHashCode();
 	}
 
 	public boolean isSortedExpr() {
-		return isSortedExpr;
+		return this.isSortedExpr;
 	}
 
-	public void setSortedExpr(boolean isSortedExpr) {
+	public void setSortedExpr(final boolean isSortedExpr) {
 		this.isSortedExpr = isSortedExpr;
 	}
 

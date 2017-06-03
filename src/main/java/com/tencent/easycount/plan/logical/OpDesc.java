@@ -8,14 +8,25 @@ import org.apache.hadoop.hive.serde2.typeinfo.TypeInfo;
 
 import com.tencent.easycount.util.graph.GraphWalker.Node;
 
+/**
+ * opdesc 虽然继承Node，不过本身是一个双向的tree，不但有子节点，还可以链接父节点
+ *
+ * 类型系统仍然使用hive原生类型系统
+ *
+ * @author steven
+ *
+ */
 public abstract class OpDesc implements Node, Serializable {
 	private static final long serialVersionUID = 870998859037156169L;
 
+	// every op has a unique tagidx
 	private int opTagIdx = -1;
 	private int taskId = -1;
 
 	final private LinkedHashSet<OpDesc> childrenOps;
 	final private LinkedHashSet<OpDesc> parentOps;
+
+	// 输出类型，通常是struct？？TODO
 	private TypeInfo outputType = null;
 
 	public OpDesc() {

@@ -12,6 +12,9 @@ import java.util.HashMap;
 import java.util.Properties;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.HTablePool;
 import org.apache.hadoop.hive.serde.serdeConstants;
 import org.apache.hadoop.hive.serde2.SerDeException;
 import org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe;
@@ -20,7 +23,8 @@ import org.apache.hadoop.hive.serde2.typeinfo.TypeInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.squareup.okhttp.ConnectionPool;
+import snaq.db.ConnectionPool;
+
 import com.tencent.easycount.exec.physical.Data1Generator;
 import com.tencent.easycount.exec.utils.OIUtils;
 import com.tencent.easycount.metastore.Table;

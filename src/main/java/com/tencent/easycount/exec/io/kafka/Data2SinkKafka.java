@@ -1,4 +1,4 @@
-package com.tencent.easycount.exec.io.tube;
+package com.tencent.easycount.exec.io.kafka;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -19,8 +19,8 @@ import com.tencent.easycount.plan.logical.OpDesc7FS;
 import com.tencent.easycount.util.exec.TimerPackager;
 import com.tencent.easycount.util.status.TDBankUtils;
 
-public class Data2SinkTube extends Data2Sink {
-	private static Logger log = LoggerFactory.getLogger(Data2SinkTube.class);
+public class Data2SinkKafka extends Data2Sink {
+	private static Logger log = LoggerFactory.getLogger(Data2SinkKafka.class);
 
 	private final String iid;
 	private final String tdsortAttrs;
@@ -37,8 +37,8 @@ public class Data2SinkTube extends Data2Sink {
 				+ emitMsgNum.get() + " : emitPackNum : " + emitPackNum.get());
 	}
 
-	public Data2SinkTube(TrcConfiguration hconf, OpDesc7FS opDesc,
-			final TubeProducer producer) {
+	public Data2SinkKafka(TrcConfiguration hconf, OpDesc7FS opDesc,
+			final KafkaProducer producer) {
 		super(opDesc);
 		// this.producer = producer;
 		Table tbl = opDesc.getTable();

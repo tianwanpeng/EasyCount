@@ -12,6 +12,7 @@ import org.I0Itec.zkclient.IZkDataListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.alibaba.fastjson.JSON;
 import com.tencent.easycount.util.exec.ExpiringMap;
 
 public class ApplicationOnlineConfig {
@@ -24,9 +25,9 @@ public class ApplicationOnlineConfig {
 	final private String zkroot;
 
 	// final private ZkClient zkClient;
-	public ApplicationOnlineConfig(String zkips, String zkroot,
-			CmdProcessor cmdProcessor) {
-		topic2OnlineConfigRef = new AtomicReference<ConcurrentHashMap<String, TopicOnlineConfig>>(
+	public ApplicationOnlineConfig(final String zkips, final String zkroot,
+			final CmdProcessor cmdProcessor) {
+		this.topic2OnlineConfigRef = new AtomicReference<ConcurrentHashMap<String, TopicOnlineConfig>>(
 				new ConcurrentHashMap<String, TopicOnlineConfig>());
 		this.cmdProcessor = cmdProcessor;
 
@@ -39,34 +40,36 @@ public class ApplicationOnlineConfig {
 	}
 
 	public Set<String> getTopics() {
-		return topic2OnlineConfigRef.get().keySet();
+		return this.topic2OnlineConfigRef.get().keySet();
 	}
 
-	public TopicOnlineConfig getOnlineConfig(String topic) {
-		return topic2OnlineConfigRef.get().get(topic);
+	public TopicOnlineConfig getOnlineConfig(final String topic) {
+		return this.topic2OnlineConfigRef.get().get(topic);
 	}
 
-	public String getAttr(String topic, String intf, String attrname) {
-		if (!topic2OnlineConfigRef.get().containsKey(topic)) {
+	public String getAttr(final String topic, final String intf,
+			final String attrname) {
+		if (!this.topic2OnlineConfigRef.get().containsKey(topic)) {
 			return null;
 		}
-		if (!topic2OnlineConfigRef.get().get(topic).interfaceAttrs
+		if (!this.topic2OnlineConfigRef.get().get(topic).interfaceAttrs
 				.containsKey(intf)
-				|| !topic2OnlineConfigRef.get().get(topic).interfaceAttrs.get(
-						intf).containsKey(attrname)) {
-			return topic2OnlineConfigRef.get().get(topic).systemAttrs
+				|| !this.topic2OnlineConfigRef.get().get(topic).interfaceAttrs
+				.get(intf).containsKey(attrname)) {
+			return this.topic2OnlineConfigRef.get().get(topic).systemAttrs
 					.get(attrname);
 		}
 
-		return topic2OnlineConfigRef.get().get(topic).interfaceAttrs.get(intf)
-				.get(attrname);
+		return this.topic2OnlineConfigRef.get().get(topic).interfaceAttrs.get(
+				intf).get(attrname);
 	}
 
-	public String getSysAttr(String topic, String attrname) {
-		if (!topic2OnlineConfigRef.get().containsKey(topic)) {
+	public String getSysAttr(final String topic, final String attrname) {
+		if (!this.topic2OnlineConfigRef.get().containsKey(topic)) {
 			return null;
 		}
-		return topic2OnlineConfigRef.get().get(topic).systemAttrs.get(attrname);
+		return this.topic2OnlineConfigRef.get().get(topic).systemAttrs
+				.get(attrname);
 	}
 
 	private class ApplicationListener implements IZkChildListener,
@@ -79,8 +82,10 @@ public class ApplicationOnlineConfig {
 		final private ExpiringMap<String, byte[]> cmdsmap;
 
 		public ApplicationListener() {
-			this.applicationCmdRoot = zkroot + "/CMDS";
-			this.applicationConfigRoot = zkroot + "/CONFIG";
+			this.applicationCmdRoot = ApplicationOnlineConfig.this.zkroot
+					+ "/CMDS";
+			this.applicationConfigRoot = ApplicationOnlineConfig.this.zkroot
+					+ "/CONFIG";
 			this.cmdsmap = ExpiringMap.builder()
 					.expiration(3, TimeUnit.SECONDS).build();
 		}
@@ -90,11 +95,11 @@ public class ApplicationOnlineConfig {
 			// zkClient.subscribeChildChanges(applicationCmdRoot, this);
 		}
 
-		private CmdParam getParams(byte[] data) {
-			if (data == null || data.length == 0) {
+		private CmdParam getParams(final byte[] data) {
+			if ((data == null) || (data.length == 0)) {
 				return new CmdParam(null);
 			}
-			String d = new String(data);
+			final String d = new String(data);
 			return JSON.parseObject(d, CmdParam.class);
 		}
 
@@ -117,13 +122,13 @@ public class ApplicationOnlineConfig {
 		}
 
 		@Override
-		public void handleChildChange(String parentPath,
-				List<String> currentChilds) throws Exception {
+		public void handleChildChange(final String parentPath,
+				final List<String> currentChilds) throws Exception {
 
 			try {
-				HashMap<String, byte[]> cmdsTobeProcessed = new HashMap<String, byte[]>();
-				for (String cmd : currentChilds) {
-					if (!cmdsmap.containsKey(cmd)) {
+				final HashMap<String, byte[]> cmdsTobeProcessed = new HashMap<String, byte[]>();
+				for (final String cmd : currentChilds) {
+					if (!this.cmdsmap.containsKey(cmd)) {
 						if ("updateconfig".equalsIgnoreCase(cmd)) {
 							log.info("cmd received : updateconfig");
 							updateconfig();
@@ -137,26 +142,28 @@ public class ApplicationOnlineConfig {
 					}
 				}
 				if (cmdsTobeProcessed.size() > 0) {
-					for (String cmd : cmdsTobeProcessed.keySet()) {
-						CmdParam param = getParams(cmdsTobeProcessed.get(cmd));
+					for (final String cmd : cmdsTobeProcessed.keySet()) {
+						final CmdParam param = getParams(cmdsTobeProcessed
+								.get(cmd));
 						log.info("cmd received : " + cmd + " : "
 								+ param.toString());
-						cmdProcessor.process(cmd, param);
+						ApplicationOnlineConfig.this.cmdProcessor.process(cmd,
+								param);
 					}
 				}
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				e.printStackTrace();
 			}
 		}
 
 		@Override
-		public void handleDataChange(String dataPath, Object data)
+		public void handleDataChange(final String dataPath, final Object data)
 				throws Exception {
 
 		}
 
 		@Override
-		public void handleDataDeleted(String dataPath) throws Exception {
+		public void handleDataDeleted(final String dataPath) throws Exception {
 
 		}
 	}
@@ -164,13 +171,13 @@ public class ApplicationOnlineConfig {
 	public static class CmdParam {
 		final private HashMap<String, String> params;
 
-		public CmdParam(HashMap<String, String> params) {
+		public CmdParam(final HashMap<String, String> params) {
 			this.params = params == null ? new HashMap<String, String>()
 					: params;
 		}
 
 		public HashMap<String, String> getParams() {
-			return params;
+			return this.params;
 		}
 
 		@Override

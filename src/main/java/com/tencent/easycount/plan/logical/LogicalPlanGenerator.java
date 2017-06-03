@@ -73,8 +73,9 @@ public class LogicalPlanGenerator {
 	public LogicalPlan generateLogicalPlan() throws Exception {
 
 		/**
-		 * just generate the op tree, and op2query
+		 * just generate the op tree from query tree in qb, and op2query
 		 */
+
 		final HashMap<Node, QueryOpDescTree> queryToQueryTree = new GraphWalker<QueryOpDescTree>(
 				new GenerateOpTreeFromQueryTreeDispatcher(),
 				WalkMode.CHILD_FIRST).walk(this.qb.getRootQueryNodes());
@@ -94,6 +95,10 @@ public class LogicalPlanGenerator {
 
 		/**
 		 * build each opdesc
+		 *
+		 * 通过上一步walk已经得到了optree，但是内容是空的，这一步的主要目的就是对每个opdesc进行填充。
+		 * 这要从root节点（通常都是ts）开始对所有的子节点进行递归处理和填充
+		 *
 		 */
 		new GraphWalker<RowResolverTRC>(new BuildOpDescInfoDispatcher(),
 				WalkMode.ROOT_FIRST_RECURSIVE).walk(rootOpNodes);
@@ -101,6 +106,12 @@ public class LogicalPlanGenerator {
 		return new LogicalPlan(queryToQueryTree, rootOps);
 	}
 
+	/**
+	 * a query contains a opdesc link list from root to dest
+	 *
+	 * @author steven
+	 *
+	 */
 	static class QueryOpDescTree {
 		final private OpDesc root;
 		final private OpDesc dest;
@@ -119,6 +130,17 @@ public class LogicalPlanGenerator {
 		}
 	}
 
+	/**
+	 * this dispatcher do two things
+	 *
+	 * 1. generate the opdesctree for every query, and connect all the opdesc as
+	 * a optree
+	 *
+	 * 2. generate op2Querys map for next stage
+	 *
+	 * @author steven
+	 *
+	 */
 	private class GenerateOpTreeFromQueryTreeDispatcher implements
 	Dispatcher<QueryOpDescTree> {
 
@@ -139,8 +161,11 @@ public class LogicalPlanGenerator {
 				final ArrayList<QueryOpDescTree> nodeOutputs,
 				final HashMap<Node, QueryOpDescTree> retMap) {
 			final Query q = (Query) nd;
+			// 对每个query生成opdesctree
 			final QueryOpDescTree qOpDescTree = generateOpDesc(q);
+			// 填充op2Querys
 			appendToOpQuery(qOpDescTree, q);
+			// 把所有的子节点query的optree和父节点optree进行连接
 			connect(qOpDescTree, nodeOutputs);
 			return qOpDescTree;
 		}
@@ -170,7 +195,16 @@ public class LogicalPlanGenerator {
 			}
 		}
 
+		/**
+		 * 这里仅生成每个query对应的算子树opdesctree，对于每个opdesc，这里并不深入填充，需要在下一个stage进行
+		 *
+		 * @param q
+		 * @return
+		 */
 		private QueryOpDescTree generateOpDesc(final Query q) {
+			// 对于table和union两种情况来说，只是简单的生成对应的opdesc即可
+			// 这两种查询对应的opdesctree，只有一个op，既是root又是dest
+			// 但是对于其他复杂的查询情况来说就必须考虑aggr，where等op了
 			if (q.getQmode() == QueryMode.table) {
 				final OpDesc opdesc = new OpDesc1TS();
 				return new QueryOpDescTree(opdesc, opdesc);
@@ -180,6 +214,8 @@ public class LogicalPlanGenerator {
 				return new QueryOpDescTree(opdesc, opdesc);
 			}
 
+			// 对于一般的query，首先应该考虑join，因为这里只支持left join，是一种查询的方式
+			// 但是对于有的时候where条件作用于stream table时，where应该前置的，是否需要进一步优化？？？？ TODO 待确认
 			OpDesc rootop = null;
 			OpDesc destop = null;
 			if (q.getJoinOnExpr() != null) {
@@ -187,6 +223,7 @@ public class LogicalPlanGenerator {
 				destop = rootop;
 			}
 
+			// 除了join以外，所有的过滤条件应该优先考虑
 			if (q.getWhereExpr() != null) {
 				final OpDesc op = new OpDesc2FIL(false);
 				if (rootop == null) {
@@ -198,6 +235,7 @@ public class LogicalPlanGenerator {
 				}
 			}
 
+			// 接着考虑聚合计算，这里会包括map-gby和reduce-gby两个算子。
 			if (q.containsAggr()) {
 				final OpDesc op = new OpDesc5GBY(true);
 				if (rootop == null) {
@@ -214,6 +252,7 @@ public class LogicalPlanGenerator {
 				destop = gop;
 			}
 
+			// 考虑having过滤算子
 			if (q.getHavingExpr() != null) {
 				final OpDesc op = new OpDesc2FIL(true);
 				if (rootop == null) {
@@ -225,6 +264,7 @@ public class LogicalPlanGenerator {
 				}
 			}
 
+			// 倒数第二考虑select算子
 			final OpDesc sop = new OpDesc6SEL();
 
 			if (rootop == null) {
@@ -235,6 +275,8 @@ public class LogicalPlanGenerator {
 				destop = sop;
 			}
 
+			// 最后考虑insert算子
+			// 一般的子查询和tablescan是不会包含这个算子的
 			if (q.getQmode() == QueryMode.insertq) {
 				final OpDesc fop = new OpDesc7FS();
 				destop.addChild(fop);
@@ -245,6 +287,12 @@ public class LogicalPlanGenerator {
 		}
 	}
 
+	/**
+	 * 主要是为了填充每个opdesc，op2RR的作用是一个中间变量
+	 *
+	 * @author steven
+	 *
+	 */
 	private class BuildOpDescInfoDispatcher implements
 	Dispatcher<RowResolverTRC> {
 		final private HashMap<Class<? extends OpDesc>, OpDescBuilder> opDescBuilders;
@@ -262,6 +310,9 @@ public class LogicalPlanGenerator {
 			this.opDescBuilders.put(OpDesc7FS.class, new OpDescBuilder7FS());
 		}
 
+		/**
+		 * dispatcher 的结果是一个op到rowresolver的map
+		 */
 		@Override
 		public RowResolverTRC dispatch(final Node nd, final Stack<Node> stack,
 				final ArrayList<RowResolverTRC> nodeOutputs,
@@ -289,6 +340,12 @@ public class LogicalPlanGenerator {
 				HashMap<Node, RowResolverTRC> retMap) throws Exception;
 	}
 
+	/**
+	 * ts 一般都是第一个被处理的
+	 *
+	 * @author steven
+	 *
+	 */
 	private class OpDescBuilder1TS implements OpDescBuilder {
 
 		@Override
@@ -299,8 +356,11 @@ public class LogicalPlanGenerator {
 
 			final Query query = LogicalPlanGenerator.this.op2Querys.get(opd);
 
+			// 表名只能从op对应的query中获取
+			// 一个query最多只能有一个输入表
 			final Table table = LogicalPlanGenerator.this.md.getTable(query
 					.getTableId());
+			// 得到正确的别名alias
 			final String tableAlias = LogicalPlanGenerator.this.qb
 					.getAliasByAstNode(query.getN());
 			opd.setTable(table);
@@ -311,6 +371,8 @@ public class LogicalPlanGenerator {
 			final ArrayList<TypeInfo> outputTypes = new ArrayList<TypeInfo>();
 			if ((table.getTableType() == TableType.stream)
 					|| (table.getTableType() == TableType.tube)) {
+				// 对于流水表，数据组成除了记录本身以外可能还包含一些数据描述信息，
+				// 这些信息以map的形式放在了attr里面，也可以看做是一些输出字段
 				outputColumnNames.add(Constants.dataAttrs);
 				final TypeInfo attrtype = TypeInfoFactory.getMapTypeInfo(
 						TypeInfoFactory.stringTypeInfo,
@@ -335,6 +397,8 @@ public class LogicalPlanGenerator {
 			opd.setOutputColumnNames(outputColumnNames);
 			opd.setOutputType(TypeInfoFactory.getStructTypeInfo(
 					outputColumnNames, outputTypes));
+
+			// 最后将当前op的输出rr填充到op2RR，供子节点op使用
 			LogicalPlanGenerator.this.op2RR.put(opd, outputRR);
 			return outputRR;
 		}

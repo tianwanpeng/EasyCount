@@ -1,5 +1,7 @@
 package com.tencent.easycount.exec.physical;
 
+import com.tencent.easycount.util.io.TDMsg1;
+
 public class WrapperMsgPack {
 	final int packkey;
 	final String streamId;
@@ -8,8 +10,8 @@ public class WrapperMsgPack {
 	boolean generated = false;
 	byte[] data = null;
 
-	public WrapperMsgPack(int packkey, String streamId, long msgId,
-			int innerPackSize) {
+	public WrapperMsgPack(final int packkey, final String streamId,
+			final long msgId, final int innerPackSize) {
 		this.packkey = packkey;
 		this.streamId = streamId;
 		this.msgId = msgId;
@@ -17,14 +19,14 @@ public class WrapperMsgPack {
 	}
 
 	public byte[] genData() {
-		if (!generated) {
-			data = tdmsg.buildArray();
-			generated = true;
+		if (!this.generated) {
+			this.data = this.tdmsg.buildArray();
+			this.generated = true;
 		}
-		return data;
+		return this.data;
 	}
 
-	public void setMsgId(long msgId) {
+	public void setMsgId(final long msgId) {
 		this.msgId = msgId;
 	}
 }

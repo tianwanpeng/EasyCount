@@ -8,7 +8,9 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.hadoop.fs.shell.CopyCommands.Put;
+import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory;
@@ -24,9 +26,11 @@ import org.slf4j.LoggerFactory;
 
 import com.tencent.easycount.exec.io.Data2Sink;
 import com.tencent.easycount.exec.io.DataIOUtils;
+import com.tencent.easycount.metastore.Table;
 import com.tencent.easycount.metastore.TableUtils;
 import com.tencent.easycount.plan.logical.OpDesc7FS;
 import com.tencent.easycount.util.exec.TimerPackager;
+import com.tencent.easycount.util.exec.TimerPackager.Packager;
 import com.tencent.easycount.util.status.TDBankUtils;
 
 public class Data2SinkHbase extends Data2Sink {
@@ -42,23 +46,24 @@ public class Data2SinkHbase extends Data2Sink {
 	ArrayList<ObjectInspector> valueOIS;
 
 	@Override
-	public void printStatus(int printId) {
-		log.info(opDesc.getTaskId_OpTagIdx() + " : emitMsgNum : "
-				+ emitMsgNum.get() + " : emitPackNum : " + emitPackNum.get());
+	public void printStatus(final int printId) {
+		log.info(this.opDesc.getTaskId_OpTagIdx() + " : emitMsgNum : "
+				+ this.emitMsgNum.get() + " : emitPackNum : "
+				+ this.emitPackNum.get());
 	}
 
-	public Data2SinkHbase(OpDesc7FS opDesc) {
+	public Data2SinkHbase(final OpDesc7FS opDesc) {
 		super(opDesc);
-		tbl = getOpDesc().getTable();
+		this.tbl = getOpDesc().getTable();
 		this.emitMsgNum = new AtomicLong(0);
 		this.emitPackNum = new AtomicLong(0);
-		byte[] separators = TableUtils.generateSeparators(tbl);
+		final byte[] separators = TableUtils.generateSeparators(this.tbl);
 		this.valueSerDe = DataIOUtils.generateHbaseValueSerDe(separators, null,
 				null);
 		this.valueOIS = new ArrayList<ObjectInspector>();
-		ArrayList<TypeInfo> structTypes = tbl.getStructTypes();
+		final ArrayList<TypeInfo> structTypes = this.tbl.getStructTypes();
 		for (int i = 0; i < structTypes.size(); i++) {
-			TypeInfo typeinfo = structTypes.get(i);
+			final TypeInfo typeinfo = structTypes.get(i);
 			if (i == 0) {
 				this.valueOIS
 						.add(TypeInfoUtils
@@ -66,7 +71,7 @@ public class Data2SinkHbase extends Data2Sink {
 			} else {
 				final TypeInfo valueTypeInfo = ((MapTypeInfo) typeinfo)
 						.getMapValueTypeInfo();
-				ObjectInspector oi = ObjectInspectorFactory
+				final ObjectInspector oi = ObjectInspectorFactory
 						.getStandardStructObjectInspector(
 								new ArrayList<String>() {
 									private static final long serialVersionUID = 6475415283850411978L;
@@ -84,41 +89,43 @@ public class Data2SinkHbase extends Data2Sink {
 			}
 		}
 
-		htableRef = new AtomicReference<HTable>();
+		this.htableRef = new AtomicReference<HTable>();
 		reConnectHTable();
-		packager = new TimerPackager<HbaseRow, ArrayList<HbaseRow>>(3000,
+		this.packager = new TimerPackager<HbaseRow, ArrayList<HbaseRow>>(3000,
 				new Packager<HbaseRow, ArrayList<HbaseRow>>() {
 
 					@Override
-					public String getKey(HbaseRow t) {
+					public String getKey(final HbaseRow t) {
 						return "hbase";
 					}
 
 					@Override
-					public ArrayList<HbaseRow> newPackage(HbaseRow t) {
+					public ArrayList<HbaseRow> newPackage(final HbaseRow t) {
 						return new ArrayList<HbaseRow>();
 					}
 
 					@Override
-					public boolean pack(String key, HbaseRow t,
-							ArrayList<HbaseRow> p) {
+					public boolean pack(final String key, final HbaseRow t,
+							final ArrayList<HbaseRow> p) {
 						p.add(t);
 						return p.size() > 100;
 					}
 
 					@Override
-					public void emit(String key, ArrayList<HbaseRow> p,
-							boolean full) {
-						ArrayList<Put> putList = new ArrayList<Put>();
-						for (HbaseRow hr : p) {
-							Put hp = new Put(
-									Bytes.toBytes(hr.rowkey.toString()));
+					public void emit(final String key,
+							final ArrayList<HbaseRow> p, final boolean full) {
+						final ArrayList<Put> putList = new ArrayList<Put>();
+						for (final HbaseRow hr : p) {
+							final Put hp = new Put(Bytes.toBytes(hr.rowkey
+									.toString()));
 							for (int i = 0; i < hr.values.size(); i++) {
-								Map<String, byte[]> valueMap = hr.values.get(i);
-								String family = tbl.getFieldName(i + 1);
-								byte[] fbytes = Bytes.toBytes(family);
-								long tt = System.currentTimeMillis();
-								for (String colName : valueMap.keySet()) {
+								final Map<String, byte[]> valueMap = hr.values
+										.get(i);
+								final String family = Data2SinkHbase.this.tbl
+										.getFieldName(i + 1);
+								final byte[] fbytes = Bytes.toBytes(family);
+								final long tt = System.currentTimeMillis();
+								for (final String colName : valueMap.keySet()) {
 									hp.add(fbytes, Bytes.toBytes(colName), tt,
 											valueMap.get(colName));
 								}
@@ -127,11 +134,12 @@ public class Data2SinkHbase extends Data2Sink {
 						}
 						while (true) {
 							try {
-								HTable table = getHTable();
+								final HTable table = getHTable();
 								table.put(putList);
-								emitPackNum.incrementAndGet();
+								Data2SinkHbase.this.emitPackNum
+										.incrementAndGet();
 								break;
-							} catch (IOException e) {
+							} catch (final IOException e) {
 								reConnectHTable();
 								log.info(TDBankUtils.getExceptionStack(e));
 							}
@@ -141,39 +149,44 @@ public class Data2SinkHbase extends Data2Sink {
 	}
 
 	protected void reConnectHTable() {
-		htableRef.set(DataIOUtils.getHbaseConn(tbl));
-		log.info("hbase sink connected : " + tbl.toString());
+		this.htableRef.set(DataIOUtils.getHbaseConn(this.tbl));
+		log.info("hbase sink connected : " + this.tbl.toString());
 	}
 
 	protected HTable getHTable() {
-		return htableRef.get();
+		return this.htableRef.get();
 	}
 
 	@Override
-	public boolean finalize(Object row, ObjectInspector objectInspector,
-			ObjectInspector keyInspector, ObjectInspector attrsInspector,
-			int opTagIdx) {
+	public boolean finalize(final Object row,
+			final ObjectInspector objectInspector,
+			final ObjectInspector keyInspector,
+			final ObjectInspector attrsInspector, final int opTagIdx) {
 		try {
-			StructObjectInspector soi = (StructObjectInspector) objectInspector;
-			List<? extends StructField> fields = soi.getAllStructFieldRefs();
-			List<Object> list = soi.getStructFieldsDataAsList(row);
+			final StructObjectInspector soi = (StructObjectInspector) objectInspector;
+			final List<? extends StructField> fields = soi
+					.getAllStructFieldRefs();
+			final List<Object> list = soi.getStructFieldsDataAsList(row);
 
 			String keyobj = null;
-			ArrayList<Map<String, byte[]>> objs = new ArrayList<Map<String, byte[]>>();
+			final ArrayList<Map<String, byte[]>> objs = new ArrayList<Map<String, byte[]>>();
 			for (int i = 0; i < fields.size(); i++) {
-				ObjectInspector foi = fields.get(i).getFieldObjectInspector();
-				Object f = (list == null ? null : list.get(i));
-				Object sobj = ObjectInspectorUtils.copyToStandardObject(f, foi);
+				final ObjectInspector foi = fields.get(i)
+						.getFieldObjectInspector();
+				final Object f = (list == null ? null : list.get(i));
+				final Object sobj = ObjectInspectorUtils.copyToStandardObject(
+						f, foi);
 				if (i == 0) {
 					keyobj = String.valueOf(sobj);
 				} else {
-					HashMap<String, byte[]> valueMap = new HashMap<String, byte[]>();
+					final HashMap<String, byte[]> valueMap = new HashMap<String, byte[]>();
 					if (null != sobj) {
 						final Map<?, ?> sobjMap = (Map<?, ?>) sobj;
 						for (final Object key : sobjMap.keySet()) {
-							ObjectInspector valueOI = valueOIS.get(i);
-							Text valueText = (Text) this.valueSerDe.serialize(
-									new ArrayList<Object>() {
+							final ObjectInspector valueOI = this.valueOIS
+									.get(i);
+							final Text valueText = (Text) this.valueSerDe
+									.serialize(new ArrayList<Object>() {
 										private static final long serialVersionUID = 938921474785972741L;
 										{
 											add(sobjMap.get(key));
@@ -186,9 +199,9 @@ public class Data2SinkHbase extends Data2Sink {
 					objs.add(valueMap);
 				}
 			}
-			emitMsgNum.incrementAndGet();
-			packager.putTuple(new HbaseRow(keyobj, objs));
-		} catch (Exception e) {
+			this.emitMsgNum.incrementAndGet();
+			this.packager.putTuple(new HbaseRow(keyobj, objs));
+		} catch (final Exception e) {
 			if (shouldprint()) {
 				log.info(TDBankUtils.getExceptionStack(e));
 			}
@@ -200,8 +213,8 @@ public class Data2SinkHbase extends Data2Sink {
 	long ctime = System.currentTimeMillis();
 
 	private boolean shouldprint() {
-		if (System.currentTimeMillis() - ctime > 3000) {
-			ctime = System.currentTimeMillis();
+		if ((System.currentTimeMillis() - this.ctime) > 3000) {
+			this.ctime = System.currentTimeMillis();
 			return true;
 		}
 		return false;
@@ -216,7 +229,8 @@ public class Data2SinkHbase extends Data2Sink {
 		Object rowkey;
 		ArrayList<Map<String, byte[]>> values;
 
-		public HbaseRow(Object rowkey, ArrayList<Map<String, byte[]>> values) {
+		public HbaseRow(final Object rowkey,
+				final ArrayList<Map<String, byte[]>> values) {
 			this.rowkey = rowkey;
 			this.values = values;
 		}

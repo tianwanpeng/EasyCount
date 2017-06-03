@@ -147,11 +147,19 @@ public abstract class Task implements Node, Serializable, StatusPrintable {
 
 		generateSysPrinter();
 
+		// 包含当前task需要读表的tsop
 		final ArrayList<OpDesc> tsOpDescs = new ArrayList<OpDesc>();
+
+		// 包含当前task输出表的op
 		final ArrayList<OpDesc> fsOpDescs = new ArrayList<OpDesc>();
+
+		// 包含当前task来自父task-op的子节点op
 		final ArrayList<OpDesc> srcOpDescs = new ArrayList<OpDesc>();
+
+		// 包含当前task所有需要流入到子task的op节点
 		final ArrayList<OpDesc> sinkOpDescs = new ArrayList<OpDesc>();
 
+		// 填充上面的op列表
 		final HashMap<Node, Operator<? extends OpDesc>> opDescToOperators = generateOpDescToOpsAndGetSrcOps(
 				tsOpDescs, fsOpDescs, srcOpDescs, sinkOpDescs);
 
@@ -162,6 +170,17 @@ public abstract class Task implements Node, Serializable, StatusPrintable {
 
 		/**
 		 * connect all the ops
+		 *
+		 * task之间进行连接的基本原理：
+		 *
+		 * 1、每个task的所有destop，针对所有不在本task内的子节点，添加到一个sinkop
+		 *
+		 * 2、每个task的所有srcop，添加一个srcop父节点
+		 *
+		 * 3、以上的过程相当于两个相连接的父子节点如果不在一个task内部，则在中间添加两个op， 分别是父task的sink和子task的src
+		 *
+		 * 4、实际运行过程中，每个sinkop会有一个唯一的srckey，每个srcop根据对应的srck接收数据并进行处理
+		 *
 		 */
 		connectAllOps(opDescToOperators);
 
@@ -202,19 +221,19 @@ public abstract class Task implements Node, Serializable, StatusPrintable {
 			final String zkroot = this.hconf.get("ec.online.config.zkroot");
 			this.onlineConfig = new ApplicationOnlineConfig(zkips, zkroot,
 					new CmdProcessor() {
-				@Override
-				public void process(final String cmd,
-								final CmdParam cmdParam) {
-					if ("stop".equalsIgnoreCase(cmd)) {
-						log.info(getPrintPrifix()
-								+ "begin to stop the task : "
-								+ getName() + " : " + getTaskId());
-						Task.this.close();
-						log.info(getPrintPrifix() + "task stopped : "
-								+ getName() + " : " + getTaskId());
-					}
-				}
-			});
+						@Override
+						public void process(final String cmd,
+						final CmdParam cmdParam) {
+							if ("stop".equalsIgnoreCase(cmd)) {
+								log.info(getPrintPrifix()
+										+ "begin to stop the task : "
+										+ getName() + " : " + getTaskId());
+								Task.this.close();
+								log.info(getPrintPrifix() + "task stopped : "
+										+ getName() + " : " + getTaskId());
+							}
+						}
+					});
 		}
 	}
 
@@ -233,7 +252,7 @@ public abstract class Task implements Node, Serializable, StatusPrintable {
 			final ArrayList<OpDesc> srcOpDescs,
 			final ArrayList<OpDesc> sinkOpDescs) throws Exception {
 		/**
-		 * generate the operators of the curr task
+		 * generate the operators of the curr task 同时填充四类opdesc
 		 */
 		final HashMap<Node, Operator<? extends OpDesc>> opDescToOperators = new GraphWalker<Operator<? extends OpDesc>>(
 				new Dispatcher<Operator<? extends OpDesc>>() {
@@ -280,14 +299,14 @@ public abstract class Task implements Node, Serializable, StatusPrintable {
 						return true;
 					}
 				}, WalkMode.CHILD_FIRST).walk(this.taskWork
-				.getRootOpDescsNodes());
+						.getRootOpDescsNodes());
 
 		return opDescToOperators;
 	}
 
 	private void connectAllOps(
 			final HashMap<Node, Operator<? extends OpDesc>> opDescToOperators)
-					throws Exception {
+			throws Exception {
 		new GraphWalker<Operator<? extends OpDesc>>(
 				new Dispatcher<Operator<? extends OpDesc>>() {
 					@Override
@@ -331,7 +350,7 @@ public abstract class Task implements Node, Serializable, StatusPrintable {
 						return true;
 					}
 				}, WalkMode.CHILD_FIRST).walk(this.taskWork
-				.getRootOpDescsNodes());
+						.getRootOpDescsNodes());
 
 	}
 
@@ -366,14 +385,14 @@ public abstract class Task implements Node, Serializable, StatusPrintable {
 								srcKey,
 								new InnerOp1Source(this.hconf,
 										this.taskContext, srcKey, sdesc
-												.getTaskId(), sdesc
-												.getOpTagIdx() + 1000, pdesc
-										.getOutputType()));
+										.getTaskId(), sdesc
+										.getOpTagIdx() + 1000, pdesc
+												.getOutputType()));
 					}
 					this.allSrcOps.get(srcKey).addChild(
 							opDescToOperators.get(sdesc));
 					this.allSrcOps.get(srcKey).getOpDesc()
-					.setTaskId(sdesc.getTaskId());
+							.setTaskId(sdesc.getTaskId());
 				}
 			}
 		}

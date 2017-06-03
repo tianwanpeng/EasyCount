@@ -14,7 +14,9 @@ public abstract class TaskWork implements Serializable, Node {
 	final private HashSet<TaskWork> children;
 	// opDescs contains those ops that should be executed in this task.
 	final private HashSet<OpDesc> opDescs;
+	// 包含当前task的所有输入的opdesc
 	final private HashSet<OpDesc> rootOpDescs;
+	// 包含当前task的所有输出的opdesc
 	final private HashSet<OpDesc> destOpDescs;
 	final private Integer taskId;
 	final private HashMap<OpDesc, Integer> opDesc2TaskId;

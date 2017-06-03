@@ -1,8 +1,10 @@
 package com.tencent.easycount.exec.io.local;
 
+import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.ipc.ProtocolSignature;
 
 import com.tencent.easycount.conf.TrcConfiguration;
 import com.tencent.easycount.metastore.Table;
@@ -39,6 +41,13 @@ public class LocalTableServerKV extends LocalTableServer {
 
 	@Override
 	public Writable nextMsg() {
+		return null;
+	}
+
+	@Override
+	public ProtocolSignature getProtocolSignature(final String protocol,
+			final long clientVersion, final int clientMethodsHash)
+					throws IOException {
 		return null;
 	}
 

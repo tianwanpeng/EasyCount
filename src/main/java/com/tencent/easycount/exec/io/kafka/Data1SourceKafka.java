@@ -1,4 +1,4 @@
-package com.tencent.easycount.exec.io.tube;
+package com.tencent.easycount.exec.io.kafka;
 
 import java.io.IOException;
 
@@ -13,23 +13,23 @@ import com.tencent.easycount.exec.utils.OIUtils;
 import com.tencent.easycount.metastore.TableUtils;
 import com.tencent.easycount.plan.logical.OpDesc1TS;
 
-public class Data1SourceTube extends Data1Source {
+public class Data1SourceKafka extends Data1Source {
 
 	@SuppressWarnings("unused")
-	private static Logger log = LoggerFactory.getLogger(Data1SourceTube.class);
+	private static Logger log = LoggerFactory.getLogger(Data1SourceKafka.class);
 
 	private ObjectInspector objectInspector;
 
-	private final TubeConsumer consumer;
+	private final KafkaECConsumer consumer;
 
 	@Override
 	public void printStatus(int printId) {
 		consumer.printStatus(printId);
 	}
 
-	public Data1SourceTube(String sourceId, OpDesc1TS opdesc,
+	public Data1SourceKafka(String sourceId, OpDesc1TS opdesc,
 			Data1Generator msgEmitter, TrcConfiguration hconf,
-			TubeConsumer consumer) {
+			KafkaECConsumer consumer) {
 		super(sourceId, opdesc, msgEmitter);
 		Table tbl = opdesc.getTable();
 		objectInspector = OIUtils.createLazyStructInspector(tbl);

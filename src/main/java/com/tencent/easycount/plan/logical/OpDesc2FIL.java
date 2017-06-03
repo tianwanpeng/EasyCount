@@ -29,13 +29,4 @@ public class OpDesc2FIL extends OpDesc {
 		this.predicate = predicate;
 	}
 
-	// @Override
-	// public Object clone() {
-	// OpDesc2FIL filterDesc = new OpDesc2FIL(getPredicate().clone(),
-	// getColList() == null ? null : new ArrayList<ExprNodeDesc>(
-	// getColList()), getOutputColumnNames() == null ? null
-	// : new ArrayList<String>(getOutputColumnNames()));
-	// return filterDesc;
-	// }
-
 }

@@ -23,8 +23,12 @@ import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorUtils.Object
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import snaq.db.ConnectionPool;
+
 import com.tencent.easycount.exec.io.DataIOUtils;
+import com.tencent.easycount.exec.io.Queryable;
 import com.tencent.easycount.exec.utils.OIUtils;
+import com.tencent.easycount.metastore.Table;
 import com.tencent.easycount.metastore.TableUtils;
 
 public class QueryDBTable implements Queryable {
@@ -41,12 +45,12 @@ public class QueryDBTable implements Queryable {
 	final private AtomicReference<ConcurrentHashMap<Object, Object[]>> dbDataRef;
 
 	@Override
-	public void printStatus(int printId) {
-		log.info(printPrefix + "dbDim : " + tableName + " queryNum : "
-				+ queryNum.get());
+	public void printStatus(final int printId) {
+		log.info(this.printPrefix + "dbDim : " + this.tableName
+				+ " queryNum : " + this.queryNum.get());
 	}
 
-	public QueryDBTable(Table tbl, String printPrefix) {
+	public QueryDBTable(final Table tbl, final String printPrefix) {
 		this.printPrefix = printPrefix;
 		this.tableName = tbl.getTableName();
 		this.queryNum = new AtomicLong(0);
@@ -57,19 +61,19 @@ public class QueryDBTable implements Queryable {
 			tableUpdater = new DbTableUpdater();
 		}
 
-		this.dbDataRef = tableUpdater.addTable(tbl, objectInspector);
+		this.dbDataRef = tableUpdater.addTable(tbl, this.objectInspector);
 	}
 
 	@Override
-	public void get(String key, CallBack cb) {
-		queryNum.incrementAndGet();
-		cb.callback(dbDataRef.get().get(key));
+	public void get(final String key, final CallBack cb) {
+		this.queryNum.incrementAndGet();
+		cb.callback(this.dbDataRef.get().get(key));
 	}
 
 	@Override
 	public ObjectInspector getObjectInspector() {
-		return ObjectInspectorUtils.getStandardObjectInspector(objectInspector,
-				ObjectInspectorCopyOption.JAVA);
+		return ObjectInspectorUtils.getStandardObjectInspector(
+				this.objectInspector, ObjectInspectorCopyOption.JAVA);
 	}
 
 	static class DbTableUpdater implements Serializable {
@@ -81,20 +85,21 @@ public class QueryDBTable implements Queryable {
 		Random r = new Random();
 
 		synchronized public AtomicReference<ConcurrentHashMap<Object, Object[]>> addTable(
-				Table tbl, LazySimpleStructObjectInspector objectInspector) {
+				final Table tbl,
+				final LazySimpleStructObjectInspector objectInspector) {
 			if (timer == null) {
 				timer = new Timer();
 			}
 			if (!table2DataRef.containsKey(tbl.getTableName())) {
-				AtomicReference<ConcurrentHashMap<Object, Object[]>> dataRef = new AtomicReference<ConcurrentHashMap<Object, Object[]>>();
+				final AtomicReference<ConcurrentHashMap<Object, Object[]>> dataRef = new AtomicReference<ConcurrentHashMap<Object, Object[]>>();
 				dataRef.set(new ConcurrentHashMap<Object, Object[]>());
 				table2DataRef.put(tbl.getTableName(), dataRef);
 
-				long updateInterval = TableUtils.getDbUpdateInterval(tbl);
+				final long updateInterval = TableUtils.getDbUpdateInterval(tbl);
 
 				timer.scheduleAtFixedRate(new UpdateTask(tbl, dataRef,
 						objectInspector), new Date(System.currentTimeMillis()
-						+ r.nextInt(10000)), updateInterval * 1000);
+								+ this.r.nextInt(10000)), updateInterval * 1000);
 
 			}
 			return table2DataRef.get(tbl.getTableName());
@@ -108,16 +113,17 @@ public class QueryDBTable implements Queryable {
 		final private LazySimpleStructObjectInspector objectInspector;
 		final private ConnectionPool pools;
 
-		public UpdateTask(Table tbl,
-				AtomicReference<ConcurrentHashMap<Object, Object[]>> dataRef,
-				LazySimpleStructObjectInspector objectInspector) {
+		public UpdateTask(
+				final Table tbl,
+				final AtomicReference<ConcurrentHashMap<Object, Object[]>> dataRef,
+				final LazySimpleStructObjectInspector objectInspector) {
 			this.dataRef = dataRef;
 			this.objectInspector = objectInspector;
 
-			String keyname = TableUtils.getDbKeyName(tbl);
-			keyidx = tbl.getFieldNames().indexOf(keyname);
-			pools = DataIOUtils.prepareDBSource(tbl);
-			StringBuffer sb = new StringBuffer();
+			final String keyname = TableUtils.getDbKeyName(tbl);
+			this.keyidx = tbl.getFieldNames().indexOf(keyname);
+			this.pools = DataIOUtils.prepareDBSource(tbl);
+			final StringBuffer sb = new StringBuffer();
 			sb.append("select concat(");
 			for (int i = 0; i < tbl.getFieldNames().size(); i++) {
 				if (i != 0) {
@@ -127,8 +133,8 @@ public class QueryDBTable implements Queryable {
 			}
 			sb.append(") from ").append(tbl.getTableName());
 
-			selectSql = sb.toString();
-			log.info("selectSql : " + selectSql);
+			this.selectSql = sb.toString();
+			log.info("selectSql : " + this.selectSql);
 		}
 
 		@Override
@@ -139,38 +145,39 @@ public class QueryDBTable implements Queryable {
 		private void initDBData() {
 			Connection conn = null;
 			try {
-				conn = pools.getConnection();
-				ResultSet rs = conn.createStatement().executeQuery(selectSql);
-				ConcurrentHashMap<Object, ArrayList<Object>> dbDataTmp = new ConcurrentHashMap<Object, ArrayList<Object>>();
-				ConcurrentHashMap<Object, Object[]> dbData = new ConcurrentHashMap<Object, Object[]>();
+				conn = this.pools.getConnection();
+				final ResultSet rs = conn.createStatement().executeQuery(
+						this.selectSql);
+				final ConcurrentHashMap<Object, ArrayList<Object>> dbDataTmp = new ConcurrentHashMap<Object, ArrayList<Object>>();
+				final ConcurrentHashMap<Object, Object[]> dbData = new ConcurrentHashMap<Object, Object[]>();
 				int rownum = 0;
 				int keynum = 0;
 				while (rs.next()) {
-					String row = rs.getString(1);
+					final String row = rs.getString(1);
 					// log.warn("testprintrow : " + row);
 					if (row == null) {
 						continue;
 					}
-					byte[] data = row.getBytes("utf-8");
-					ByteArrayRef bytes = new ByteArrayRef();
+					final byte[] data = row.getBytes("utf-8");
+					final ByteArrayRef bytes = new ByteArrayRef();
 					bytes.setData(data);
-					LazyStruct ls = new LazyStruct(objectInspector);
+					final LazyStruct ls = new LazyStruct(this.objectInspector);
 					ls.init(bytes, 0, data.length);
 
 					@SuppressWarnings("unchecked")
-					ArrayList<Object> standardObjs = (ArrayList<Object>) ObjectInspectorUtils
-							.copyToStandardJavaObject(ls, objectInspector);
+					final ArrayList<Object> standardObjs = (ArrayList<Object>) ObjectInspectorUtils
+					.copyToStandardJavaObject(ls, this.objectInspector);
 
-					if (standardObjs.size() <= keyidx) {
+					if (standardObjs.size() <= this.keyidx) {
 						log.warn("error data : " + standardObjs);
 						continue;
 					}
-					Object kobj = standardObjs.get(keyidx);
+					final Object kobj = standardObjs.get(this.keyidx);
 					if (kobj == null) {
 						log.warn("error data key is null");
 						continue;
 					}
-					String key = kobj.toString();
+					final String key = kobj.toString();
 
 					if (!dbDataTmp.containsKey(key)) {
 						keynum++;
@@ -181,21 +188,21 @@ public class QueryDBTable implements Queryable {
 				}
 				conn.close();
 				conn = null;
-				for (Object key : dbDataTmp.keySet()) {
+				for (final Object key : dbDataTmp.keySet()) {
 					dbData.put(
 							key,
 							dbDataTmp.get(key).toArray(
 									new Object[dbDataTmp.get(key).size()]));
 				}
-				dataRef.set(dbData);
+				this.dataRef.set(dbData);
 				log.info("update dbdata from db : " + keynum + " keys and "
 						+ rownum + " rows !");
-			} catch (Throwable e) {
+			} catch (final Throwable e) {
 				e.printStackTrace();
 				if (conn != null) {
 					try {
 						conn.close();
-					} catch (SQLException e1) {
+					} catch (final SQLException e1) {
 						e1.printStackTrace();
 					}
 				}

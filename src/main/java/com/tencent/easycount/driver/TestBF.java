@@ -4,17 +4,19 @@ import java.util.Random;
 
 import org.apache.commons.codec.binary.Base64;
 
+import com.tencent.easycount.util.bloom.BloomFilter;
+
 public class TestBF {
 
-	public static void main(String[] args) {
-		BloomFilter<Integer> bf = new BloomFilter<Integer>(10000, 0.008);
-		Random r = new Random();
+	public static void main(final String[] args) {
+		final BloomFilter<Integer> bf = new BloomFilter<Integer>(10000, 0.008);
+		final Random r = new Random();
 		for (int i = 0; i < 10000; i++) {
 			bf.add(i);
 		}
 
-		byte[] data = bf.getBitSet().toByteArray();
-		byte[] todata = Base64.encodeBase64(data);
+		final byte[] data = bf.getBitSet().toByteArray();
+		final byte[] todata = Base64.encodeBase64(data);
 		System.out.println(data.length);
 		System.out.println(todata.length);
 		System.out.println(new String(todata).length());
@@ -30,9 +32,9 @@ public class TestBF {
 
 		int xx = 0;
 		for (int i = 0; i < 100000000; i++) {
-			int x = r.nextInt();
+			final int x = r.nextInt();
 			if (bf.contains(x)) {
-				if (x < 0 || x >= 1000) {
+				if ((x < 0) || (x >= 1000)) {
 					xx++;
 					System.out.println(i + " " + (xx / (double) i));
 				}

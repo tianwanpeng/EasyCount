@@ -81,7 +81,7 @@ public class Driver {
 		final String sql = config.get("sql");
 		if (sql == null) {
 			System.err
-			.println("error ::: sql clause must be set, you should specify the configfile .... ");
+					.println("error ::: sql clause must be set, you should specify the configfile .... ");
 			System.exit(-1);
 		}
 
@@ -154,7 +154,7 @@ public class Driver {
 		 * generate logical plan --- opTree
 		 */
 		tt.lPlan = new LogicalPlanGenerator(tt.tree, tt.qb, tt.md)
-		.generateLogicalPlan();
+				.generateLogicalPlan();
 
 		System.err.println(tt.lPlan.printStr());
 
@@ -163,14 +163,14 @@ public class Driver {
 		 *
 		 */
 		tt.pPlan = new PhysicalPlanGenerator(tt.qb, tt.md, tt.lPlan)
-		.generatePhysicalPlan();
+				.generatePhysicalPlan();
 
 		/**
 		 * generate topology
 		 */
 		final int workNum = config.getInt("work.num", -1);
 		tt.topology = new PhysicalExecGenerator(tt.pPlan, config)
-		.generateExecTopology(workNum);
+				.generateExecTopology(workNum);
 
 		return tt;
 

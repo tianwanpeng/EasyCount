@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.tencent.easycount.conf.TrcConfiguration;
-import com.tencent.easycount.exec.io.Queryable.CallBack;
+import com.tencent.easycount.exec.physical.InnerOp2Sink.CallBack;
 import com.tencent.easycount.plan.logical.OpDesc;
 import com.tencent.easycount.plan.physical.TaskWork1Spout;
 import com.tencent.easycount.util.exec.TimerPackager;

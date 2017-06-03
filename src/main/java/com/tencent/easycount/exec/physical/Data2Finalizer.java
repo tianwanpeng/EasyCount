@@ -14,7 +14,6 @@ import com.tencent.easycount.exec.io.hbase.Data2SinkHbase;
 import com.tencent.easycount.exec.io.inner.Data2SinkPrint;
 import com.tencent.easycount.exec.io.local.LocalModeUtils;
 import com.tencent.easycount.exec.io.redis.Data2SinkRedis;
-import com.tencent.easycount.exec.io.tde.Data2SinkTde;
 import com.tencent.easycount.exec.io.tube.Data2SinkTube;
 import com.tencent.easycount.exec.io.tube.TubeProducer;
 import com.tencent.easycount.exec.logical.Operator7FS;
@@ -78,12 +77,6 @@ public class Data2Finalizer implements Finalized {
 					dataSink = new Data2SinkDBNormal(fsop.getOpDesc());
 				} else {
 					dataSink = new Data2SinkDB(fsop.getOpDesc());
-				}
-			} else if (tbl.getTableType() == TableType.tde) {
-				if (TableUtils.getTdeWriteAsync(tbl)) {
-					dataSink = new Data2SinkTde(fsop.getOpDesc(), true);
-				} else {
-					dataSink = new Data2SinkTde(fsop.getOpDesc(), false);
 				}
 			} else if (tbl.getTableType() == TableType.redis) {
 				dataSink = new Data2SinkRedis(fsop.getOpDesc());

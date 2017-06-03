@@ -33,8 +33,10 @@ public abstract class LocalTableServer implements LocalModeProtocol {
 		this.port = TableUtils.getLocalTablePort(tbl);
 
 		try {
-			this.server = RPC.getServer(this, this.bindAddress, this.port,
-					new Configuration());
+			final RPC.Builder bd = new RPC.Builder(new Configuration());
+			bd.setBindAddress(this.bindAddress);
+			bd.setPort(this.port);
+			this.server = bd.build();
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}

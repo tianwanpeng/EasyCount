@@ -20,6 +20,7 @@ public abstract class Data2Sink implements Finalized {
 	protected final OpDesc7FS opDesc;
 	protected AbstractSerDe serDe = null;
 
+	@SuppressWarnings("deprecation")
 	public Data2Sink(final OpDesc7FS opDesc) {
 		this.opDesc = opDesc;
 		this.opTagIdx = opDesc.getOpTagIdx();

@@ -1,13 +1,12 @@
 package com.tencent.easycount.driver;
 
-import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.tencent.easycount.parse.TrcParser;
 
 public class Test {
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		System.out.println("R3" + TrcParser.Identifier + "%|"
 				+ TrcParser.StringLiteral + "%|" + TrcParser.TOK_CHARSETLITERAL
 				+ "%|" + TrcParser.TOK_STRINGLITERALSEQUENCE + "%|" + "%|"
@@ -16,8 +15,9 @@ public class Test {
 				+ TrcParser.KW_ARRAY + "%|" + TrcParser.KW_MAP + "%|"
 				+ TrcParser.KW_STRUCT + "%");
 
-		String xxx = "123-2014-23-98afsdf";
-		Matcher mat = Pattern.compile("\\d{4}-\\d{2}-\\d{2}").matcher(xxx);
+		final String xxx = "123-2014-23-98afsdf";
+		final Matcher mat = Pattern.compile("\\d{4}-\\d{2}-\\d{2}")
+				.matcher(xxx);
 		System.out.println(mat.find());
 		System.out.println(mat.start());
 		System.out.println(mat.end());
@@ -31,14 +31,14 @@ public class Test {
 
 	private static void test() {
 		// TODO Auto-generated method stub
-		DataOutputBuffer obuffer = new DataOutputBuffer();
-		try {
-			obuffer.writeUTF("a, b, 27, 107.0, 404.0,");
-			for (int i = 0; i < obuffer.getLength(); i++) {
-				System.out.println(obuffer.getData()[i]);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		// final DataOutputBuffer obuffer = new DataOutputBuffer();
+		// try {
+		// obuffer.writeUTF("a, b, 27, 107.0, 404.0,");
+		// for (int i = 0; i < obuffer.getLength(); i++) {
+		// System.out.println(obuffer.getData()[i]);
+		// }
+		// } catch (final IOException e) {
+		// e.printStackTrace();
+		// }
 	}
 }

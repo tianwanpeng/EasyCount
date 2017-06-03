@@ -41,6 +41,10 @@ public class QB {
 	final private HashMap<String, Query> aliasToQuery;
 	final private HashMap<String, Query> asttreeToQuery;
 	final private HashMap<ASTNodeTRC, Query> astnodeToQuery;
+
+	// astnodeToAlias
+	// 主要用于存储，每个子查询的alias，有时候，同一个子查询（asttree相同）会被用于多个地方，
+	// 拥有不同的alias，所以需要这个数据结构才能唯一的确定每个alias
 	final private HashMap<ASTNodeTRC, String> astnodeToAlias;
 
 	// rootQuerys must be src tables

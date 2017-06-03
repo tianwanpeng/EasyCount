@@ -68,6 +68,7 @@ public class WrapperMsg {
 	}
 
 	public WrapperMsg unwrap(final ByteBuffer buffer) {
+		@SuppressWarnings("resource")
 		final DataInputBuffer input = new DataInputBuffer();
 		input.reset(buffer.array(), buffer.position(), buffer.limit());
 		try {

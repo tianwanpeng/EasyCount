@@ -17,10 +17,14 @@ import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import snaq.db.ConnectionPool;
+
 import com.tencent.easycount.exec.io.Data2Sink;
 import com.tencent.easycount.exec.io.DataIOUtils;
+import com.tencent.easycount.metastore.Table;
 import com.tencent.easycount.plan.logical.OpDesc7FS;
 import com.tencent.easycount.util.exec.TimerPackager;
+import com.tencent.easycount.util.exec.TimerPackager.Packager;
 import com.tencent.easycount.util.status.TDBankUtils;
 
 public class Data2SinkDB extends Data2Sink {
@@ -38,50 +42,52 @@ public class Data2SinkDB extends Data2Sink {
 	private final AtomicLong emitPackNum;
 
 	@Override
-	public void printStatus(int printId) {
+	public void printStatus(final int printId) {
 		int max = 0;
 		int sum = 0;
-		for (int i = 0; i < times.length; i++) {
-			sum += times[i];
-			max = Math.max(max, times[i]);
+		for (int i = 0; i < this.times.length; i++) {
+			sum += this.times[i];
+			max = Math.max(max, this.times[i]);
 		}
-		log.info("packager:" + packager.getStatus() + ",avgtime:"
-				+ (sum / TIMESLEN) + ",maxtime:" + max);
-		log.info(opDesc.getTaskId_OpTagIdx() + " : " + tbl.getTableName()
-				+ " : emitMsgNum : " + emitMsgNum.get() + " : emitPackNum : "
-				+ emitPackNum.get());
+		log.info("packager:" + this.packager.getStatus() + ",avgtime:"
+				+ (sum / this.TIMESLEN) + ",maxtime:" + max);
+		log.info(this.opDesc.getTaskId_OpTagIdx() + " : "
+				+ this.tbl.getTableName() + " : emitMsgNum : "
+				+ this.emitMsgNum.get() + " : emitPackNum : "
+				+ this.emitPackNum.get());
 	}
 
-	public Data2SinkDB(OpDesc7FS opDesc) {
+	public Data2SinkDB(final OpDesc7FS opDesc) {
 		super(opDesc);
 		this.emitMsgNum = new AtomicLong();
 		this.emitPackNum = new AtomicLong();
 
-		times = new int[TIMESLEN];
-		Arrays.fill(times, 0);
-		tbl = getOpDesc().getTable();
-		insertSql = DataIOUtils.generateInsertSql(tbl);
-		pools = DataIOUtils.prepareDBSource(tbl);
-		columnTypes = DataIOUtils.processMetaData(pools, tbl);
-		log.info("columnTypes : " + columnTypes);
-		packager = new TimerPackager<ArrayList<String>, ArrayList<ArrayList<String>>>(
+		this.times = new int[this.TIMESLEN];
+		Arrays.fill(this.times, 0);
+		this.tbl = getOpDesc().getTable();
+		this.insertSql = DataIOUtils.generateInsertSql(this.tbl);
+		pools = DataIOUtils.prepareDBSource(this.tbl);
+		this.columnTypes = DataIOUtils.processMetaData(pools, this.tbl);
+		log.info("columnTypes : " + this.columnTypes);
+		this.packager = new TimerPackager<ArrayList<String>, ArrayList<ArrayList<String>>>(
 				1000,
 				new Packager<ArrayList<String>, ArrayList<ArrayList<String>>>() {
 
 					@Override
-					public String getKey(ArrayList<String> t) {
+					public String getKey(final ArrayList<String> t) {
 						return "sql";
 					}
 
 					@Override
 					public ArrayList<ArrayList<String>> newPackage(
-							ArrayList<String> t) {
+							final ArrayList<String> t) {
 						return new ArrayList<ArrayList<String>>();
 					}
 
 					@Override
-					public boolean pack(String key, ArrayList<String> t,
-							ArrayList<ArrayList<String>> p) {
+					public boolean pack(final String key,
+							final ArrayList<String> t,
+							final ArrayList<ArrayList<String>> p) {
 						p.add(t);
 						return p.size() > 100;
 					}
@@ -89,27 +95,29 @@ public class Data2SinkDB extends Data2Sink {
 					long curremitnum = 0;
 
 					@Override
-					public void emit(String key,
-							ArrayList<ArrayList<String>> p, boolean full) {
+					public void emit(final String key,
+							final ArrayList<ArrayList<String>> p,
+							final boolean full) {
 						PreparedStatement ps = null;
 						Connection conn = null;
-						long ctime = System.currentTimeMillis();
+						final long ctime = System.currentTimeMillis();
 						try {
 							conn = pools.getConnection();
 							conn.setAutoCommit(false);
-							ps = conn.prepareStatement(insertSql);
+							ps = conn
+									.prepareStatement(Data2SinkDB.this.insertSql);
 							for (int i = 0; i < p.size(); i++) {
-								ArrayList<String> t = p.get(i);
+								final ArrayList<String> t = p.get(i);
 								for (int j = 0; j < t.size(); j++) {
 									ps.setObject(j + 1, t.get(j),
-											columnTypes.get(j));
+											Data2SinkDB.this.columnTypes.get(j));
 								}
 								ps.addBatch();
 							}
 							ps.executeBatch();
 							conn.commit();
-							emitPackNum.incrementAndGet();
-						} catch (Exception e) {
+							Data2SinkDB.this.emitPackNum.incrementAndGet();
+						} catch (final Exception e) {
 							if (shouldprint()) {
 								log.info(TDBankUtils.getExceptionStack(e));
 							}
@@ -118,21 +126,22 @@ public class Data2SinkDB extends Data2Sink {
 								conn.setAutoCommit(true);
 								for (int i = 0; i < p.size(); i++) {
 									ps.clearParameters();
-									ArrayList<String> t = p.get(i);
+									final ArrayList<String> t = p.get(i);
 									for (int j = 0; j < t.size(); j++) {
 										ps.setObject(j + 1, t.get(j),
-												columnTypes.get(j));
+												Data2SinkDB.this.columnTypes
+														.get(j));
 									}
 									try {
 										ps.execute();
-									} catch (Exception e2) {
+									} catch (final Exception e2) {
 										log.info(t
 												+ " : "
 												+ TDBankUtils
-														.getExceptionStack(e2));
+												.getExceptionStack(e2));
 									}
 								}
-							} catch (SQLException e1) {
+							} catch (final SQLException e1) {
 								if (shouldprint()) {
 									log.info(TDBankUtils.getExceptionStack(e1));
 								}
@@ -145,33 +154,36 @@ public class Data2SinkDB extends Data2Sink {
 								if (ps != null) {
 									ps.close();
 								}
-							} catch (SQLException e) {
+							} catch (final SQLException e) {
 								if (shouldprint()) {
 									log.info(TDBankUtils.getExceptionStack(e));
 								}
 							}
 						}
-						times[(int) ((curremitnum++) % TIMESLEN)] = (int) (System
+						Data2SinkDB.this.times[(int) ((this.curremitnum++) % Data2SinkDB.this.TIMESLEN)] = (int) (System
 								.currentTimeMillis() - ctime);
 					}
 				});
 	}
 
 	@Override
-	public boolean finalize(Object row, ObjectInspector objectInspector,
-			ObjectInspector keyInspector, ObjectInspector attrsInspector,
-			int opTagIdx) {
+	public boolean finalize(final Object row,
+			final ObjectInspector objectInspector,
+			final ObjectInspector keyInspector,
+			final ObjectInspector attrsInspector, final int opTagIdx) {
 		try {
-			StructObjectInspector soi = (StructObjectInspector) objectInspector;
-			List<? extends StructField> fields = soi.getAllStructFieldRefs();
-			List<Object> list = soi.getStructFieldsDataAsList(row);
+			final StructObjectInspector soi = (StructObjectInspector) objectInspector;
+			final List<? extends StructField> fields = soi
+					.getAllStructFieldRefs();
+			final List<Object> list = soi.getStructFieldsDataAsList(row);
 
-			ArrayList<String> objs = new ArrayList<String>();
+			final ArrayList<String> objs = new ArrayList<String>();
 			for (int i = 0; i < fields.size(); i++) {
-				ObjectInspector foi = fields.get(i).getFieldObjectInspector();
-				Object f = (list == null ? null : list.get(i));
-				Object sobj = ObjectInspectorUtils.copyToStandardJavaObject(f,
-						foi);
+				final ObjectInspector foi = fields.get(i)
+						.getFieldObjectInspector();
+				final Object f = (list == null ? null : list.get(i));
+				final Object sobj = ObjectInspectorUtils
+						.copyToStandardJavaObject(f, foi);
 				if (sobj == null) {
 					objs.add(null);
 				} else if (sobj instanceof byte[]) {
@@ -181,12 +193,12 @@ public class Data2SinkDB extends Data2Sink {
 				}
 			}
 			if (objs.size() > 0) {
-				packager.putTuple(objs);
-				emitMsgNum.incrementAndGet();
+				this.packager.putTuple(objs);
+				this.emitMsgNum.incrementAndGet();
 			} else {
 				log.warn("finalize obj in db is null : " + fields);
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			if (shouldprint()) {
 				log.info(TDBankUtils.getExceptionStack(e));
 			}
@@ -198,8 +210,8 @@ public class Data2SinkDB extends Data2Sink {
 	long ctime = System.currentTimeMillis();
 
 	private boolean shouldprint() {
-		if (System.currentTimeMillis() - ctime > 3000) {
-			ctime = System.currentTimeMillis();
+		if ((System.currentTimeMillis() - this.ctime) > 3000) {
+			this.ctime = System.currentTimeMillis();
 			return true;
 		}
 		return false;

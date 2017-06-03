@@ -9,6 +9,10 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import com.tencent.easycount.util.graph.GraphWalker.Dispatcher;
+import com.tencent.easycount.util.graph.GraphWalker.Node;
+import com.tencent.easycount.util.graph.GraphWalker.WalkMode;
+
 public class GraphWalkerTest {
 
 	@Test

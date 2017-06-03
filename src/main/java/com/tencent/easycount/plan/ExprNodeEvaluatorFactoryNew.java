@@ -29,7 +29,7 @@ public class ExprNodeEvaluatorFactoryNew {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public static ExprNodeEvaluator get(ExprNodeDesc desc) {
+	public static ExprNodeEvaluator get(final ExprNodeDesc desc) {
 		// Constant node
 		if (desc instanceof ExprNodeConstantDesc) {
 			return new ExprNodeConstantEvaluator((ExprNodeConstantDesc) desc);
@@ -49,7 +49,7 @@ public class ExprNodeEvaluatorFactoryNew {
 			try {
 				return new ExprNodeGenericFuncEvaluator(
 						(ExprNodeGenericFuncDesc) desc);
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				log.error(TDBankUtils.getExceptionStack(e));
 			}
 		}
@@ -58,7 +58,7 @@ public class ExprNodeEvaluatorFactoryNew {
 			try {
 				return new ExprNodeEVGenericFuncEvaluator(
 						(ExprNodeNewGenericFuncDesc) desc);
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				log.error(TDBankUtils.getExceptionStack(e));
 				return null;
 			}
@@ -67,20 +67,21 @@ public class ExprNodeEvaluatorFactoryNew {
 		if (desc instanceof ExprNodeFieldDesc) {
 			try {
 				return new ExprNodeFieldEvaluator((ExprNodeFieldDesc) desc);
-			} catch (HiveException e) {
+			} catch (final HiveException e) {
 				log.error(TDBankUtils.getExceptionStack(e));
 			}
 		}
 		// Null node, a constant node with value NULL and no type information
-		if (desc instanceof ExprNodeNullDesc) {
-			return new ExprNodeNullEvaluator((ExprNodeNullDesc) desc);
-		}
+		// TODO
+		// if (desc instanceof ExprNodeNullDesc) {
+		// return new ExprNodeNullEvaluator((ExprNodeNullDesc) desc);
+		// }
 
 		if (desc instanceof ExprNodeNewColumnRefDesc) {
 			try {
 				return new ExprNodeColumnEvaluator(
 						((ExprNodeNewColumnRefDesc) desc).getColumnDesc());
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				e.printStackTrace();
 			}
 		}
@@ -89,7 +90,7 @@ public class ExprNodeEvaluatorFactoryNew {
 			try {
 				return new ExprNodeEVForeachEvaluator(
 						(ExprNodeNewForeachDesc) desc);
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				e.printStackTrace();
 			}
 		}
@@ -98,7 +99,7 @@ public class ExprNodeEvaluatorFactoryNew {
 			try {
 				return new ExprNodeEVExecuteEvaluator(
 						(ExprNodeNewExecuteDesc) desc);
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				e.printStackTrace();
 			}
 		}
@@ -111,9 +112,9 @@ public class ExprNodeEvaluatorFactoryNew {
 	 * Should be called before eval is initialized
 	 */
 	@SuppressWarnings("rawtypes")
-	public static ExprNodeEvaluator toCachedEval(ExprNodeEvaluator eval) {
+	public static ExprNodeEvaluator toCachedEval(final ExprNodeEvaluator eval) {
 		if (eval instanceof ExprNodeGenericFuncEvaluator) {
-			EvaluatorContext context = new EvaluatorContext();
+			final EvaluatorContext context = new EvaluatorContext();
 			iterate(eval, context);
 			if (context.hasReference) {
 				return new ExprNodeEvaluatorHead(eval);
@@ -124,19 +125,19 @@ public class ExprNodeEvaluatorFactoryNew {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private static ExprNodeEvaluator iterate(ExprNodeEvaluator eval,
-			EvaluatorContext context) {
+	private static ExprNodeEvaluator iterate(final ExprNodeEvaluator eval,
+			final EvaluatorContext context) {
 		if (!(eval instanceof ExprNodeConstantEvaluator)
 				&& eval.isDeterministic()) {
-			ExprNodeEvaluator replace = context.getEvaluated(eval);
+			final ExprNodeEvaluator replace = context.getEvaluated(eval);
 			if (replace != null) {
 				return replace;
 			}
 		}
-		ExprNodeEvaluator[] children = eval.getChildren();
-		if (children != null && children.length > 0) {
+		final ExprNodeEvaluator[] children = eval.getChildren();
+		if ((children != null) && (children.length > 0)) {
 			for (int i = 0; i < children.length; i++) {
-				ExprNodeEvaluator replace = iterate(children[i], context);
+				final ExprNodeEvaluator replace = iterate(children[i], context);
 				if (replace != null) {
 					children[i] = replace;
 				}
@@ -152,14 +153,14 @@ public class ExprNodeEvaluatorFactoryNew {
 
 		private boolean hasReference;
 
-		public ExprNodeEvaluator getEvaluated(ExprNodeEvaluator eval) {
-			String key = eval.getExpr().getExprString();
-			ExprNodeEvaluator prev = cached.get(key);
+		public ExprNodeEvaluator getEvaluated(final ExprNodeEvaluator eval) {
+			final String key = eval.getExpr().getExprString();
+			final ExprNodeEvaluator prev = this.cached.get(key);
 			if (prev == null) {
-				cached.put(key, eval);
+				this.cached.put(key, eval);
 				return null;
 			}
-			hasReference = true;
+			this.hasReference = true;
 			return new ExprNodeEvaluatorRef(prev);
 		}
 	}
