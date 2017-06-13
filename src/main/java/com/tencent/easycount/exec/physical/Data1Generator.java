@@ -14,9 +14,9 @@ import com.tencent.easycount.conf.TrcConfiguration;
 import com.tencent.easycount.exec.io.Data1Source;
 import com.tencent.easycount.exec.io.DataIOUtils;
 import com.tencent.easycount.exec.io.inner.Data1SourceInner;
+import com.tencent.easycount.exec.io.kafka.Data1SourceKafka;
+import com.tencent.easycount.exec.io.kafka.KafkaECConsumer;
 import com.tencent.easycount.exec.io.local.LocalModeUtils;
-import com.tencent.easycount.exec.io.tube.Data1SourceTube;
-import com.tencent.easycount.exec.io.tube.TubeConsumer;
 import com.tencent.easycount.exec.physical.Task.SOCallBack;
 import com.tencent.easycount.exec.physical.Task.SrcObject;
 import com.tencent.easycount.exec.physical.Task.TupleProcessor;
@@ -29,7 +29,7 @@ import com.tencent.easycount.util.status.TDBankUtils;
 
 public class Data1Generator implements Closeable, StatusPrintable {
 	private static Logger log = LoggerFactory.getLogger(Data1Generator.class);
-	final private ConcurrentHashMap<String, TubeConsumer> tubeConsumers;
+	final private ConcurrentHashMap<String, KafkaECConsumer> tubeConsumers;
 	// final private ArrayList<Operator1TS> tsOps;
 	final private ArrayList<Data1Source> opsources;
 	final private HashMap<String, ObjectInspector> tagKey2OIs;
@@ -61,7 +61,7 @@ public class Data1Generator implements Closeable, StatusPrintable {
 		// this.tsOps = tsOps;
 		this.opsources = new ArrayList<Data1Source>();
 		this.tagKey2OIs = new HashMap<String, ObjectInspector>();
-		this.tubeConsumers = new ConcurrentHashMap<String, TubeConsumer>();
+		this.tubeConsumers = new ConcurrentHashMap<String, KafkaECConsumer>();
 		this.tupleProcessor = tupleProcessor;
 
 		final boolean localmode = hconf.getBoolean("localmode", false);
@@ -100,13 +100,13 @@ public class Data1Generator implements Closeable, StatusPrintable {
 					final String zkid = tubeMaster + "-" + tubePort + "-"
 							+ topic;
 					if (!this.tubeConsumers.containsKey(zkid)) {
-						this.tubeConsumers.put(zkid, new TubeConsumer(hconf,
+						this.tubeConsumers.put(zkid, new KafkaECConsumer(hconf,
 								tubeMaster, tubePort, tubeAddrList, topic,
 								taskId, execId));
 						log.info("create a new consumer : " + zkid);
 					}
 
-					data1Source = new Data1SourceTube(
+					data1Source = new Data1SourceKafka(
 							opDesc.getTaskId_OpTagIdx(), opDesc, this, hconf,
 							this.tubeConsumers.get(zkid));
 				}

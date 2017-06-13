@@ -12,10 +12,10 @@ import com.tencent.easycount.exec.io.db.Data2SinkDB;
 import com.tencent.easycount.exec.io.db.Data2SinkDBNormal;
 import com.tencent.easycount.exec.io.hbase.Data2SinkHbase;
 import com.tencent.easycount.exec.io.inner.Data2SinkPrint;
+import com.tencent.easycount.exec.io.kafka.Data2SinkKafka;
+import com.tencent.easycount.exec.io.kafka.KafkaECProducer;
 import com.tencent.easycount.exec.io.local.LocalModeUtils;
 import com.tencent.easycount.exec.io.redis.Data2SinkRedis;
-import com.tencent.easycount.exec.io.tube.Data2SinkTube;
-import com.tencent.easycount.exec.io.tube.TubeProducer;
 import com.tencent.easycount.exec.logical.Operator7FS;
 import com.tencent.easycount.exec.logical.Operator7FS.Finalized;
 import com.tencent.easycount.metastore.Table;
@@ -28,7 +28,7 @@ public class Data2Finalizer implements Finalized {
 
 	final private HashMap<Integer, Data2Sink> tagId2Sinks;
 	private final TrcConfiguration hconf;
-	final private ConcurrentHashMap<String, TubeProducer> tubeProducers = new ConcurrentHashMap<String, TubeProducer>();
+	final private ConcurrentHashMap<String, KafkaECProducer> tubeProducers = new ConcurrentHashMap<String, KafkaECProducer>();
 	final private String taskId;
 	final private String execId;
 
@@ -48,7 +48,7 @@ public class Data2Finalizer implements Finalized {
 	}
 
 	public void start() {
-		for (final TubeProducer producer : this.tubeProducers.values()) {
+		for (final KafkaECProducer producer : this.tubeProducers.values()) {
 			producer.start();
 		}
 	}
@@ -96,12 +96,11 @@ public class Data2Finalizer implements Finalized {
 				final String producerid = tubeMaster + "-" + tubePort + "-"
 						+ topic;
 				if (!this.tubeProducers.containsKey(producerid)) {
-					this.tubeProducers.put(producerid, new TubeProducer(
-							this.hconf, tubeMaster, tubePort, tubeAddrList,
-							topic, this.taskId, this.execId));
+					this.tubeProducers.put(producerid, new KafkaECProducer(
+							this.hconf, topic, this.taskId, this.execId));
 				}
 
-				dataSink = new Data2SinkTube(this.hconf, fsop.getOpDesc(),
+				dataSink = new Data2SinkKafka(this.hconf, fsop.getOpDesc(),
 						this.tubeProducers.get(producerid));
 			}
 

@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.Stack;
 
 import org.apache.hadoop.hive.ql.exec.FunctionRegistry;
+import org.apache.hadoop.hive.ql.parse.SemanticException;
 
 import com.tencent.easycount.parse.Query.QueryMode;
 import com.tencent.easycount.util.graph.GraphWalker;
@@ -35,11 +36,11 @@ public class ParseUtils {
 		 */
 		new GraphWalker<Boolean>(new ASTParseDispatcher(qb),
 				WalkMode.CHILD_FIRST).walk(new ArrayList<Node>() {
-					private static final long serialVersionUID = 1L;
-					{
-						add(ast);
-					}
-				});
+			private static final long serialVersionUID = 1L;
+			{
+				add(ast);
+			}
+		});
 		return qb;
 	}
 
@@ -63,11 +64,12 @@ public class ParseUtils {
 		 * @param stack
 		 * @param nodeOutputs
 		 * @return
+		 * @throws SemanticException
 		 */
 		@Override
 		public Boolean dispatch(final Node nd, final Stack<Node> stack,
 				final ArrayList<Boolean> nodeOutputs,
-				final HashMap<Node, Boolean> retMap) {
+				final HashMap<Node, Boolean> retMap) throws SemanticException {
 			final ASTNodeTRC n = (ASTNodeTRC) nd;
 
 			switch (n.getToken().getType()) {
@@ -77,10 +79,10 @@ public class ParseUtils {
 				String alias = n.getChildCount() > 1 ? ParseStringUtil
 						.unescapeIdentifier(n.getChild(1).getText())
 						: ("__dummyAlise-" + (this.aliseIdx++));
-						final ASTNodeTRC queryn = (ASTNodeTRC) n.getChild(0);
-						this.qb.updateQuery(alias, queryn);
-						parseQuery(queryn, alias);
-						break;
+				final ASTNodeTRC queryn = (ASTNodeTRC) n.getChild(0);
+				this.qb.updateQuery(alias, queryn);
+				parseQuery(queryn, alias);
+				break;
 			case TrcParser.TOK_INSERT_QUERY:
 				alias = "__dummyDestAlise-" + (this.destQueryAliseIdx++);
 				this.qb.updateQuery(alias, n);
@@ -145,8 +147,10 @@ public class ParseUtils {
 		 *
 		 * @param queryn
 		 * @param alias
+		 * @throws SemanticException
 		 */
-		private void parseQuery(final ASTNodeTRC queryn, final String alias) {
+		private void parseQuery(final ASTNodeTRC queryn, final String alias)
+				throws SemanticException {
 			final Query query = this.qb.getQueryByAlias(alias);
 
 			if (queryn.getToken().getType() == TrcParser.TOK_UNION) {
@@ -155,7 +159,7 @@ public class ParseUtils {
 					final ASTNodeTRC subqn = (ASTNodeTRC) queryn.getChild(j)
 							.getChild(0);
 					this.qb.getQueryByAstNode(subqn)
-							.addChildQuery(alias, query);
+					.addChildQuery(alias, query);
 				}
 			} else {
 				for (int i = 0; i < queryn.getChildCount(); i++) {
@@ -163,7 +167,7 @@ public class ParseUtils {
 					switch (childast.getToken().getType()) {
 					case TrcParser.TOK_FROM:
 						final ASTNodeTRC frm = (ASTNodeTRC) childast
-								.getChild(0);
+						.getChild(0);
 						if (frm.getToken().getType() == TrcParser.TOK_TABREF) {
 							final ASTNodeTRC subqn = (ASTNodeTRC) frm
 									.getChild(0);
@@ -237,7 +241,8 @@ public class ParseUtils {
 			return false;
 		}
 
-		private void processInsertQuery(final ASTNodeTRC nd, final String alias) {
+		private void processInsertQuery(final ASTNodeTRC nd, final String alias)
+				throws SemanticException {
 			// continue to complete other info in query, for every subquery
 			for (int i = 0; i < nd.getChildCount(); i++) {
 				final ASTNodeTRC child = (ASTNodeTRC) nd.getChild(i);
@@ -307,7 +312,7 @@ public class ParseUtils {
 		}
 
 		private LinkedHashMap<String, ASTNodeTRC> doPhase1GetAggregationsFromSelect(
-				final ASTNodeTRC selExpr) {
+				final ASTNodeTRC selExpr) throws SemanticException {
 			// Iterate over the selects search for aggregation Trees.
 			// Use String as keys to eliminate duplicate trees.
 			final LinkedHashMap<String, ASTNodeTRC> aggregationTrees = new LinkedHashMap<String, ASTNodeTRC>();
@@ -320,7 +325,7 @@ public class ParseUtils {
 		}
 
 		private LinkedHashMap<String, ASTNodeTRC> doPhase1GetAggregationsFromHaving(
-				final ASTNodeTRC havingExpr) {
+				final ASTNodeTRC havingExpr) throws SemanticException {
 			// Iterate over the selects search for aggregation Trees.
 			// Use String as keys to eliminate duplicate trees.
 			final LinkedHashMap<String, ASTNodeTRC> aggregationTrees = new LinkedHashMap<String, ASTNodeTRC>();
@@ -333,7 +338,8 @@ public class ParseUtils {
 
 		private void doPhase1GetAllAggregations(
 				final ASTNodeTRC expressionTree,
-				final LinkedHashMap<String, ASTNodeTRC> aggregations) {
+				final LinkedHashMap<String, ASTNodeTRC> aggregations)
+						throws SemanticException {
 			final int exprTokenType = expressionTree.getToken().getType();
 			if ((exprTokenType == TrcParser.TOK_FUNCTION)
 					|| (exprTokenType == TrcParser.TOK_FUNCTIONDI)

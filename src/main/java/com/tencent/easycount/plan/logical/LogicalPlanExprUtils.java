@@ -113,8 +113,9 @@ public class LogicalPlanExprUtils {
 		// generates the plan from the operator tree
 		final Map<Rule, NodeProcessor<ExprNodeDesc>> opRules = new LinkedHashMap<Rule, NodeProcessor<ExprNodeDesc>>();
 
-		opRules.put(new RuleRegExp("R1", TrcParser.TOK_NULL + "%"),
-				getNullExprProcessor());
+		// TODO
+		// opRules.put(new RuleRegExp("R1", TrcParser.TOK_NULL + "%"),
+		// getNullExprProcessor());
 		opRules.put(new RuleRegExp("R2", TrcParser.Number + "%|"
 				+ TrcParser.TinyintLiteral + "%|" + TrcParser.SmallintLiteral
 				+ "%|" + TrcParser.BigintLiteral + "%|"
@@ -644,25 +645,25 @@ public class LogicalPlanExprUtils {
 		return new ExecuteExprProcessor();
 	}
 
-	public static class NullExprProcessor implements
-	NodeProcessor<ExprNodeDesc> {
-
-		@Override
-		public ExprNodeDesc process(final Node nd, final Stack<Node> stack,
-				final NodeProcessorCtx procCtx,
-				final ArrayList<ExprNodeDesc> nodeOutputs) {
-			final ExprNodeDesc desc = processGByExpr(nd, procCtx);
-			if (desc != null) {
-				return desc;
-			}
-
-			return new ExprNodeNullDesc();
-		}
-	}
-
-	public static NullExprProcessor getNullExprProcessor() {
-		return new NullExprProcessor();
-	}
+	// public static class NullExprProcessor implements
+	// NodeProcessor<ExprNodeDesc> {
+	//
+	// @Override
+	// public ExprNodeDesc process(final Node nd, final Stack<Node> stack,
+	// final NodeProcessorCtx procCtx,
+	// final ArrayList<ExprNodeDesc> nodeOutputs) {
+	// final ExprNodeDesc desc = processGByExpr(nd, procCtx);
+	// if (desc != null) {
+	// return desc;
+	// }
+	//
+	// return new ExprNodeNullDesc();
+	// }
+	// }
+	//
+	// public static NullExprProcessor getNullExprProcessor() {
+	// return new NullExprProcessor();
+	// }
 
 	public static class DataTypeExprProcessor implements
 	NodeProcessor<ExprNodeDesc> {
@@ -1232,11 +1233,11 @@ public class LogicalPlanExprUtils {
 		 * children (arguments). It will insert implicit type conversion
 		 * functions if necessary.
 		 *
-		 * @throws UDFArgumentException
+		 * @throws SemanticException
 		 */
 		static ExprNodeDesc getFuncExprNodeDescWithUdfData(
 				final String udfName, final Object udfData,
-				final ExprNodeDesc... children) throws UDFArgumentException {
+				final ExprNodeDesc... children) throws SemanticException {
 
 			final FunctionInfo fi = FunctionRegistry.getFunctionInfo(udfName);
 			if (fi == null) {
@@ -1264,7 +1265,7 @@ public class LogicalPlanExprUtils {
 		}
 
 		public static ExprNodeDesc getFuncExprNodeDesc(final String udfName,
-				final ExprNodeDesc... children) throws UDFArgumentException {
+				final ExprNodeDesc... children) throws SemanticException {
 			return getFuncExprNodeDescWithUdfData(udfName, null, children);
 		}
 

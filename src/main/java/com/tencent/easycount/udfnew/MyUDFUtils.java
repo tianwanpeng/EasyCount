@@ -4,106 +4,103 @@ import org.apache.hadoop.hive.ql.exec.FunctionRegistry;
 
 public class MyUDFUtils {
 	public static void initialize() {
-		FunctionRegistry.registerTemporaryFunction("countd_bf",
+		FunctionRegistry.registerTemporaryUDF("countd_bf",
 				GenericUDAFCountDistinct.class);
-		FunctionRegistry.registerTemporaryFunction("countd",
+		FunctionRegistry.registerTemporaryUDF("countd",
 				GenericUDAFCountDistinctHLLP.class);
-		FunctionRegistry.registerTemporaryFunction("countd_hllp",
+		FunctionRegistry.registerTemporaryUDF("countd_hllp",
 				GenericUDAFCountDistinctHLLP.class);
-		FunctionRegistry.registerTemporaryFunction("hllp",
-				GenericUDAFHLLP.class);
+		FunctionRegistry.registerTemporaryUDF("hllp", GenericUDAFHLLP.class);
 
-		FunctionRegistry.registerTemporaryFunction("collect_set",
+		FunctionRegistry.registerTemporaryUDF("collect_set",
 				GenericUDAFCollectSet2.class);
-		FunctionRegistry.registerTemporaryFunction("collect_list",
+		FunctionRegistry.registerTemporaryUDF("collect_list",
 				GenericUDAFCollectList1.class);
 
-		FunctionRegistry.registerTemporaryFunction("mapmap",
-				GenericUDAFMapMap.class);
-		FunctionRegistry.registerTemporaryFunction("mapmapmerge",
+		FunctionRegistry
+				.registerTemporaryUDF("mapmap", GenericUDAFMapMap.class);
+		FunctionRegistry.registerTemporaryUDF("mapmapmerge",
 				GenericUDAFMapMapMerge.class);
-		FunctionRegistry.registerTemporaryFunction("mapmapset",
+		FunctionRegistry.registerTemporaryUDF("mapmapset",
 				GenericUDAFMapMapSet.class);
 
-		FunctionRegistry.registerTemporaryFunction("hllp_merge",
+		FunctionRegistry.registerTemporaryUDF("hllp_merge",
 				GenericUDFHLLPMerge.class);
-		FunctionRegistry.registerTemporaryFunction("hllp_get",
+		FunctionRegistry.registerTemporaryUDF("hllp_get",
 				GenericUDFHLLPGet.class);
 
-		FunctionRegistry.registerTemporaryFunction("array_get",
+		FunctionRegistry.registerTemporaryUDF("array_get",
 				GenericUDFArrayGet.class);
-		FunctionRegistry.registerTemporaryFunction("array_getlast",
+		FunctionRegistry.registerTemporaryUDF("array_getlast",
 				GenericUDFArrayGetLast.class);
-		FunctionRegistry.registerTemporaryFunction("array_to_str",
+		FunctionRegistry.registerTemporaryUDF("array_to_str",
 				GenericUDFArrayToStr.class);
-		FunctionRegistry.registerTemporaryFunction("array_merge",
+		FunctionRegistry.registerTemporaryUDF("array_merge",
 				GenericUDFArrayMerge.class);
-		FunctionRegistry.registerTemporaryFunction("array_add",
+		FunctionRegistry.registerTemporaryUDF("array_add",
 				GenericUDFArrayAdd.class);
-		FunctionRegistry.registerTemporaryFunction("array_set",
+		FunctionRegistry.registerTemporaryUDF("array_set",
 				GenericUDFArraySet.class);
-		FunctionRegistry.registerTemporaryFunction("array_del",
+		FunctionRegistry.registerTemporaryUDF("array_del",
 				GenericUDFArrayDel.class);
-		FunctionRegistry.registerTemporaryFunction("array_rm",
+		FunctionRegistry.registerTemporaryUDF("array_rm",
 				GenericUDFArrayDel.class);
 
-		FunctionRegistry.registerTemporaryFunction("map_get",
-				GenericUDFMapGet.class);
-		FunctionRegistry.registerTemporaryFunction("map_keyset",
+		FunctionRegistry
+				.registerTemporaryUDF("map_get", GenericUDFMapGet.class);
+		FunctionRegistry.registerTemporaryUDF("map_keyset",
 				GenericUDFMapKeys_new.class);
-		FunctionRegistry.registerTemporaryFunction("map_merge",
+		FunctionRegistry.registerTemporaryUDF("map_merge",
 				GenericUDFMapMerge.class);
-		// FunctionRegistry.registerTemporaryFunction("map_keyset",
+		// FunctionRegistry.registerTemporaryUDF("map_keyset",
 		// GenericUDFMapKeyset.class);
-		// FunctionRegistry.registerTemporaryFunction("map_values",
+		// FunctionRegistry.registerTemporaryUDF("map_values",
 		// GenericUDFMapValues.class);
-		FunctionRegistry.registerTemporaryFunction("map_struct",
+		FunctionRegistry.registerTemporaryUDF("map_struct",
 				GenericUDFMapStruct.class);
-		FunctionRegistry.registerTemporaryFunction("map_put",
-				GenericUDFMapPut.class);
-		FunctionRegistry.registerTemporaryFunction("map_del",
-				GenericUDFMapDel.class);
-		FunctionRegistry.registerTemporaryFunction("map_rm",
-				GenericUDFMapDel.class);
-		FunctionRegistry.registerTemporaryFunction("map_to_str",
+		FunctionRegistry
+				.registerTemporaryUDF("map_put", GenericUDFMapPut.class);
+		FunctionRegistry
+				.registerTemporaryUDF("map_del", GenericUDFMapDel.class);
+		FunctionRegistry.registerTemporaryUDF("map_rm", GenericUDFMapDel.class);
+		FunctionRegistry.registerTemporaryUDF("map_to_str",
 				GenericUDFMapToStr.class);
 
-		FunctionRegistry.registerTemporaryFunction("struct_get",
+		FunctionRegistry.registerTemporaryUDF("struct_get",
 				GenericUDFStructGet.class);
 
-		FunctionRegistry.registerTemporaryFunction("getallpath",
+		FunctionRegistry.registerTemporaryUDF("getallpath",
 				GenericUDFGetAllPathInMap.class);
-		FunctionRegistry.registerTemporaryFunction("getallpathwithdests",
+		FunctionRegistry.registerTemporaryUDF("getallpathwithdests",
 				GenericUDFGetAllPathInMapWithDests.class);
-		FunctionRegistry.registerTemporaryFunction("getallpathinlistwithdests",
+		FunctionRegistry.registerTemporaryUDF("getallpathinlistwithdests",
 				GenericUDFGetAllPathInListWithDests.class);
-		FunctionRegistry.registerTemporaryFunction(
+		FunctionRegistry.registerTemporaryUDF(
 				"getallpathinlist_withsrcsanddests",
 				GenericUDFGetAllPathInListWithSrcsDests.class);
 
 		// for binary
-		FunctionRegistry.registerTemporaryFunction("emptybinary",
+		FunctionRegistry.registerTemporaryUDF("emptybinary",
 				GenericUDFBinaryEmpty.class);
-		FunctionRegistry.registerTemporaryFunction("bit_rsft",
+		FunctionRegistry.registerTemporaryUDF("bit_rsft",
 				GenericUDFBinaryRightShift.class);
-		FunctionRegistry.registerTemporaryFunction("bit_lsft",
+		FunctionRegistry.registerTemporaryUDF("bit_lsft",
 				GenericUDFBinaryLeftShift.class);
-		FunctionRegistry.registerTemporaryFunction("bit_set",
+		FunctionRegistry.registerTemporaryUDF("bit_set",
 				GenericUDFBinarySet.class);
-		FunctionRegistry.registerTemporaryFunction("bit_clear",
+		FunctionRegistry.registerTemporaryUDF("bit_clear",
 				GenericUDFBinaryClear.class);
 
 		// bloomfilter
-		FunctionRegistry.registerTemporaryFunction("bloom",
-				GenericUDAFBloom.class);
-		FunctionRegistry.registerTemporaryFunction("bloom_contains",
+		FunctionRegistry.registerTemporaryUDF("bloom", GenericUDAFBloom.class);
+		FunctionRegistry.registerTemporaryUDF("bloom_contains",
 				GenericUDFBloomContains.class);
 
 		// other function
-		FunctionRegistry.registerTemporaryFunction("rand_i", UDFRand_i.class);
-		FunctionRegistry.registerTemporaryFunction("inet_aton",
+		FunctionRegistry.registerTemporaryUDF("rand_i", UDFRand_i.class);
+		FunctionRegistry.registerTemporaryUDF("inet_aton",
 				GenericUDFINETATON.class);
-		FunctionRegistry.registerTemporaryFunction("inet_ntoa",
+		FunctionRegistry.registerTemporaryUDF("inet_ntoa",
 				GenericUDFINETNTOA.class);
 
 	}
