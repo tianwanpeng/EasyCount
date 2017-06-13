@@ -3,16 +3,11 @@ package com.tencent.easycount.exec.io.kafka;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.Serializable;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -20,17 +15,19 @@ import org.apache.hadoop.hive.serde2.lazy.ByteArrayRef;
 import org.apache.hadoop.hive.serde2.lazy.LazyStruct;
 import org.apache.hadoop.hive.serde2.lazy.objectinspector.LazySimpleStructObjectInspector;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.tencent.easycount.conf.TrcConfiguration;
 import com.tencent.easycount.exec.physical.Task.SOCallBack;
+import com.tencent.easycount.metastore.Table;
 import com.tencent.easycount.metastore.TableUtils;
 import com.tencent.easycount.mon.MonKeys;
 import com.tencent.easycount.mon.MonStatusUpdater;
 import com.tencent.easycount.mon.MonStatusUtils;
-import com.tencent.easycount.util.io.TDMsg1;
 import com.tencent.easycount.util.status.StatusPrintable;
 import com.tencent.easycount.util.status.TDBankUtils;
 
@@ -42,7 +39,7 @@ Serializable {
 
 	final private TrcConfiguration hconf;
 
-	private final KafkaConsumer<Integer, String> consumer;
+	private final KafkaConsumer<Integer, byte[]> consumer;
 	private final String topic;
 
 	private boolean monStatus = false;
@@ -162,14 +159,26 @@ Serializable {
 	synchronized public void start() {
 		if (!this.startted.get()) {
 			try {
-				this.messageConsumer = this.messageSessionFactory
-						.createConsumer(this.consumerConfig);
-				this.messageConsumer.subscribe(this.topic,
-						new TDBankMsgListener()).completeSubscribe();
+				this.consumer.subscribe(Collections.singletonList(this.topic));
+
 				this.startted.set(true);
+
+				new Thread() {
+					@Override
+					public void run() {
+						while (true) {
+							final ConsumerRecords<Integer, byte[]> records = KafkaECConsumer.this.consumer
+									.poll(1000);
+							for (final ConsumerRecord<Integer, byte[]> record : records) {
+								process(record);
+							}
+						}
+					};
+				}.start();
+
 				log.info("consumer started : " + this.tubeMaster + "-"
 						+ this.tubePort);
-			} catch (final TubeClientException e) {
+			} catch (final Exception e) {
 				e.printStackTrace();
 				log.error(TDBankUtils.getExceptionStack(e));
 			}
@@ -182,23 +191,6 @@ Serializable {
 
 	public void register(final Data1SourceKafka data1Source,
 			final String tableInterfaceId, final Table tbl) {
-		// rigister interface info first
-		final InterfaceInfo interfaceInfo = new InterfaceInfo(tableInterfaceId,
-				tableInterfaceId, false);
-		final ArrayList<Field> fields = data1Source.getOpDesc().getTable()
-				.getFields();
-
-		for (int j = 0; j < fields.size(); j++) {
-			final Field field = fields.get(j);
-			interfaceInfo.fields
-					.add(new com.tencent.tdbank.mc.sorter.onlineconfig.ISorterConfig.Fields(
-							field.getColumnName(), field.getType()
-									.getTypeName(), field.getColumnName()));
-			interfaceInfo.fieldsName2index.put(field.getColumnName(), j);
-		}
-		this.onlineconfig.configAttrs.putAll(data1Source.getOpDesc().getTable()
-				.getTblAttrs());
-		this.onlineconfig.interfaceId2Info.put(tableInterfaceId, interfaceInfo);
 
 		this.interfaceId2MsgReceived.put(tableInterfaceId, new AtomicLong());
 		this.interfaceId2Data1Source.put(tableInterfaceId, data1Source);
@@ -217,182 +209,67 @@ Serializable {
 				+ this.tubePort + "-" + tableInterfaceId);
 	}
 
-	private class TDBankMsgListener implements MessageListener {
+	public void process(final ConsumerRecord<Integer, byte[]> rec) {
+		this.wholeMsgReceived++;
+		if (this.monStatus && (this.updater != null)) {
+			this.updater.update(this.wholeMsgReceivedKey, 1);
+		}
 
-		@Override
-		public void recieveMessages(final Message message) {
-			final TDMsg1 tdmsg = TDMsg1.parseFrom(message.getData());
-			if (tdmsg != null) {
-				for (final String attr : tdmsg.getAttrs()) {
-					final Map<String, String> attrs = TDBankUtils
-							.parseAttr(attr);
-
-					final String m = attrs.get("m");
-					if (m == null) {
-						continue;
-					}
-					final int magic = Integer.valueOf(m);
-
-					final MsgType msgtype = getMsgType(attrs);
-					if ((magic == 0) && (msgtype != MsgType.PACKED)
-							&& (msgtype != MsgType.PBPACKED)) {
-						continue;
-					}
-
-					final IdTimeParserInterface parser = PluginUtils.idtimeparsers
-							.get(magic);
-					if (null == parser) {
-						continue;
-					}
-
-					final Iterator<byte[]> it = tdmsg.getIterator(attr);
-					if (it != null) {
-						while (it.hasNext()) {
-							final byte[] data = it.next();
-
-							final ArrayList<Integer> poss = new ArrayList<Integer>(
-									20);
-
-							poss.add(-1);
-							for (int i = 0; i < data.length; i++) {
-								if (data[i] == '\n') {
-									poss.add(i);
-								}
-							}
-							poss.add(data.length);
-
-							for (int i = 1; i < poss.size(); i++) {
-								final byte[] data1 = Arrays.copyOfRange(data,
-										poss.get(i - 1) + 1, poss.get(i));
-								final IdTimeData itd = parser
-										.parse(attrs,
-												data1,
-												com.tencent.easycount.exec.io.kafka.KafkaECConsumer.this.onlineconfig);
-								com.tencent.easycount.exec.io.kafka.KafkaECConsumer.this.wholeMsgReceived++;
-								if (com.tencent.easycount.exec.io.kafka.KafkaECConsumer.this.monStatus
-										&& (com.tencent.easycount.exec.io.kafka.KafkaECConsumer.this.updater != null)) {
-									try {
-										com.tencent.easycount.exec.io.kafka.KafkaECConsumer.this.updater
-										.update(com.tencent.easycount.exec.io.kafka.KafkaECConsumer.this.wholeMsgReceivedKey,
-												1);
-									} catch (final Exception e) {
-										e.printStackTrace();
-									}
-								}
-								if ((itd.getId() != null)
-										&& com.tencent.easycount.exec.io.kafka.KafkaECConsumer.this.interfaceId2Data1Source
-												.containsKey(itd.getId())) {
-									sendData(itd, attr);
-									com.tencent.easycount.exec.io.kafka.KafkaECConsumer.this.interfaceId2MsgReceived
-									.get(itd.getId()).incrementAndGet();
-									com.tencent.easycount.exec.io.kafka.KafkaECConsumer.this.wholeValidMsgReceived++;
-									if (com.tencent.easycount.exec.io.kafka.KafkaECConsumer.this.monStatus
-											&& (com.tencent.easycount.exec.io.kafka.KafkaECConsumer.this.updater != null)) {
-										try {
-											com.tencent.easycount.exec.io.kafka.KafkaECConsumer.this.updater
-											.update(com.tencent.easycount.exec.io.kafka.KafkaECConsumer.this.wholeValidMsgReceivedKey,
-													1);
-											com.tencent.easycount.exec.io.kafka.KafkaECConsumer.this.updater
-											.update(com.tencent.easycount.exec.io.kafka.KafkaECConsumer.this.wholeValidMsgReceivedIIDKey
-															+ "&"
-															+ MonKeys.INTERFACEID
-															+ "=" + itd.getId(),
-													1);
-										} catch (final Exception e) {
-											e.printStackTrace();
-										}
-									}
-								}
-							}
-						}
-					}
-				}
+		if (this.interfaceId2Data1Source.containsKey(rec.key())) {
+			sendData(rec);
+			this.interfaceId2MsgReceived.get(rec.key()).incrementAndGet();
+			this.wholeValidMsgReceived++;
+			if (this.monStatus && (this.updater != null)) {
+				this.updater.update(this.wholeValidMsgReceivedKey, 1);
+				this.updater.update(this.wholeValidMsgReceivedIIDKey + "&"
+						+ MonKeys.INTERFACEID + "=" + rec.key(), 1);
 			}
 		}
 
-		synchronized private void sendData(final IdTimeData itd,
-				final String attr) {
-			try {
-				final String iid = itd.getId();
-				final ByteArrayRef byteref = com.tencent.easycount.exec.io.kafka.KafkaECConsumer.this.interfaceId2ByteArrayRef
-						.get(iid);
-				final ByteBuffer bf = itd.getData();
-				final byte[] attrbytes = attr.getBytes();
-				for (int i = 0; i < attrbytes.length; i++) {
-					if (attrbytes[i] == '&') {
-						attrbytes[i] = com.tencent.easycount.exec.io.kafka.KafkaECConsumer.this.interfaceId2ListSeperator
-								.get(iid);
-					} else if (attrbytes[i] == '=') {
-						attrbytes[i] = com.tencent.easycount.exec.io.kafka.KafkaECConsumer.this.interfaceId2MapSeperator
-								.get(iid);
-					}
+	}
+
+	synchronized private void sendData(final ConsumerRecord<Integer, byte[]> rec) {
+		try {
+			final String iid = rec.key().toString();
+			final ByteArrayRef byteref = this.interfaceId2ByteArrayRef.get(iid);
+			final byte[] attrbytes = "".getBytes();// TODO
+			for (int i = 0; i < attrbytes.length; i++) {
+				if (attrbytes[i] == '&') {
+					attrbytes[i] = this.interfaceId2ListSeperator.get(iid);
+				} else if (attrbytes[i] == '=') {
+					attrbytes[i] = this.interfaceId2MapSeperator.get(iid);
 				}
-				final byte[] data = new byte[bf.remaining() + 1
-				                             + attrbytes.length];
-				System.arraycopy(attrbytes, 0, data, 0, attrbytes.length);
-				data[attrbytes.length] = com.tencent.easycount.exec.io.kafka.KafkaECConsumer.this.interfaceId2FieldSeperator
-						.get(iid);
-				System.arraycopy(bf.array(), bf.position(), data,
-						attrbytes.length + 1, bf.remaining());
-				byteref.setData(data);
-				final LazyStruct lstruct = com.tencent.easycount.exec.io.kafka.KafkaECConsumer.this.interfaceId2LazyStruct
-						.get(iid);
-				lstruct.init(byteref, 0, data.length);
-				com.tencent.easycount.exec.io.kafka.KafkaECConsumer.this.interfaceId2Data1Source
-				.get(iid).emit(lstruct, new SOCallBack() {
-							CountDownLatch cdl = new CountDownLatch(1);
-
-							@Override
-							public void finish() {
-								this.cdl.countDown();
-							}
-
-							@Override
-							public void await() throws InterruptedException {
-								this.cdl.await();
-							}
-						});
-			} catch (final Exception e) {
-				log.error(TDBankUtils.getExceptionStack(e));
 			}
-		}
+			final byte[] data = rec.value();
+			byteref.setData(data);
+			final LazyStruct lstruct = this.interfaceId2LazyStruct.get(iid);
+			lstruct.init(byteref, 0, data.length);
+			this.interfaceId2Data1Source.get(iid).emit(lstruct,
+					new SOCallBack() {
+				CountDownLatch cdl = new CountDownLatch(1);
 
-		private MsgType getMsgType(final Map<String, String> attrs) {
-			final String ck = attrs.get("ck");
-			if (ck == null) {
-				if ("pb".equals(attrs.get("mt"))) {
-					return MsgType.PBPACKED;
+				@Override
+				public void finish() {
+					this.cdl.countDown();
 				}
-				return MsgType.PACKED;
-			} else if ("0".equals(ck)) {
-				return MsgType.CHECK;
-			} else if ("1".equals(ck)) {
-				return MsgType.STOPPED;
-			}
-			return MsgType.PACKED;
+
+				@Override
+				public void await() throws InterruptedException {
+					this.cdl.await();
+				}
+			});
+		} catch (final Exception e) {
+			log.error(TDBankUtils.getExceptionStack(e));
 		}
-
-		@Override
-		public Executor getExecutor() {
-			// there is a bug not used right now .... TODO
-			return null;
-		}
-
-		@Override
-		public void stop() {
-
-		}
-
 	}
 
 	@Override
 	public void close() throws IOException {
 		try {
-			if (this.messageConsumer != null) {
+			if (this.consumer != null) {
 				log.info("begin to close consumer : "
 						+ (this.tubeMaster + "-" + this.tubePort + "-" + this.topic));
-				this.messageConsumer.shutdown();
-				this.messageConsumer = null;
+				this.consumer.close();
 				log.info("consumer closed : "
 						+ (this.tubeMaster + "-" + this.tubePort + "-" + this.topic));
 

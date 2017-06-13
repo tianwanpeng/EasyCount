@@ -14,9 +14,12 @@ import org.slf4j.LoggerFactory;
 
 import com.tencent.easycount.conf.TrcConfiguration;
 import com.tencent.easycount.exec.io.Data2Sink;
+import com.tencent.easycount.metastore.Table;
 import com.tencent.easycount.metastore.TableUtils;
 import com.tencent.easycount.plan.logical.OpDesc7FS;
 import com.tencent.easycount.util.exec.TimerPackager;
+import com.tencent.easycount.util.exec.TimerPackager.Packager;
+import com.tencent.easycount.util.io.TDMsg1;
 import com.tencent.easycount.util.status.TDBankUtils;
 
 public class Data2SinkKafka extends Data2Sink {
@@ -28,20 +31,20 @@ public class Data2SinkKafka extends Data2Sink {
 	private final AtomicLong emitMsgNum;
 	private final AtomicLong emitPackNum;
 
-	// final private TDStationProducer producer;
 	final private TimerPackager<RowAttrs, TDMsg1> timerPackager;
 
 	@Override
-	public void printStatus(int printId) {
-		log.info(opDesc.getTaskId_OpTagIdx() + " : " + iid + " : emitMsgNum : "
-				+ emitMsgNum.get() + " : emitPackNum : " + emitPackNum.get());
+	public void printStatus(final int printId) {
+		log.info(this.opDesc.getTaskId_OpTagIdx() + " : " + this.iid
+				+ " : emitMsgNum : " + this.emitMsgNum.get()
+				+ " : emitPackNum : " + this.emitPackNum.get());
 	}
 
-	public Data2SinkKafka(TrcConfiguration hconf, OpDesc7FS opDesc,
-			final KafkaProducer producer) {
+	public Data2SinkKafka(final TrcConfiguration hconf, final OpDesc7FS opDesc,
+			final KafkaECProducer producer) {
 		super(opDesc);
 		// this.producer = producer;
-		Table tbl = opDesc.getTable();
+		final Table tbl = opDesc.getTable();
 		final String topic = TableUtils.getTableTopic(tbl);
 		final String interfaceId = TableUtils.getTableInterfaceId(tbl);
 		this.iid = topic + "-" + interfaceId;
@@ -56,32 +59,33 @@ public class Data2SinkKafka extends Data2Sink {
 		final boolean compress = TableUtils.getTubeTableCompress(tbl,
 				hconf.getBoolean("tube.emit.package.compress", false));
 
-		timerPackager = new TimerPackager<RowAttrs, TDMsg1>(
+		this.timerPackager = new TimerPackager<RowAttrs, TDMsg1>(
 				timeout_seconds * 1000, new Packager<RowAttrs, TDMsg1>() {
 
 					@Override
-					public String getKey(RowAttrs t) {
-						return iid;
+					public String getKey(final RowAttrs t) {
+						return Data2SinkKafka.this.iid;
 					}
 
 					@Override
-					public TDMsg1 newPackage(RowAttrs t) {
+					public TDMsg1 newPackage(final RowAttrs t) {
 						return TDMsg1.newTDMsg(packsize, compress);
 					}
 
 					@Override
-					public boolean pack(String key, RowAttrs ra, TDMsg1 p) {
-						byte[] data = Arrays.copyOf(ra.w.getBytes(),
+					public boolean pack(final String key, final RowAttrs ra,
+							final TDMsg1 p) {
+						final byte[] data = Arrays.copyOf(ra.w.getBytes(),
 								ra.w.getLength());
-						StringBuffer sb = new StringBuffer();
+						final StringBuffer sb = new StringBuffer();
 						sb.append("m=0&iname=" + interfaceId);
-						if (tdsortAttrs != null) {
-							sb.append("&" + tdsortAttrs);
+						if (Data2SinkKafka.this.tdsortAttrs != null) {
+							sb.append("&" + Data2SinkKafka.this.tdsortAttrs);
 						}
 						boolean containsDT = false;
 						if (ra.attrs != null) {
-							for (Object k : ra.attrs.keySet()) {
-								String kstr = String.valueOf(k);
+							for (final Object k : ra.attrs.keySet()) {
+								final String kstr = String.valueOf(k);
 								if (kstr.equals("m") || kstr.equals("iname")
 										|| kstr.equals("id")) {
 									continue;
@@ -89,7 +93,8 @@ public class Data2SinkKafka extends Data2Sink {
 								if (kstr.equals("dt")) {
 									containsDT = true;
 								}
-								String vstr = String.valueOf(ra.attrs.get(k));
+								final String vstr = String.valueOf(ra.attrs
+										.get(k));
 								if (kstr.equals("t") && vstr.startsWith("1")) {
 									// TODO its a hack just leave it here until
 									// 2033
@@ -106,9 +111,11 @@ public class Data2SinkKafka extends Data2Sink {
 					}
 
 					@Override
-					public void emit(String key, TDMsg1 p, boolean full) {
-						producer.sendMsg(p.buildArray());
-						emitPackNum.incrementAndGet();
+					public void emit(final String key, final TDMsg1 p,
+							final boolean full) {
+						producer.sendMsg(Data2SinkKafka.this.iid,
+								p.buildArray());
+						Data2SinkKafka.this.emitPackNum.incrementAndGet();
 					}
 				});
 	}
@@ -140,20 +147,21 @@ public class Data2SinkKafka extends Data2Sink {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public boolean finalize(Object row, ObjectInspector objectInspector,
-			ObjectInspector keyInspector, ObjectInspector attrsInspector,
-			int opTagIdx) {
+	public boolean finalize(final Object row,
+			final ObjectInspector objectInspector,
+			final ObjectInspector keyInspector,
+			final ObjectInspector attrsInspector, final int opTagIdx) {
 		try {
 			Map<Object, Object> attrs = null;
 			if (attrsInspector != null) {
-				Object[] rs = (Object[]) row;
+				final Object[] rs = (Object[]) row;
 				attrs = (Map<Object, Object>) ObjectInspectorUtils
 						.copyToStandardObject(rs[rs.length - 1], attrsInspector);
 			}
-			Text w = (Text) serDe.serialize(row, objectInspector);
-			timerPackager.putTuple(new RowAttrs(w, attrs));
-			emitMsgNum.incrementAndGet();
-		} catch (SerDeException e) {
+			final Text w = (Text) this.serDe.serialize(row, objectInspector);
+			this.timerPackager.putTuple(new RowAttrs(w, attrs));
+			this.emitMsgNum.incrementAndGet();
+		} catch (final SerDeException e) {
 			log.error(TDBankUtils.getExceptionStack(e));
 		}
 
@@ -164,7 +172,7 @@ public class Data2SinkKafka extends Data2Sink {
 		Text w;
 		Map<Object, Object> attrs;
 
-		public RowAttrs(Text w, Map<Object, Object> attrs) {
+		public RowAttrs(final Text w, final Map<Object, Object> attrs) {
 			this.w = w;
 			this.attrs = attrs;
 		}

@@ -10,6 +10,7 @@ import com.tencent.easycount.conf.TrcConfiguration;
 import com.tencent.easycount.exec.io.Data1Source;
 import com.tencent.easycount.exec.physical.Data1Generator;
 import com.tencent.easycount.exec.utils.OIUtils;
+import com.tencent.easycount.metastore.Table;
 import com.tencent.easycount.metastore.TableUtils;
 import com.tencent.easycount.plan.logical.OpDesc1TS;
 
@@ -18,32 +19,32 @@ public class Data1SourceKafka extends Data1Source {
 	@SuppressWarnings("unused")
 	private static Logger log = LoggerFactory.getLogger(Data1SourceKafka.class);
 
-	private ObjectInspector objectInspector;
+	private final ObjectInspector objectInspector;
 
 	private final KafkaECConsumer consumer;
 
 	@Override
-	public void printStatus(int printId) {
-		consumer.printStatus(printId);
+	public void printStatus(final int printId) {
+		this.consumer.printStatus(printId);
 	}
 
-	public Data1SourceKafka(String sourceId, OpDesc1TS opdesc,
-			Data1Generator msgEmitter, TrcConfiguration hconf,
-			KafkaECConsumer consumer) {
+	public Data1SourceKafka(final String sourceId, final OpDesc1TS opdesc,
+			final Data1Generator msgEmitter, final TrcConfiguration hconf,
+			final KafkaECConsumer consumer) {
 		super(sourceId, opdesc, msgEmitter);
-		Table tbl = opdesc.getTable();
-		objectInspector = OIUtils.createLazyStructInspector(tbl);
+		final Table tbl = opdesc.getTable();
+		this.objectInspector = OIUtils.createLazyStructInspector(tbl);
 		this.consumer = consumer;
 
-		String tableInterfaceId = TableUtils.getTableInterfaceId(opdesc
+		final String tableInterfaceId = TableUtils.getTableInterfaceId(opdesc
 				.getTable());
 		this.consumer.register(this, tableInterfaceId, tbl);
 	}
 
 	@Override
 	public void start() {
-		if (!consumer.started()) {
-			consumer.start();
+		if (!this.consumer.started()) {
+			this.consumer.start();
 		}
 	}
 
@@ -51,17 +52,17 @@ public class Data1SourceKafka extends Data1Source {
 
 	@Override
 	public ObjectInspector getObjectInspector() {
-		return objectInspector;
+		return this.objectInspector;
 	}
 
 	@Override
 	public void close() throws IOException {
-		consumer.close();
+		this.consumer.close();
 	}
 
 	@Override
 	public void restart() throws Exception {
-		consumer.start();
+		this.consumer.start();
 	}
 
 }
