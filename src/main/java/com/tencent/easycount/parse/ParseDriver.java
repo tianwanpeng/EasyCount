@@ -8,17 +8,21 @@ import org.antlr.runtime.TokenStream;
 import org.antlr.runtime.tree.CommonTreeAdaptor;
 import org.antlr.runtime.tree.TreeAdaptor;
 
+import com.tencent.easycount.util.graph.GraphPrinter;
+
 public class ParseDriver {
 
-	public ASTNodeTRC parse(String sql) throws Exception {
-		ASTNodeTRC tree = parseInternal(sql);
+	public ASTNodeTRC parse(final String sql) throws Exception {
+		final ASTNodeTRC tree = parseInternal(sql);
+		GraphPrinter.print1(tree, null);
+
 		return ParseUtils.findRootNonNullToken(tree);
 	}
 
-	private ASTNodeTRC parseInternal(String sql) throws Exception {
-		TrcLexerX lexer = new TrcLexerX(new ANTLRNoCaseStringStream(sql));
-		TokenRewriteStream tokens = new TokenRewriteStream(lexer);
-		TrcParserX parser = new TrcParserX(tokens);
+	private ASTNodeTRC parseInternal(final String sql) throws Exception {
+		final TrcLexerX lexer = new TrcLexerX(new ANTLRNoCaseStringStream(sql));
+		final TokenRewriteStream tokens = new TokenRewriteStream(lexer);
+		final TrcParserX parser = new TrcParserX(tokens);
 		parser.setTreeAdaptor(adaptor);
 
 		return (ASTNodeTRC) parser.statement().getTree();
@@ -26,14 +30,14 @@ public class ParseDriver {
 
 	public class ANTLRNoCaseStringStream extends ANTLRStringStream {
 
-		public ANTLRNoCaseStringStream(String input) {
+		public ANTLRNoCaseStringStream(final String input) {
 			super(input);
 		}
 
 		@Override
-		public int LA(int i) {
+		public int LA(final int i) {
 
-			int returnChar = super.LA(i);
+			final int returnChar = super.LA(i);
 			if (returnChar == CharStream.EOF) {
 				return returnChar;
 			} else if (returnChar == 0) {
@@ -50,7 +54,7 @@ public class ParseDriver {
 			super();
 		}
 
-		public TrcLexerX(CharStream input) {
+		public TrcLexerX(final CharStream input) {
 			super(input);
 		}
 
@@ -58,13 +62,13 @@ public class ParseDriver {
 
 	private static final TreeAdaptor adaptor = new CommonTreeAdaptor() {
 		@Override
-		public ASTNodeTRC create(Token payload) {
+		public ASTNodeTRC create(final Token payload) {
 			return new ASTNodeTRC(payload);
 		}
 	};
 
 	public class TrcParserX extends TrcParser {
-		public TrcParserX(TokenStream input) {
+		public TrcParserX(final TokenStream input) {
 			super(input);
 		}
 	}

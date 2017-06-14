@@ -35,12 +35,12 @@ public class ParseUtils {
 		 * walk the ast tree and parse the info into qb
 		 */
 		new GraphWalker<Boolean>(new ASTParseDispatcher(qb),
-				WalkMode.CHILD_FIRST).walk(new ArrayList<Node>() {
-			private static final long serialVersionUID = 1L;
-			{
-				add(ast);
-			}
-		});
+				WalkMode.CHILD_FIRST, "parseQb").walk(new ArrayList<Node>() {
+					private static final long serialVersionUID = 1L;
+					{
+						add(ast);
+					}
+				});
 		return qb;
 	}
 
@@ -79,10 +79,10 @@ public class ParseUtils {
 				String alias = n.getChildCount() > 1 ? ParseStringUtil
 						.unescapeIdentifier(n.getChild(1).getText())
 						: ("__dummyAlise-" + (this.aliseIdx++));
-				final ASTNodeTRC queryn = (ASTNodeTRC) n.getChild(0);
-				this.qb.updateQuery(alias, queryn);
-				parseQuery(queryn, alias);
-				break;
+						final ASTNodeTRC queryn = (ASTNodeTRC) n.getChild(0);
+						this.qb.updateQuery(alias, queryn);
+						parseQuery(queryn, alias);
+						break;
 			case TrcParser.TOK_INSERT_QUERY:
 				alias = "__dummyDestAlise-" + (this.destQueryAliseIdx++);
 				this.qb.updateQuery(alias, n);
@@ -159,7 +159,7 @@ public class ParseUtils {
 					final ASTNodeTRC subqn = (ASTNodeTRC) queryn.getChild(j)
 							.getChild(0);
 					this.qb.getQueryByAstNode(subqn)
-					.addChildQuery(alias, query);
+							.addChildQuery(alias, query);
 				}
 			} else {
 				for (int i = 0; i < queryn.getChildCount(); i++) {
@@ -167,7 +167,7 @@ public class ParseUtils {
 					switch (childast.getToken().getType()) {
 					case TrcParser.TOK_FROM:
 						final ASTNodeTRC frm = (ASTNodeTRC) childast
-						.getChild(0);
+								.getChild(0);
 						if (frm.getToken().getType() == TrcParser.TOK_TABREF) {
 							final ASTNodeTRC subqn = (ASTNodeTRC) frm
 									.getChild(0);
@@ -339,7 +339,7 @@ public class ParseUtils {
 		private void doPhase1GetAllAggregations(
 				final ASTNodeTRC expressionTree,
 				final LinkedHashMap<String, ASTNodeTRC> aggregations)
-						throws SemanticException {
+				throws SemanticException {
 			final int exprTokenType = expressionTree.getToken().getType();
 			if ((exprTokenType == TrcParser.TOK_FUNCTION)
 					|| (exprTokenType == TrcParser.TOK_FUNCTIONDI)
@@ -353,7 +353,9 @@ public class ParseUtils {
 					final String functionName = ParseStringUtil
 							.unescapeIdentifier(expressionTree.getChild(0)
 									.getText());
-					if (FunctionRegistry.getGenericUDAFResolver(functionName) != null) {
+					System.out.println(functionName);
+					if (null != FunctionRegistry
+							.getGenericUDAFResolver(functionName)) {
 						aggregations.put(expressionTree.toStringTree(),
 								expressionTree);
 						return;

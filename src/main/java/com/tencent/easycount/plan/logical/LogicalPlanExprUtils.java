@@ -119,7 +119,7 @@ public class LogicalPlanExprUtils {
 		opRules.put(new RuleRegExp("R2", TrcParser.Number + "%|"
 				+ TrcParser.TinyintLiteral + "%|" + TrcParser.SmallintLiteral
 				+ "%|" + TrcParser.BigintLiteral + "%|"
-				// + TrcParser.DecimalLiteral + "%"
+		// + TrcParser.DecimalLiteral + "%"
 				), getNumExprProcessor());
 		opRules.put(new RuleRegExp("R3", TrcParser.Identifier + "%|"
 				+ TrcParser.IdentifierRef + "%|" + TrcParser.StringLiteral
@@ -193,7 +193,7 @@ public class LogicalPlanExprUtils {
 				getDefaultExprProcessor(), opRules, ctx);
 
 		final GraphWalker<ExprNodeDesc> ogw = new GraphWalker<ExprNodeDesc>(
-				disp, WalkMode.CHILD_FIRST);
+				disp, WalkMode.CHILD_FIRST, "getExprNodeDesc");
 
 		// Create a list of topop nodes
 		final ArrayList<Node> topNodes = new ArrayList<Node>();
@@ -202,7 +202,7 @@ public class LogicalPlanExprUtils {
 	}
 
 	public static class ColumnRefExprProcessor implements
-	NodeProcessor<ExprNodeDesc> {
+			NodeProcessor<ExprNodeDesc> {
 
 		@Override
 		public ExprNodeDesc process(final Node nd, final Stack<Node> stack,
@@ -247,7 +247,7 @@ public class LogicalPlanExprUtils {
 	}
 
 	public static class ColumnRef_OF_ExprProcessor implements
-	NodeProcessor<ExprNodeDesc> {
+			NodeProcessor<ExprNodeDesc> {
 
 		@Override
 		public ExprNodeDesc process(final Node nd, final Stack<Node> stack,
@@ -299,7 +299,7 @@ public class LogicalPlanExprUtils {
 	}
 
 	public static class ColumnRef_IN_ExprProcessor implements
-	NodeProcessor<ExprNodeDesc> {
+			NodeProcessor<ExprNodeDesc> {
 
 		@Override
 		public ExprNodeDesc process(final Node nd, final Stack<Node> stack,
@@ -351,7 +351,7 @@ public class LogicalPlanExprUtils {
 	}
 
 	public static class ForeachExprProcessor implements
-	NodeProcessor<ExprNodeDesc> {
+			NodeProcessor<ExprNodeDesc> {
 
 		@Override
 		public ExprNodeDesc process(final Node nd, final Stack<Node> stack,
@@ -379,7 +379,7 @@ public class LogicalPlanExprUtils {
 	}
 
 	public static class GenerateExprProcessor implements
-	NodeProcessor<ExprNodeDesc> {
+			NodeProcessor<ExprNodeDesc> {
 
 		@Override
 		public ExprNodeDesc process(final Node nd, final Stack<Node> stack,
@@ -404,7 +404,7 @@ public class LogicalPlanExprUtils {
 	}
 
 	public static class GenerateMapExprProcessor implements
-	NodeProcessor<ExprNodeDesc> {
+			NodeProcessor<ExprNodeDesc> {
 
 		@Override
 		public ExprNodeDesc process(final Node nd, final Stack<Node> stack,
@@ -430,7 +430,7 @@ public class LogicalPlanExprUtils {
 	}
 
 	public static class DefineExprProcessor implements
-	NodeProcessor<ExprNodeDesc> {
+			NodeProcessor<ExprNodeDesc> {
 
 		@Override
 		public ExprNodeDesc process(final Node nd, final Stack<Node> stack,
@@ -502,7 +502,7 @@ public class LogicalPlanExprUtils {
 	}
 
 	public static class AssignExprProcessor implements
-	NodeProcessor<ExprNodeDesc> {
+			NodeProcessor<ExprNodeDesc> {
 
 		@Override
 		public ExprNodeDesc process(final Node nd, final Stack<Node> stack,
@@ -575,7 +575,7 @@ public class LogicalPlanExprUtils {
 	}
 
 	public static class ExecuteblockExprProcessor implements
-	NodeProcessor<ExprNodeDesc> {
+			NodeProcessor<ExprNodeDesc> {
 
 		@Override
 		public ExprNodeDesc process(final Node nd, final Stack<Node> stack,
@@ -600,7 +600,7 @@ public class LogicalPlanExprUtils {
 	}
 
 	public static class EmitExprProcessor implements
-	NodeProcessor<ExprNodeDesc> {
+			NodeProcessor<ExprNodeDesc> {
 
 		@Override
 		public ExprNodeDesc process(final Node nd, final Stack<Node> stack,
@@ -620,7 +620,7 @@ public class LogicalPlanExprUtils {
 	}
 
 	public static class ExecuteExprProcessor implements
-	NodeProcessor<ExprNodeDesc> {
+			NodeProcessor<ExprNodeDesc> {
 
 		@Override
 		public ExprNodeDesc process(final Node nd, final Stack<Node> stack,
@@ -666,7 +666,7 @@ public class LogicalPlanExprUtils {
 	// }
 
 	public static class DataTypeExprProcessor implements
-	NodeProcessor<ExprNodeDesc> {
+			NodeProcessor<ExprNodeDesc> {
 
 		@Override
 		public ExprNodeDesc process(final Node nd, final Stack<Node> stack,
@@ -719,7 +719,7 @@ public class LogicalPlanExprUtils {
 				break;
 			case TrcParser.TOK_MAP:
 				final ExprNodeConstantDesc keydesc = (ExprNodeConstantDesc) nodeOutputs
-				.get(0);
+						.get(0);
 				final ExprNodeConstantDesc valuedesc = (ExprNodeConstantDesc) nodeOutputs
 						.get(1);
 				str = serdeConstants.MAP_TYPE_NAME + "<" + keydesc.getValue()
@@ -727,7 +727,7 @@ public class LogicalPlanExprUtils {
 				break;
 			case TrcParser.TOK_ARRAY:
 				final ExprNodeConstantDesc eledesc = (ExprNodeConstantDesc) nodeOutputs
-				.get(0);
+						.get(0);
 				str = serdeConstants.LIST_TYPE_NAME + "<" + eledesc.getValue()
 						+ ">";
 				break;
@@ -747,7 +747,7 @@ public class LogicalPlanExprUtils {
 				break;
 			case TrcParser.TOK_STRUCTUNIT:
 				final ExprNodeConstantDesc namedesc = (ExprNodeConstantDesc) nodeOutputs
-				.get(0);
+						.get(0);
 				final ExprNodeConstantDesc typedesc = (ExprNodeConstantDesc) nodeOutputs
 						.get(1);
 				str = namedesc.getValue() + ":" + typedesc.getValue();
@@ -781,7 +781,7 @@ public class LogicalPlanExprUtils {
 	}
 
 	public static class AggrTimeExprProcessor implements
-	NodeProcessor<ExprNodeDesc> {
+			NodeProcessor<ExprNodeDesc> {
 
 		@Override
 		public ExprNodeDesc process(final Node nd, final Stack<Node> stack,
@@ -797,7 +797,7 @@ public class LogicalPlanExprUtils {
 	}
 
 	public static class AttrsExprProcessor implements
-	NodeProcessor<ExprNodeDesc> {
+			NodeProcessor<ExprNodeDesc> {
 
 		@Override
 		public ExprNodeDesc process(final Node nd, final Stack<Node> stack,
@@ -948,7 +948,7 @@ public class LogicalPlanExprUtils {
 	 * Processor for boolean constants.
 	 */
 	public static class BoolExprProcessor implements
-	NodeProcessor<ExprNodeDesc> {
+			NodeProcessor<ExprNodeDesc> {
 
 		@Override
 		public ExprNodeDesc process(final Node nd, final Stack<Node> stack,
@@ -997,13 +997,13 @@ public class LogicalPlanExprUtils {
 	 * Processor for table columns.
 	 */
 	public static class ColumnExprProcessor implements
-	NodeProcessor<ExprNodeDesc> {
+			NodeProcessor<ExprNodeDesc> {
 
 		@Override
 		public ExprNodeDesc process(final Node nd, final Stack<Node> stack,
 				final NodeProcessorCtx procCtx,
 				final ArrayList<ExprNodeDesc> nodeOutputs)
-						throws SemanticException {
+				throws SemanticException {
 
 			final TypeCheckCtxTRC ctx = (TypeCheckCtxTRC) procCtx;
 			if (ctx.getError() != null) {
@@ -1018,86 +1018,86 @@ public class LogicalPlanExprUtils {
 			final ASTNodeTRC expr = (ASTNodeTRC) nd;
 			final ASTNodeTRC parent = stack.size() > 1 ? (ASTNodeTRC) stack
 					.get(stack.size() - 2) : null;
-			final RowResolverTRC input = ctx.getInputRR();
+					final RowResolverTRC input = ctx.getInputRR();
 
-			if (expr.getType() != TrcParser.TOK_TABLE_OR_COL) {
-				ctx.setError(ErrorMsg.INVALID_COLUMN.getMsg(expr), expr);
-				throw new SemanticException(
-						ErrorMsg.INVALID_COLUMN.getMsg(expr));
-			}
-
-			assert (expr.getChildCount() == 1);
-			final String tableOrCol = ParseStringUtil.unescapeIdentifier(expr
-					.getChild(0).getText());
-
-			final boolean isTableAlias = input.hasTableAlias(tableOrCol);
-			final ColumnInfoTRC colInfo = input.get(null, tableOrCol);
-
-			if (isTableAlias) {
-				if (colInfo != null) {
-					if ((parent != null) && (parent.getType() == TrcParser.DOT)) {
-						// It's a table alias.
-						return null;
-					}
-					// It's a column.
-					return new ExprNodeColumnDesc(colInfo.getType(),
-							colInfo.getInternalName(), colInfo.getTabAlias(),
-							colInfo.getIsVirtualCol());
-				} else {
-					if ((parent != null) && (parent.getType() != TrcParser.DOT)) {
-						throw new RuntimeException("error in process column : "
-								+ tableOrCol + " can not get from input : "
-								+ input.toString());
+					if (expr.getType() != TrcParser.TOK_TABLE_OR_COL) {
+						ctx.setError(ErrorMsg.INVALID_COLUMN.getMsg(expr), expr);
+						throw new SemanticException(
+								ErrorMsg.INVALID_COLUMN.getMsg(expr));
 					}
 
-					// It's a table alias.
-					// We will process that later in DOT.
-					return null;
-				}
-			} else {
-				if (colInfo == null) {
-					// It's not a column or a table alias.
-					// column cant found from input it may be in group by key
-					// expr
-					if (input.getIsExprResolver()) {
-						ASTNodeTRC exprNode = expr;
-						if (!stack.empty()) {
-							final ASTNodeTRC tmp = (ASTNodeTRC) stack.pop();
-							if (!stack.empty()) {
-								exprNode = (ASTNodeTRC) stack.peek();
+					assert (expr.getChildCount() == 1);
+					final String tableOrCol = ParseStringUtil.unescapeIdentifier(expr
+							.getChild(0).getText());
+
+					final boolean isTableAlias = input.hasTableAlias(tableOrCol);
+					final ColumnInfoTRC colInfo = input.get(null, tableOrCol);
+
+					if (isTableAlias) {
+						if (colInfo != null) {
+							if ((parent != null) && (parent.getType() == TrcParser.DOT)) {
+								// It's a table alias.
+								return null;
 							}
-							stack.push(tmp);
-						}
-						ctx.setError(ErrorMsg.NON_KEY_EXPR_IN_GROUPBY
-								.getMsg(exprNode), expr);
-						return null;
-					} else {
-						final List<String> possibleColumnNames = input
-								.getReferenceableColumnAliases(tableOrCol, -1);
-						final String reason = String.format(
-								"(possible column names are: %s)",
-								StringUtils.join(possibleColumnNames, ", "));
-						ctx.setError(
-								ErrorMsg.INVALID_TABLE_OR_COLUMN.getMsg(
-										expr.getChild(0), reason), expr);
-						return null;
-					}
-					// if (parent != null && parent.getType() != TrcParser.DOT)
-					// {
-					// throw new RuntimeException("error in process column : "
-					// + tableOrCol + " can not get from input : "
-					// + input.toString());
-					// }
+							// It's a column.
+							return new ExprNodeColumnDesc(colInfo.getType(),
+									colInfo.getInternalName(), colInfo.getTabAlias(),
+									colInfo.getIsVirtualCol());
+						} else {
+							if ((parent != null) && (parent.getType() != TrcParser.DOT)) {
+								throw new RuntimeException("error in process column : "
+										+ tableOrCol + " can not get from input : "
+										+ input.toString());
+							}
 
-				} else {
-					// It's a column.
-					final ExprNodeColumnDesc exprNodColDesc = new ExprNodeColumnDesc(
-							colInfo.getType(), colInfo.getInternalName(),
-							colInfo.getTabAlias(), colInfo.getIsVirtualCol());
-					// exprNodColDesc.setSkewedCol(colInfo.isSkewedCol());
-					return exprNodColDesc;
-				}
-			}
+							// It's a table alias.
+							// We will process that later in DOT.
+							return null;
+						}
+					} else {
+						if (colInfo == null) {
+							// It's not a column or a table alias.
+							// column cant found from input it may be in group by key
+							// expr
+							if (input.getIsExprResolver()) {
+								ASTNodeTRC exprNode = expr;
+								if (!stack.empty()) {
+									final ASTNodeTRC tmp = (ASTNodeTRC) stack.pop();
+									if (!stack.empty()) {
+										exprNode = (ASTNodeTRC) stack.peek();
+									}
+									stack.push(tmp);
+								}
+								ctx.setError(ErrorMsg.NON_KEY_EXPR_IN_GROUPBY
+										.getMsg(exprNode), expr);
+								return null;
+							} else {
+								final List<String> possibleColumnNames = input
+										.getReferenceableColumnAliases(tableOrCol, -1);
+								final String reason = String.format(
+										"(possible column names are: %s)",
+										StringUtils.join(possibleColumnNames, ", "));
+								ctx.setError(
+										ErrorMsg.INVALID_TABLE_OR_COLUMN.getMsg(
+												expr.getChild(0), reason), expr);
+								return null;
+							}
+							// if (parent != null && parent.getType() != TrcParser.DOT)
+							// {
+							// throw new RuntimeException("error in process column : "
+							// + tableOrCol + " can not get from input : "
+							// + input.toString());
+							// }
+
+						} else {
+							// It's a column.
+							final ExprNodeColumnDesc exprNodColDesc = new ExprNodeColumnDesc(
+									colInfo.getType(), colInfo.getInternalName(),
+									colInfo.getTabAlias(), colInfo.getIsVirtualCol());
+							// exprNodColDesc.setSkewedCol(colInfo.isSkewedCol());
+							return exprNodColDesc;
+						}
+					}
 		}
 	}
 
@@ -1114,7 +1114,7 @@ public class LogicalPlanExprUtils {
 	 * The default processor for typechecking.
 	 */
 	public static class DefaultExprProcessor implements
-	NodeProcessor<ExprNodeDesc> {
+			NodeProcessor<ExprNodeDesc> {
 
 		static HashMap<Integer, String> specialUnaryOperatorTextHashMap;
 		static HashMap<Integer, String> specialFunctionTextHashMap;
@@ -1127,7 +1127,7 @@ public class LogicalPlanExprUtils {
 			specialFunctionTextHashMap = new HashMap<Integer, String>();
 			specialFunctionTextHashMap.put(TrcParser.TOK_ISNULL, "isnull");
 			specialFunctionTextHashMap
-			.put(TrcParser.TOK_ISNOTNULL, "isnotnull");
+					.put(TrcParser.TOK_ISNOTNULL, "isnotnull");
 			conversionFunctionTextHashMap = new HashMap<Integer, String>();
 			conversionFunctionTextHashMap.put(TrcParser.TOK_BOOLEAN,
 					serdeConstants.BOOLEAN_TYPE_NAME);
@@ -1349,7 +1349,7 @@ public class LogicalPlanExprUtils {
 					}
 					if (!(((ExprNodeConstantDesc) children.get(1))
 							.getTypeInfo().equals(((MapTypeInfo) myt)
-									.getMapKeyTypeInfo()))) {
+							.getMapKeyTypeInfo()))) {
 						// throw new SemanticException(
 						// ErrorMsg.INVALID_MAPINDEX_TYPE.getMsg(expr));
 					}
@@ -1385,9 +1385,9 @@ public class LogicalPlanExprUtils {
 				// and reuse.
 				final GenericUDF genericUDF = fi.getGenericUDF();
 				System.err
-				.println("#########"
-						+ (genericUDF == null ? "null" : genericUDF
-								.getClass()));
+						.println("#########"
+								+ (genericUDF == null ? "null" : genericUDF
+										.getClass()));
 
 				// if (!fi.isNative()) {
 				// ctx.getUnparseTranslator().addIdentifierTranslation(
@@ -1447,8 +1447,8 @@ public class LogicalPlanExprUtils {
 						&& (children.size() == 2)
 						&& (((children.get(0) instanceof ExprNodeConstantDesc) && (children
 								.get(1) instanceof ExprNodeColumnDesc)) || ((children
-										.get(0) instanceof ExprNodeColumnDesc) && (children
-												.get(1) instanceof ExprNodeConstantDesc)))) {
+								.get(0) instanceof ExprNodeColumnDesc) && (children
+								.get(1) instanceof ExprNodeConstantDesc)))) {
 					final int constIdx = children.get(0) instanceof ExprNodeConstantDesc ? 0
 							: 1;
 
@@ -1456,16 +1456,16 @@ public class LogicalPlanExprUtils {
 							Arrays.asList(serdeConstants.TINYINT_TYPE_NAME
 									.toLowerCase(),
 									serdeConstants.SMALLINT_TYPE_NAME
-											.toLowerCase(),
+									.toLowerCase(),
 									serdeConstants.INT_TYPE_NAME.toLowerCase(),
 									serdeConstants.BIGINT_TYPE_NAME
-											.toLowerCase(),
+									.toLowerCase(),
 									serdeConstants.FLOAT_TYPE_NAME
-											.toLowerCase(),
+									.toLowerCase(),
 									serdeConstants.DOUBLE_TYPE_NAME
-											.toLowerCase(),
+									.toLowerCase(),
 									serdeConstants.STRING_TYPE_NAME
-											.toLowerCase()));
+									.toLowerCase()));
 
 					final String constType = children.get(constIdx)
 							.getTypeString().toLowerCase();
@@ -1700,7 +1700,7 @@ public class LogicalPlanExprUtils {
 				// method.
 				final ColumnInfoTRC colInfo = input.get(tableAlias,
 						((ExprNodeConstantDesc) nodeOutputs.get(1)).getValue()
-						.toString());
+								.toString());
 
 				if (colInfo == null) {
 					ctx.setError(
@@ -1720,14 +1720,14 @@ public class LogicalPlanExprUtils {
 			if (conversionFunctionTextHashMap.keySet().contains(expr.getType())
 					|| specialFunctionTextHashMap.keySet().contains(
 							expr.getType())
-							|| (expr.getToken().getType() == TrcParser.CharSetName)
-							|| (expr.getToken().getType() == TrcParser.CharSetLiteral)) {
+					|| (expr.getToken().getType() == TrcParser.CharSetName)
+					|| (expr.getToken().getType() == TrcParser.CharSetLiteral)) {
 				return null;
 			}
 
 			final boolean isFunction = ((expr.getType() == TrcParser.TOK_FUNCTION)
 					|| (expr.getType() == TrcParser.TOK_FUNCTIONSTAR) || (expr
-							.getType() == TrcParser.TOK_FUNCTIONDI));
+					.getType() == TrcParser.TOK_FUNCTIONDI));
 
 			// Create all children
 			final int childrenBegin = (isFunction ? 1 : 0);
@@ -1757,7 +1757,7 @@ public class LogicalPlanExprUtils {
 					if (!colInfo.getIsVirtualCol()) {
 						children.add(new ExprNodeColumnDesc(colInfo.getType(),
 								colInfo.getInternalName(), colInfo
-								.getTabAlias(), false));
+										.getTabAlias(), false));
 					}
 				}
 			}

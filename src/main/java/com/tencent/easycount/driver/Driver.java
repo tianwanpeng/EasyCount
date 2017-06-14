@@ -36,7 +36,6 @@ import com.tencent.easycount.plan.logical.LogicalPlanGenerator;
 import com.tencent.easycount.plan.logical.OpDesc;
 import com.tencent.easycount.plan.physical.PhysicalPlan;
 import com.tencent.easycount.plan.physical.PhysicalPlanGenerator;
-import com.tencent.easycount.udfnew.MyUDFUtils;
 import com.tencent.easycount.util.graph.GraphDrawer;
 import com.tencent.easycount.util.graph.GraphWalker;
 import com.tencent.easycount.util.graph.GraphWalker.Dispatcher;
@@ -51,7 +50,7 @@ public class Driver {
 
 		System.out.println("TRC EC version is : " + version);
 		// do some initilize work
-		MyUDFUtils.initialize();
+		// MyUDFUtils.initialize();
 
 		/**
 		 * initialize conf
@@ -63,7 +62,7 @@ public class Driver {
 		// .toURL();
 		final InputStreamReader reader = new InputStreamReader(
 				new FileInputStream(new File(config.get("configfile",
-						"testconfig.ini"))), "utf8");
+						"inifile/localtest.ini"))), "utf8");
 		final Ini ini = new Ini(reader);
 		// Ini ini = new Ini(url);
 		for (final String seckey : ini.keySet()) {
@@ -81,7 +80,7 @@ public class Driver {
 		final String sql = config.get("sql");
 		if (sql == null) {
 			System.err
-					.println("error ::: sql clause must be set, you should specify the configfile .... ");
+			.println("error ::: sql clause must be set, you should specify the configfile .... ");
 			System.exit(-1);
 		}
 
@@ -154,7 +153,7 @@ public class Driver {
 		 * generate logical plan --- opTree
 		 */
 		tt.lPlan = new LogicalPlanGenerator(tt.tree, tt.qb, tt.md)
-				.generateLogicalPlan();
+		.generateLogicalPlan();
 
 		System.err.println(tt.lPlan.printStr());
 
@@ -163,14 +162,14 @@ public class Driver {
 		 *
 		 */
 		tt.pPlan = new PhysicalPlanGenerator(tt.qb, tt.md, tt.lPlan)
-				.generatePhysicalPlan();
+		.generatePhysicalPlan();
 
 		/**
 		 * generate topology
 		 */
 		final int workNum = config.getInt("work.num", -1);
 		tt.topology = new PhysicalExecGenerator(tt.pPlan, config)
-				.generateExecTopology(workNum);
+		.generateExecTopology(workNum);
 
 		return tt;
 
@@ -301,7 +300,7 @@ public class Driver {
 							final HashMap<Node, String> retMap) {
 						return true;
 					}
-				}, WalkMode.CHILD_FIRST);
+				}, WalkMode.CHILD_FIRST, "driverGraphPrint");
 		walker.walk(rootOpDescs);
 
 		final String xml = builder.build();

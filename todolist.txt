@@ -6,8 +6,8 @@
 
 
 
-
-ExprNodeNullDesc
+-------------------------------------------
+ExprNodeNullDesc   
 
 FunctionRegistry
 HiveUtils.LINE_SEP
@@ -15,3 +15,26 @@ HiveUtils.LINE_SEP
 udf
 
 RPC
+
+20170613：
+以上问题全部bugfix，工程没有红叉叉了，但是可能引入了新的问题，需要进一步调试
+
+------------------------------------
+
+
+20170614：
+需要解决的新问题。
+udf add不行，研究hive sessionstate
+某些工程graphwalker处理有null
+
+工程日志打印，调试问题
+
+
+
+
+
+
+
+
+
+

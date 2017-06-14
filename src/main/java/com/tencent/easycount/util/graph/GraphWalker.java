@@ -69,22 +69,28 @@ public class GraphWalker<T> {
 	final private LinkedHashMap<Node, T> retMap;
 	final private Dispatcher<T> dispatcher;
 	final private WalkMode mode;
+	final private String wname;
 
 	/**
 	 *
 	 * @param dispatcher
 	 * @param mode
 	 */
-	public GraphWalker(final Dispatcher<T> dispatcher, final WalkMode mode) {
+	public GraphWalker(final Dispatcher<T> dispatcher, final WalkMode mode,
+			final String wname) {
 		this.parentNodeStack = new Stack<Node>();
 		this.retMap = new LinkedHashMap<Node, T>();
 		this.dispatcher = dispatcher;
 		this.mode = mode;
+		this.wname = wname;
 	}
 
 	public HashMap<Node, T> walk(final Collection<Node> startNodes)
 			throws Exception {
 		// walk from start nodes, walk every node
+		for (final Node node : startNodes) {
+			System.out.println(this.wname + ":::start:::" + node);
+		}
 		for (final Node node : startNodes) {
 			walk(node);
 		}
@@ -92,6 +98,9 @@ public class GraphWalker<T> {
 	}
 
 	private void walk(final Node nd) throws Exception {
+
+		System.out.println(this.wname + ":::" + nd);
+
 		// first put nd to stack
 		this.parentNodeStack.add(nd);
 

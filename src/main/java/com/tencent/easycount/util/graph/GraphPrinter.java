@@ -1,7 +1,6 @@
 package com.tencent.easycount.util.graph;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Stack;
 
@@ -10,7 +9,14 @@ import com.tencent.easycount.util.graph.GraphWalker.Node;
 import com.tencent.easycount.util.graph.GraphWalker.WalkMode;
 
 public class GraphPrinter {
-	public static void print(final Collection<Node> nodes, final CallBack cb)
+	public static void print1(final Node node, final CallBack cb)
+			throws Exception {
+		final ArrayList<Node> nodes = new ArrayList<Node>();
+		nodes.add(node);
+		print(nodes, cb);
+	}
+
+	public static void print(final ArrayList<Node> nodes, final CallBack cb)
 			throws Exception {
 		final GraphWalker<String> walker = new GraphWalker<String>(
 				new Dispatcher<String>() {
@@ -38,7 +44,7 @@ public class GraphPrinter {
 							final HashMap<Node, String> retMap) {
 						return true;
 					}
-				}, WalkMode.CHILD_FIRST);
+				}, WalkMode.CHILD_FIRST, "GraphPrinter");
 
 		walker.walk(nodes);
 	}

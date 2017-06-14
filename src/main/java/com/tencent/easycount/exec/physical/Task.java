@@ -298,8 +298,8 @@ public abstract class Task implements Node, Serializable, StatusPrintable {
 							final HashMap<Node, Operator<? extends OpDesc>> retMap) {
 						return true;
 					}
-				}, WalkMode.CHILD_FIRST).walk(this.taskWork
-						.getRootOpDescsNodes());
+				}, WalkMode.CHILD_FIRST, "opDescToOperators")
+				.walk(this.taskWork.getRootOpDescsNodes());
 
 		return opDescToOperators;
 	}
@@ -349,7 +349,7 @@ public abstract class Task implements Node, Serializable, StatusPrintable {
 							final HashMap<Node, Operator<? extends OpDesc>> retMap) {
 						return true;
 					}
-				}, WalkMode.CHILD_FIRST).walk(this.taskWork
+				}, WalkMode.CHILD_FIRST, "connectAllOps").walk(this.taskWork
 						.getRootOpDescsNodes());
 
 	}

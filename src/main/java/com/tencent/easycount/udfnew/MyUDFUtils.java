@@ -3,7 +3,15 @@ package com.tencent.easycount.udfnew;
 import org.apache.hadoop.hive.ql.exec.FunctionRegistry;
 
 public class MyUDFUtils {
+
 	public static void initialize() {
+
+		// final HiveConf conf = new HiveConf();
+		// conf.setVar(HiveConf.ConfVars.HIVE_AUTHENTICATOR_MANAGER,
+		// SessionStateUserAuthenticator.class.getName());
+		//
+		// final SessionState ss = new SessionState(conf, "ttt");
+		// SessionState.start(ss);
 		FunctionRegistry.registerTemporaryUDF("countd_bf",
 				GenericUDAFCountDistinct.class);
 		FunctionRegistry.registerTemporaryUDF("countd",
@@ -18,7 +26,7 @@ public class MyUDFUtils {
 				GenericUDAFCollectList1.class);
 
 		FunctionRegistry
-				.registerTemporaryUDF("mapmap", GenericUDAFMapMap.class);
+		.registerTemporaryUDF("mapmap", GenericUDAFMapMap.class);
 		FunctionRegistry.registerTemporaryUDF("mapmapmerge",
 				GenericUDAFMapMapMerge.class);
 		FunctionRegistry.registerTemporaryUDF("mapmapset",
@@ -47,7 +55,7 @@ public class MyUDFUtils {
 				GenericUDFArrayDel.class);
 
 		FunctionRegistry
-				.registerTemporaryUDF("map_get", GenericUDFMapGet.class);
+		.registerTemporaryUDF("map_get", GenericUDFMapGet.class);
 		FunctionRegistry.registerTemporaryUDF("map_keyset",
 				GenericUDFMapKeys_new.class);
 		FunctionRegistry.registerTemporaryUDF("map_merge",
@@ -59,9 +67,9 @@ public class MyUDFUtils {
 		FunctionRegistry.registerTemporaryUDF("map_struct",
 				GenericUDFMapStruct.class);
 		FunctionRegistry
-				.registerTemporaryUDF("map_put", GenericUDFMapPut.class);
+		.registerTemporaryUDF("map_put", GenericUDFMapPut.class);
 		FunctionRegistry
-				.registerTemporaryUDF("map_del", GenericUDFMapDel.class);
+		.registerTemporaryUDF("map_del", GenericUDFMapDel.class);
 		FunctionRegistry.registerTemporaryUDF("map_rm", GenericUDFMapDel.class);
 		FunctionRegistry.registerTemporaryUDF("map_to_str",
 				GenericUDFMapToStr.class);

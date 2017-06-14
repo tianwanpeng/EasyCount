@@ -51,11 +51,11 @@ public class PhysicalExecGenerator {
 						if (nd instanceof TaskWork1Spout) {
 							task = new Task1Spout((TaskWork1Spout) nd,
 									PhysicalExecGenerator.this.hconf
-											.getAllProperties());
+									.getAllProperties());
 						} else {
 							task = new Task2Bolt((TaskWork2Bolt) nd,
 									PhysicalExecGenerator.this.hconf
-											.getAllProperties());
+									.getAllProperties());
 						}
 						for (final Task ctask : nodeOutputs) {
 							task.addChild(ctask);
@@ -71,7 +71,7 @@ public class PhysicalExecGenerator {
 							final HashMap<Node, Task> retMap) {
 						return true;
 					}
-				}, WalkMode.CHILD_FIRST).walk(spoutWorks);
+				}, WalkMode.CHILD_FIRST, "generateTaskTree").walk(spoutWorks);
 
 		final ArrayList<Node> rootTaskNodes = new ArrayList<Node>();
 		for (final Node node : spoutWorks) {
@@ -118,7 +118,8 @@ public class PhysicalExecGenerator {
 							final HashMap<Node, Double> retMap) {
 						return true;
 					}
-				}, WalkMode.ROOT_FIRST).walk(rootTaskNodes);
+				}, WalkMode.ROOT_FIRST, "work.tasknum.decrease.factor")
+				.walk(rootTaskNodes);
 
 		int actWorkNum = workNum1;
 		if (workNum1 < 0) {
@@ -191,7 +192,7 @@ public class PhysicalExecGenerator {
 			}
 			// walk a node more time if it has two or more parents, so
 			// use recursive mode
-		}, WalkMode.ROOT_FIRST).walk(rootTaskNodes);
+		}, WalkMode.ROOT_FIRST, "topologyBuilder").walk(rootTaskNodes);
 
 		return topologyBuilder.createTopology();
 

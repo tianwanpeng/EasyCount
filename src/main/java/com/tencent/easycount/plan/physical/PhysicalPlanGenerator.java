@@ -42,7 +42,7 @@ public class PhysicalPlanGenerator {
 		 */
 		final PhysicalPlanDispatcher pDispatcher = new PhysicalPlanDispatcher();
 		final GraphWalker<AtomicInteger> walker = new GraphWalker<AtomicInteger>(
-				pDispatcher, WalkMode.ROOT_FIRST_RECURSIVE);
+				pDispatcher, WalkMode.ROOT_FIRST_RECURSIVE, "PhysicalPlan");
 		walker.walk(this.lPlan.getRootOpNodes());
 
 		final TreeMap<Integer, HashSet<OpDesc>> taskid2OpDescs = pDispatcher
@@ -67,7 +67,10 @@ public class PhysicalPlanGenerator {
 		final TreeMap<Integer, TaskWork> taskId2Works = new TreeMap<Integer, TaskWork>();
 
 		TaskWork1Spout rootWork = null;
+		System.out.println("taskId2Works:::" + taskId2Works);
+		System.out.println("taskid2OpDescs:::" + taskid2OpDescs);
 		for (final Integer taskId : taskid2OpDescs.keySet()) {
+			System.out.println("taskId::::" + taskId);
 			// 为每个taskid生成一个taskwork
 			if (!taskId2Works.containsKey(taskId)) {
 				if (taskId == 0) {
@@ -115,7 +118,7 @@ public class PhysicalPlanGenerator {
 	 *
 	 */
 	public static class PhysicalPlanDispatcher implements
-	Dispatcher<AtomicInteger> {
+			Dispatcher<AtomicInteger> {
 
 		private TreeMap<Integer, HashSet<OpDesc>> taskid2OpDescs = new TreeMap<Integer, HashSet<OpDesc>>();
 		private HashMap<OpDesc, Integer> opDesc2TaskId = new HashMap<OpDesc, Integer>();
