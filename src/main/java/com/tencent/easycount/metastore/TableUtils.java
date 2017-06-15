@@ -15,10 +15,10 @@ import com.tencent.easycount.metastore.Table.TableType;
 public class TableUtils {
 
 	final public static byte[] defaultSeparators = { (byte) 1, (byte) 2,
-		(byte) 3, (byte) 4, (byte) 5, (byte) 6, (byte) 7, (byte) 8,
-		(byte) 11, (byte) 14, (byte) 15, (byte) 16, (byte) 17, (byte) 18,
-		(byte) 19, (byte) 20, (byte) 21, (byte) 22, (byte) 23, (byte) 24,
-		(byte) 25, (byte) 26, (byte) 28, (byte) 29 };
+			(byte) 3, (byte) 4, (byte) 5, (byte) 6, (byte) 7, (byte) 8,
+			(byte) 11, (byte) 14, (byte) 15, (byte) 16, (byte) 17, (byte) 18,
+			(byte) 19, (byte) 20, (byte) 21, (byte) 22, (byte) 23, (byte) 24,
+			(byte) 25, (byte) 26, (byte) 28, (byte) 29 };
 
 	private static String TABLE_TYPE = "table.type";
 	private static String TABLE_NAME = "table.name";
@@ -123,8 +123,8 @@ public class TableUtils {
 
 		if (type == TableType.stream) {
 			return new TableStream(tableName, fields, attrs);
-		} else if (type == TableType.tube) {
-			return new TableTube(tableName, fields, attrs);
+		} else if (type == TableType.kafka) {
+			return new TableKafka(tableName, fields, attrs);
 		} else if (type == TableType.tpg) {
 			return new TableTpg(tableName, fields, attrs);
 		} else if (type == TableType.mysql) {
@@ -194,7 +194,7 @@ public class TableUtils {
 	private static char getSpliter(final String spliterStr, final char dft) {
 		return spliterStr == null ? dft : (spliterStr.toLowerCase().startsWith(
 				"0x") ? (char) Integer.parseInt(spliterStr.substring(2))
-						: spliterStr.charAt(0));
+				: spliterStr.charAt(0));
 	}
 
 	public static String getStreamTdsortAttrs(final Table tbl) {

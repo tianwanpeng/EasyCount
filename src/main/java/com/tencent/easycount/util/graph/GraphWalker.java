@@ -1,7 +1,6 @@
 package com.tencent.easycount.util.graph;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -17,6 +16,16 @@ import java.util.Stack;
  */
 
 public class GraphWalker<T> {
+
+	private boolean printinfo = true;
+
+	public boolean isPrintinfo() {
+		return this.printinfo;
+	}
+
+	public void setPrintinfo(final boolean print) {
+		this.printinfo = print;
+	}
 
 	public static enum WalkMode {
 		// 父节点优先遍历，先处理父节点，然后依次处理子节点
@@ -49,7 +58,7 @@ public class GraphWalker<T> {
 		 */
 		public T dispatch(Node nd, Stack<Node> parentStack,
 				ArrayList<T> childOutputs, HashMap<Node, T> retMap)
-				throws Exception;
+						throws Exception;
 
 		/**
 		 *
@@ -85,7 +94,7 @@ public class GraphWalker<T> {
 		this.wname = wname;
 	}
 
-	public HashMap<Node, T> walk(final Collection<Node> startNodes)
+	public HashMap<Node, T> walk(final ArrayList<Node> startNodes)
 			throws Exception {
 		// walk from start nodes, walk every node
 		for (final Node node : startNodes) {
@@ -98,23 +107,30 @@ public class GraphWalker<T> {
 	}
 
 	private void walk(final Node nd) throws Exception {
-
-		System.out.println(this.wname + ":::" + nd);
+		if (nd == null) {
+			System.out.println("nd is null....");
+			throw new Exception("nd is null....");
+		}
+		if (this.printinfo) {
+			System.out.println(this.wname + "::::::" + nd);
+		}
 
 		// first put nd to stack
 		this.parentNodeStack.add(nd);
 
-		if (!checkNodeProcessed(nd)) {
-			if (this.mode == WalkMode.CHILD_FIRST) {
-				walkChildren(nd);
-				dispatch(nd);
-			} else if (this.mode == WalkMode.ROOT_FIRST) {
-				dispatch(nd);
-				walkChildren(nd);
-			}
-		} else if (this.mode == WalkMode.ROOT_FIRST_RECURSIVE) {
+		if (this.mode == WalkMode.ROOT_FIRST_RECURSIVE) {
 			dispatch(nd);
 			walkChildren(nd);
+		} else {
+			if (!checkNodeProcessed(nd)) {
+				if (this.mode == WalkMode.CHILD_FIRST) {
+					walkChildren(nd);
+					dispatch(nd);
+				} else if (this.mode == WalkMode.ROOT_FIRST) {
+					dispatch(nd);
+					walkChildren(nd);
+				}
+			}
 		}
 
 		// at the end pop the node
@@ -137,15 +153,13 @@ public class GraphWalker<T> {
 	}
 
 	private ArrayList<T> getChildrenNodeOutputs(final Node nd) {
+		final ArrayList<T> nodeOutputs = new ArrayList<T>();
 		if (nd.getChildren() != null) {
-			final ArrayList<T> nodeOutputs = new ArrayList<T>(nd.getChildren()
-					.size());
 			for (final Node child : nd.getChildren()) {
 				nodeOutputs.add(this.retMap.get(child));
 			}
-			return nodeOutputs;
 		}
-		return null;
+		return nodeOutputs;
 	}
 
 	private boolean checkNodeProcessed(final Node nd) {

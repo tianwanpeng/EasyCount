@@ -12,6 +12,7 @@ import com.tencent.easycount.metastore.MetaData;
 import com.tencent.easycount.parse.QB;
 import com.tencent.easycount.plan.logical.LogicalPlan;
 import com.tencent.easycount.plan.logical.OpDesc;
+import com.tencent.easycount.util.graph.GraphPrinter;
 import com.tencent.easycount.util.graph.GraphWalker;
 import com.tencent.easycount.util.graph.GraphWalker.Dispatcher;
 import com.tencent.easycount.util.graph.GraphWalker.Node;
@@ -43,7 +44,16 @@ public class PhysicalPlanGenerator {
 		final PhysicalPlanDispatcher pDispatcher = new PhysicalPlanDispatcher();
 		final GraphWalker<AtomicInteger> walker = new GraphWalker<AtomicInteger>(
 				pDispatcher, WalkMode.ROOT_FIRST_RECURSIVE, "PhysicalPlan");
+		System.out.println("[[[[[[[[[[[[[[[[[[[[[[[[[[[[");
+		GraphPrinter.print(this.lPlan.getRootOpNodes(), null);
+
+		for (final Node nd : this.lPlan.getRootOpNodes()) {
+			System.out.println("sdfasdfas::" + nd);
+		}
+
 		walker.walk(this.lPlan.getRootOpNodes());
+		System.out
+				.println("[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[");
 
 		final TreeMap<Integer, HashSet<OpDesc>> taskid2OpDescs = pDispatcher
 				.getTaskid2OpDescs();
@@ -118,7 +128,7 @@ public class PhysicalPlanGenerator {
 	 *
 	 */
 	public static class PhysicalPlanDispatcher implements
-			Dispatcher<AtomicInteger> {
+	Dispatcher<AtomicInteger> {
 
 		private TreeMap<Integer, HashSet<OpDesc>> taskid2OpDescs = new TreeMap<Integer, HashSet<OpDesc>>();
 		private HashMap<OpDesc, Integer> opDesc2TaskId = new HashMap<OpDesc, Integer>();
@@ -127,6 +137,9 @@ public class PhysicalPlanGenerator {
 		public AtomicInteger dispatch(final Node nd, final Stack<Node> stack,
 				final ArrayList<AtomicInteger> nodeOutputs,
 				final HashMap<Node, AtomicInteger> retMap) {
+			System.out.println("----------------taskid2OpDescs"
+					+ this.taskid2OpDescs);
+
 			final AtomicInteger currId = new AtomicInteger(0);
 			// stack size bigger than 2 means this is not root node
 			// so first get parent id, and if parent op is MGBY then this id
@@ -160,6 +173,10 @@ public class PhysicalPlanGenerator {
 						new LinkedHashSet<OpDesc>());
 			}
 			this.taskid2OpDescs.get(currId.get()).add((OpDesc) nd);
+
+			System.out.println("]]]]]]]]]]]]]]]taskid2OpDescs"
+					+ this.taskid2OpDescs);
+
 			return currId;
 		}
 

@@ -62,9 +62,9 @@ public class Data2Finalizer implements Finalized {
 		if ((tbl.getTableType() != TableType.print)
 				&& this.hconf.getBoolean("localmode", false)) {
 			this.tagId2Sinks
-			.put(fsop.getOpDesc().getOpTagIdx(),
-					LocalModeUtils.generateLocalDataSink(tbl,
-							fsop.getOpDesc()));
+					.put(fsop.getOpDesc().getOpTagIdx(),
+							LocalModeUtils.generateLocalDataSink(tbl,
+									fsop.getOpDesc()));
 		} else {
 			Data2Sink dataSink = null;
 			if (tbl.getTableType() == TableType.print) {
@@ -82,14 +82,11 @@ public class Data2Finalizer implements Finalized {
 				dataSink = new Data2SinkRedis(fsop.getOpDesc());
 			} else if (tbl.getTableType() == TableType.hbase) {
 				dataSink = new Data2SinkHbase(fsop.getOpDesc());
-			} else if (tbl.getTableType() == TableType.tube) {
+			} else if (tbl.getTableType() == TableType.kafka) {
 				final String tubeMaster = TableUtils.getTableTubeMaster(fsop
 						.getOpDesc().getTable());
 				final int tubePort = TableUtils.getTableTubePort(fsop
 						.getOpDesc().getTable());
-				final String tubeAddrList = TableUtils
-						.getTableTubeAddrList(fsop.getOpDesc().getTable());
-
 				final String topic = TableUtils.getTableTopic(fsop.getOpDesc()
 						.getTable());
 

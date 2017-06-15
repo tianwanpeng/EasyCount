@@ -38,7 +38,7 @@ public class OIUtils {
 		final byte[] separators = TableUtils.generateSeparators(tbl);
 
 		if ((tbl.getTableType() == TableType.stream)
-				|| (tbl.getTableType() == TableType.tube)) {
+				|| (tbl.getTableType() == TableType.kafka)) {
 			return createLazyStructInspector(tbl.getWholeFieldNames(),
 					tbl.getWholeStructTypes(), separators);
 		} else {

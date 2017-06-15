@@ -262,6 +262,9 @@ public class ExprNodeNewGenericFuncDesc extends ExprNodeDesc {
 			}
 		}
 
+		for (final ObjectInspector o : childrenOIs) {
+			System.out.println("lllllllllllllllll" + o.getCategory());
+		}
 		final ObjectInspector oi = genericUDF
 				.initializeAndFoldConstants(childrenOIs);
 

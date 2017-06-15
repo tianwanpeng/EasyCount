@@ -34,6 +34,8 @@ public abstract class LocalTableServer implements LocalModeProtocol {
 
 		try {
 			final RPC.Builder bd = new RPC.Builder(new Configuration());
+			bd.setProtocol(LocalTableServer.class);
+			bd.setInstance(this);
 			bd.setBindAddress(this.bindAddress);
 			bd.setPort(this.port);
 			this.server = bd.build();
@@ -66,7 +68,7 @@ public abstract class LocalTableServer implements LocalModeProtocol {
 			final String prefix) {
 		final StringBuffer sb = new StringBuffer();
 		sb.append(this.tbl.getTableName()).append(",").append(prefix)
-				.append(",");
+		.append(",");
 		if (key != null) {
 			sb.append(key).append("-");
 		}

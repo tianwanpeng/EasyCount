@@ -17,7 +17,7 @@ public class LocalModeUtils {
 		for (final String tblalias : md.getTables().keySet()) {
 			final Table tbl = md.getTables().get(tblalias);
 			if ((tbl.getTableType() == TableType.stream)
-					|| (tbl.getTableType() == TableType.tube)) {
+					|| (tbl.getTableType() == TableType.kafka)) {
 				new LocalTableServerStream(tbl, config).start();
 			} else if ((tbl.getTableType() != TableType.inner)
 					&& (tbl.getTableType() != TableType.print)) {

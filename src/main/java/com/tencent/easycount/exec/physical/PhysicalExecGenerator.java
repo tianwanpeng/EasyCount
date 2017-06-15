@@ -16,6 +16,7 @@ import com.tencent.easycount.conf.TrcConfiguration;
 import com.tencent.easycount.plan.physical.PhysicalPlan;
 import com.tencent.easycount.plan.physical.TaskWork1Spout;
 import com.tencent.easycount.plan.physical.TaskWork2Bolt;
+import com.tencent.easycount.util.graph.GraphPrinter;
 import com.tencent.easycount.util.graph.GraphWalker;
 import com.tencent.easycount.util.graph.GraphWalker.Dispatcher;
 import com.tencent.easycount.util.graph.GraphWalker.Node;
@@ -35,6 +36,8 @@ public class PhysicalExecGenerator {
 			final int workNum1) throws Exception {
 
 		final ArrayList<Node> spoutWorks = this.pPlan.getRootWorksNodes();
+		System.out.println("=====================================");
+		GraphPrinter.print(spoutWorks, null);
 
 		/**
 		 * first generate the task tree

@@ -65,7 +65,7 @@ public class PhysicalPlanUtilsTest {
 		// }
 		final TrcConfiguration config = new TrcConfiguration();
 		final URL url = new File(config.get("configfile", "lanzuan.ini"))
-				.toURI().toURL();
+		.toURI().toURL();
 		final Ini ini = new Ini(url);
 		int secIdx = 0;
 		for (final String seckey : ini.keySet()) {
@@ -83,7 +83,7 @@ public class PhysicalPlanUtilsTest {
 
 		final MetaData md = MetaUtils.getMetaData(qb, config, ini);
 		final LogicalPlan lPlan = new LogicalPlanGenerator(tree, qb, md)
-		.generateLogicalPlan();
+				.generateLogicalPlan();
 
 		final ArrayList<Node> rootOpDescs = new ArrayList<Node>();
 		for (final OpDesc op : lPlan.getRootOps()) {
@@ -95,7 +95,7 @@ public class PhysicalPlanUtilsTest {
 		}
 
 		final PhysicalPlan pPlan = new PhysicalPlanGenerator(qb, md, lPlan)
-		.generatePhysicalPlan();
+				.generatePhysicalPlan();
 
 		final HashMap<OpDesc, Integer> opDesc2TaskId = pPlan.getOpDesc2TaskId();
 
@@ -127,7 +127,7 @@ public class PhysicalPlanUtilsTest {
 							final HashMap<Node, String> retMap) {
 						return true;
 					}
-				}, WalkMode.CHILD_FIRST);
+				}, WalkMode.CHILD_FIRST, "GraphXmlBuilder");
 		walker.walk(rootOpDescs);
 
 		final String xml = builder.build();

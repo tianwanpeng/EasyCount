@@ -79,7 +79,7 @@ public class LogicalPlanGenerator {
 		final HashMap<Node, QueryOpDescTree> queryToQueryTree = new GraphWalker<QueryOpDescTree>(
 				new GenerateOpTreeFromQueryTreeDispatcher(),
 				WalkMode.CHILD_FIRST, "generateQBTree").walk(this.qb
-						.getRootQueryNodes());
+				.getRootQueryNodes());
 
 		/**
 		 * get the root ops, all the root must be ts opdesc
@@ -149,7 +149,7 @@ public class LogicalPlanGenerator {
 	 *
 	 */
 	private class GenerateOpTreeFromQueryTreeDispatcher implements
-			Dispatcher<QueryOpDescTree> {
+	Dispatcher<QueryOpDescTree> {
 
 		/**
 		 * for each query, first generate the op-tree within the query, then
@@ -301,7 +301,7 @@ public class LogicalPlanGenerator {
 	 *
 	 */
 	private class BuildOpDescInfoDispatcher implements
-			Dispatcher<RowResolverTRC> {
+	Dispatcher<RowResolverTRC> {
 		final private HashMap<Class<? extends OpDesc>, OpDescBuilder> opDescBuilders;
 
 		public BuildOpDescInfoDispatcher() {
@@ -309,7 +309,7 @@ public class LogicalPlanGenerator {
 			this.opDescBuilders.put(OpDesc1TS.class, new OpDescBuilder1TS());
 			this.opDescBuilders.put(OpDesc2FIL.class, new OpDescBuilder2FIL());
 			this.opDescBuilders
-			.put(OpDesc3JOIN.class, new OpDescBuilder3JOIN());
+					.put(OpDesc3JOIN.class, new OpDescBuilder3JOIN());
 			this.opDescBuilders.put(OpDesc4UNION.class,
 					new OpDescBuilder4UNION());
 			this.opDescBuilders.put(OpDesc5GBY.class, new OpDescBuilder5GBY());
@@ -377,7 +377,7 @@ public class LogicalPlanGenerator {
 			final ArrayList<String> outputColumnNames = new ArrayList<String>();
 			final ArrayList<TypeInfo> outputTypes = new ArrayList<TypeInfo>();
 			if ((table.getTableType() == TableType.stream)
-					|| (table.getTableType() == TableType.tube)) {
+					|| (table.getTableType() == TableType.kafka)) {
 				// 对于流水表，数据组成除了记录本身以外可能还包含一些数据描述信息，
 				// 这些信息以map的形式放在了attr里面，也可以看做是一些输出字段
 				outputColumnNames.add(Constants.dataAttrs);
@@ -567,7 +567,7 @@ public class LogicalPlanGenerator {
 							.get(colalias);
 					keyDesc.add(new ExprNodeColumnDesc(valueInfo.getType(),
 							valueInfo.getInternalName(), valueInfo
-									.getTabAlias(), valueInfo.getIsVirtualCol()));
+							.getTabAlias(), valueInfo.getIsVirtualCol()));
 					final String colName = "internalColumn-" + outputPos;
 					outputPos++;
 					outputColumnNames.add(colName);
@@ -685,8 +685,8 @@ public class LogicalPlanGenerator {
 				// TODO all the type must be same
 				if (!leftType.equals(types.get(i))) {
 					System.err
-							.println("all the type in union clause should be same : "
-									+ leftType + " " + types.get(i));
+					.println("all the type in union clause should be same : "
+							+ leftType + " " + types.get(i));
 					return null;
 				}
 				leftType = FunctionRegistry.getCommonClassForUnionAll(leftType,
@@ -941,9 +941,9 @@ public class LogicalPlanGenerator {
 
 				final String paraExpression = paraExprInfo.getInternalName();
 				aggParameters
-						.add(new ExprNodeColumnDesc(paraExprInfo.getType(),
-								paraExpression, paraExprInfo.getTabAlias(),
-								paraExprInfo.getIsVirtualCol()));
+				.add(new ExprNodeColumnDesc(paraExprInfo.getType(),
+						paraExpression, paraExprInfo.getTabAlias(),
+						paraExprInfo.getIsVirtualCol()));
 
 				GenericUDAFEvaluator genericUDAFEvaluator;
 				try {
@@ -1163,7 +1163,7 @@ public class LogicalPlanGenerator {
 							throw new RuntimeException(
 									"can not get attrs Desc for : "
 											+ q.getDestAttrsExpr()
-													.toStringTree());
+											.toStringTree());
 						}
 						opd.setAttrsExpr(attrsExpr);
 					}
@@ -1258,10 +1258,10 @@ public class LogicalPlanGenerator {
 				for (int i = 0; i < structTypes.size(); i++) {
 					if (!structTypes.get(i).equals(thistypes.get(i))) {
 						System.err
-								.println("error ::: FS type must equal to table defined type : "
-										+ structTypes.get(i)
-										+ " "
-										+ thistypes.get(i) + " " + table);
+						.println("error ::: FS type must equal to table defined type : "
+								+ structTypes.get(i)
+								+ " "
+								+ thistypes.get(i) + " " + table);
 						return false;
 					}
 				}

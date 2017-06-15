@@ -45,7 +45,7 @@ public class GraphPrinter {
 						return true;
 					}
 				}, WalkMode.CHILD_FIRST, "GraphPrinter");
-
+		walker.setPrintinfo(false);
 		walker.walk(nodes);
 	}
 

@@ -64,10 +64,12 @@ public abstract class TaskWork implements Serializable, Node {
 		return this.rootOpDescs;
 	}
 
-	public HashSet<Node> getRootOpDescsNodes() {
+	public ArrayList<Node> getRootOpDescsNodes() {
 		final HashSet<Node> res = new HashSet<Node>();
+		final ArrayList<Node> res1 = new ArrayList<Node>();
 		res.addAll(this.rootOpDescs);
-		return res;
+		res1.addAll(res);
+		return res1;
 	}
 
 	public HashSet<OpDesc> getDestOpDescs() {

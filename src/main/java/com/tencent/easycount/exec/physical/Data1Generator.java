@@ -85,7 +85,7 @@ public class Data1Generator implements Closeable, StatusPrintable {
 				} else if (opDesc.getTable().getTableType() == TableType.inner) {
 					data1Source = new Data1SourceInner(
 							opDesc.getTaskId_OpTagIdx(), opDesc, this, hconf);
-				} else if (opDesc.getTable().getTableType() == TableType.tube) {
+				} else if (opDesc.getTable().getTableType() == TableType.kafka) {
 
 					final String tubeMaster = TableUtils
 							.getTableTubeMaster(opDesc.getTable());

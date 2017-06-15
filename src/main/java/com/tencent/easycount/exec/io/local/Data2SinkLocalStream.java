@@ -21,28 +21,28 @@ public class Data2SinkLocalStream extends Data2Sink {
 			.getLogger(Data2SinkLocalStream.class);
 	private LocalModeProtocol tblserver;
 
-	public Data2SinkLocalStream(OpDesc7FS opDesc) {
+	public Data2SinkLocalStream(final OpDesc7FS opDesc) {
 		super(opDesc);
 		try {
-			tblserver = (LocalModeProtocol) RPC.getProxy(
-					LocalModeProtocol.class,
-					LocalModeProtocol.versionID,
-					new InetSocketAddress(TableUtils.getLocalTableAddr(opDesc
-							.getTable()), TableUtils.getLocalTablePort(opDesc
-							.getTable())), new Configuration());
-		} catch (IOException e) {
+			this.tblserver = RPC.getProxy(LocalModeProtocol.class,
+					LocalModeProtocol.versionID, new InetSocketAddress(
+							TableUtils.getLocalTableAddr(opDesc.getTable()),
+							TableUtils.getLocalTablePort(opDesc.getTable())),
+							new Configuration());
+		} catch (final IOException e) {
 			e.printStackTrace();
 		}
 	}
 
 	@Override
-	public boolean finalize(Object row, ObjectInspector objectInspector,
-			ObjectInspector keyInspector, ObjectInspector attrsInspector,
-			int opTagIdx) {
+	public boolean finalize(final Object row,
+			final ObjectInspector objectInspector,
+			final ObjectInspector keyInspector,
+			final ObjectInspector attrsInspector, final int opTagIdx) {
 		try {
-			Writable obj = serDe.serialize(row, objectInspector);
-			tblserver.sendMsg(obj);
-		} catch (SerDeException e) {
+			final Writable obj = this.serDe.serialize(row, objectInspector);
+			this.tblserver.sendMsg(obj);
+		} catch (final SerDeException e) {
 			log.error(TDBankUtils.getExceptionStack(e));
 		}
 
@@ -55,7 +55,7 @@ public class Data2SinkLocalStream extends Data2Sink {
 	}
 
 	@Override
-	public void printStatus(int printId) {
+	public void printStatus(final int printId) {
 
 	}
 

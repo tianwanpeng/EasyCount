@@ -26,7 +26,7 @@ public class Table implements Serializable {
 	final private TableType tableType;
 
 	public static enum TableType {
-		stream, tube, mem, tpg, mysql, tde, leveldb, redis, hbase, hdfs, inner, print
+		stream, kafka, mem, tpg, mysql, tde, leveldb, redis, hbase, hdfs, inner, print
 	}
 
 	public String printstr() {

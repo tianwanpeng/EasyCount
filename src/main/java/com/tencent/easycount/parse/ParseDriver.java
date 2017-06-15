@@ -14,9 +14,11 @@ public class ParseDriver {
 
 	public ASTNodeTRC parse(final String sql) throws Exception {
 		final ASTNodeTRC tree = parseInternal(sql);
-		GraphPrinter.print1(tree, null);
+		System.out.println(tree.toStringTree());
 
-		return ParseUtils.findRootNonNullToken(tree);
+		final ASTNodeTRC res = ParseUtils.findRootNonNullToken(tree);
+		GraphPrinter.print1(res, null);
+		return res;
 	}
 
 	private ASTNodeTRC parseInternal(final String sql) throws Exception {
@@ -63,6 +65,10 @@ public class ParseDriver {
 	private static final TreeAdaptor adaptor = new CommonTreeAdaptor() {
 		@Override
 		public ASTNodeTRC create(final Token payload) {
+			if (payload == null) {
+				// System.out.println("payload is null");
+				// throw new RuntimeException("payload should not be null...");
+			}
 			return new ASTNodeTRC(payload);
 		}
 	};
