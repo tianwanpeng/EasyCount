@@ -1,4 +1,4 @@
-package com.tencent.easycount.driver;
+package com.tencent.easycount.driver.test;
 
 public class Test3 {
 	public static void main(String[] args) {

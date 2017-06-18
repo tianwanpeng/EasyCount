@@ -1,14 +1,19 @@
-package com.tencent.easycount.driver;
+package com.tencent.easycount.driver.test;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 
-public class HLLPTest2 {
+public class HLLPTest1 {
 
 	public static void main(String[] args) throws Exception {
 
+		test(16, 24, 100000000);
+
+	}
+
+	static void test1() throws IOException {
 		int[] ps = { 8, 10, 12, 14, 16, 18, 20, 22 };
 		int[] sps = { 16, 18, 20, 22, 24, 26, 28, 30, 32 };
 		int[] num = { 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000,

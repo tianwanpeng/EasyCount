@@ -1,4 +1,4 @@
-package com.tencent.easycount.driver;
+package com.tencent.easycount.driver.test;
 
 import java.io.File;
 import java.io.IOException;

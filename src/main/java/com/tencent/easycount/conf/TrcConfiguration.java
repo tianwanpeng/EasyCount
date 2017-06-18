@@ -86,45 +86,45 @@ public class TrcConfiguration extends Configuration implements Serializable {
 		TIMEOUT_WITHOUT_CHECK_SECONDS("timeout.without.check.seconds", 3 * 60), // 3mins
 		TIMEOUT_WITH_CHECK_AND_ARRIVED_SECONDS(
 				"timeout.with.check.and.arrived.seconds", 60), // 60s
-				TIMEOUT_WITH_CHECK_BUT_NOT_ARRIVED_MINUTES(
-						"timeout.with.check.but.not.arrived.minutes", 30), // 30mins
+		TIMEOUT_WITH_CHECK_BUT_NOT_ARRIVED_MINUTES(
+				"timeout.with.check.but.not.arrived.minutes", 30), // 30mins
 
-						RECOVER_CONSUMER_TERMINATE_WAITING_TIME(
-								"recover.consumer.terminate.waiting.time", 10 * 60 * 1000l), // 10m
+		RECOVER_CONSUMER_TERMINATE_WAITING_TIME(
+				"recover.consumer.terminate.waiting.time", 10 * 60 * 1000l), // 10m
 
-								FLUSH_INTERVAL_TIME("flush.interval.time", 10 * 60 * 1000l), // 10m
+		FLUSH_INTERVAL_TIME("flush.interval.time", 10 * 60 * 1000l), // 10m
 
-								TDW_FS_DEFAULT_NAME("tdw.fs.default.name", ""), //
+		TDW_FS_DEFAULT_NAME("tdw.fs.default.name", ""), //
 
-								CLOSESESSION_TIMEOUT_MS("close.session.timeout.ms", 30l * 1000), //
-								FLUSH_MEM_TIMEOUT_MS("flush.mem.timeout.ms", 3l * 60 * 1000), //
-								UPLOAD_FILE_TIMEOUT_MS("upload.file.timeout.ms", 10l * 60 * 1000), //
-								CHECKER_SESSION_RUNNER_INTERFAL_TIME_MS(
-										"checker.sessionrunner.intervaltime.ms", 3l * 60 * 1000), //
-										CHECKER_SESSION_TIMEOUT_TIME_DAY_MS(
-												"checker.sessiontimeout.timeday.ms", 6 * Constants.ANHOUR), //
-												CHECKER_SESSION_TIMEOUT_TIME_HOUR_MS(
-														"checker.sessiontimeout.timehour.ms", 40 * Constants.AMINUTE), //
-														CHECKER_SESSION_TIMEOUT_TIME_HALFHOUR_MS(
-																"checker.sessiontimeout.timehalfhour.ms",
-																20 * Constants.AMINUTE), //
-																CHECKER_SESSION_TIMEOUT_TIME_QUERTER_MS(
-																		"checker.sessiontimeout.timequerter.ms", 10 * Constants.AMINUTE), //
-																		CHECKER_SESSION_TIMEOUT_TIME_TENMINS_MS(
-																				"checker.sessiontimeout.timetenmins.ms", 10 * Constants.AMINUTE), //
-																				CHECKER_SESSION_TIMEOUT_TIME_FIVEMINS_MS(
-																						"checker.sessiontimeout.timefivemins.ms",
-																						10 * Constants.AMINUTE), //
-																						CHECKER_SESSION_TIMEOUT_TIME_MINUTE_MS(
-																								"checker.sessiontimeout.timeminute.ms", 10 * Constants.AMINUTE), //
-																								META_MAX_SLEEP_TIME("meta.max.sleep.time", 10l * 60 * 1000), //
-																								META_SENDNUM_PER_NUEXTUPLE("max.sendnum.per.nexttuple", 1), //
+		CLOSESESSION_TIMEOUT_MS("close.session.timeout.ms", 30l * 1000), //
+		FLUSH_MEM_TIMEOUT_MS("flush.mem.timeout.ms", 3l * 60 * 1000), //
+		UPLOAD_FILE_TIMEOUT_MS("upload.file.timeout.ms", 10l * 60 * 1000), //
+		CHECKER_SESSION_RUNNER_INTERFAL_TIME_MS(
+				"checker.sessionrunner.intervaltime.ms", 3l * 60 * 1000), //
+		CHECKER_SESSION_TIMEOUT_TIME_DAY_MS(
+				"checker.sessiontimeout.timeday.ms", 6 * Constants.ANHOUR), //
+		CHECKER_SESSION_TIMEOUT_TIME_HOUR_MS(
+				"checker.sessiontimeout.timehour.ms", 40 * Constants.AMINUTE), //
+		CHECKER_SESSION_TIMEOUT_TIME_HALFHOUR_MS(
+				"checker.sessiontimeout.timehalfhour.ms",
+				20 * Constants.AMINUTE), //
+		CHECKER_SESSION_TIMEOUT_TIME_QUERTER_MS(
+				"checker.sessiontimeout.timequerter.ms", 10 * Constants.AMINUTE), //
+		CHECKER_SESSION_TIMEOUT_TIME_TENMINS_MS(
+				"checker.sessiontimeout.timetenmins.ms", 10 * Constants.AMINUTE), //
+		CHECKER_SESSION_TIMEOUT_TIME_FIVEMINS_MS(
+				"checker.sessiontimeout.timefivemins.ms",
+				10 * Constants.AMINUTE), //
+		CHECKER_SESSION_TIMEOUT_TIME_MINUTE_MS(
+				"checker.sessiontimeout.timeminute.ms", 10 * Constants.AMINUTE), //
+		META_MAX_SLEEP_TIME("meta.max.sleep.time", 10l * 60 * 1000), //
+		META_SENDNUM_PER_NUEXTUPLE("max.sendnum.per.nexttuple", 1), //
 
-																								FS_DEFAULT_NAME("fs.default.name", ""), //
-																								parserNum("parserNum", 100), //
-																								parsersQueueNum("parsersQueueNum", 1000), //
-																								BASEDIR("baseDir", ""), //
-																								CONSUME_FROM_MAX_OFFSET("consume.from.max.offset", false);
+		FS_DEFAULT_NAME("fs.default.name", ""), //
+		parserNum("parserNum", 100), //
+		parsersQueueNum("parsersQueueNum", 1000), //
+		BASEDIR("baseDir", ""), //
+		CONSUME_FROM_MAX_OFFSET("consume.from.max.offset", false);
 
 		public final String varname;
 		public final String defaultVal;

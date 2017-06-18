@@ -17,7 +17,7 @@ public class Data2SinkPrint extends Data2Sink {
 
 	// FileOutputStream fos;
 
-	public Data2SinkPrint(OpDesc7FS opDesc) {
+	public Data2SinkPrint(final OpDesc7FS opDesc) {
 		super(opDesc);
 		// try {
 		// fos = new FileOutputStream(new File("testdata.dat"));
@@ -27,15 +27,16 @@ public class Data2SinkPrint extends Data2Sink {
 	}
 
 	@Override
-	public boolean finalize(Object row, ObjectInspector objectInspector,
-			ObjectInspector keyInspector, ObjectInspector attrsInspector,
-			int opTagIdx) {
+	public boolean finalize(final Object row,
+			final ObjectInspector objectInspector,
+			final ObjectInspector keyInspector,
+			final ObjectInspector attrsInspector, final int opTagIdx) {
 		try {
-			Object obj = serDe.serialize(row, objectInspector);
+			final Object obj = this.serDe.serialize(row, objectInspector);
 			if (obj instanceof BytesWritable) {
-				log.info("finalize : " + (opDesc.getTaskId_OpTagIdx()) + " : "
-						+ new String(((BytesWritable) obj).getBytes()) + " "
-						+ (System.currentTimeMillis() / 1000));
+				log.error("finalize : " + (this.opDesc.getTaskId_OpTagIdx())
+						+ " : " + new String(((BytesWritable) obj).getBytes())
+						+ " " + (System.currentTimeMillis() / 1000));
 				// BytesWritable data = ((BytesWritable) obj);
 				// try {
 				// fos.write(data.getBytes(), 0, data.getLength());
@@ -45,8 +46,8 @@ public class Data2SinkPrint extends Data2Sink {
 				// log.error(TDBankUtils.getExceptionStack(e));
 				// }
 			} else {
-				log.info("finalize : " + (opDesc.getTaskId_OpTagIdx()) + " : "
-						+ obj.toString() + " "
+				log.error("finalize : " + (this.opDesc.getTaskId_OpTagIdx())
+						+ " : " + obj.toString() + " "
 						+ (System.currentTimeMillis() / 1000));
 				// try {
 				// fos.write(obj.toString().getBytes());
@@ -56,7 +57,7 @@ public class Data2SinkPrint extends Data2Sink {
 				// log.error(TDBankUtils.getExceptionStack(e));
 				// }
 			}
-		} catch (SerDeException e) {
+		} catch (final SerDeException e) {
 			log.error(TDBankUtils.getExceptionStack(e));
 		}
 
@@ -70,7 +71,7 @@ public class Data2SinkPrint extends Data2Sink {
 	}
 
 	@Override
-	public void printStatus(int printId) {
+	public void printStatus(final int printId) {
 		// TODO Auto-generated method stub
 
 	}
