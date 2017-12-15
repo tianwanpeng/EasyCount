@@ -18,7 +18,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.PrimitiveObjectInspector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.exec.io.Queryable;
 import com.tencent.easycount.exec.io.Queryable.CallBack;
 import com.tencent.easycount.exec.io.QueryableTableUtils;
@@ -74,13 +74,13 @@ public class Operator3JOIN extends Operator<OpDesc3JOIN> {
 	}
 
 	public Operator3JOIN(final OpDesc3JOIN opDesc,
-			final TrcConfiguration hconf, final TaskContext taskContext) {
+			final ECConfiguration hconf, final TaskContext taskContext) {
 		super(opDesc, hconf, taskContext);
 	}
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	protected void initializeOp(final TrcConfiguration hconf,
+	protected void initializeOp(final ECConfiguration hconf,
 			final TaskContext taskContext) {
 
 		this.emitRowsNum = new AtomicLong(0);

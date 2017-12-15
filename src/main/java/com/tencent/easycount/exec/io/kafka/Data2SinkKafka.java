@@ -12,7 +12,7 @@ import org.apache.hadoop.io.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.exec.io.Data2Sink;
 import com.tencent.easycount.metastore.Table;
 import com.tencent.easycount.metastore.TableUtils;
@@ -40,7 +40,7 @@ public class Data2SinkKafka extends Data2Sink {
 				+ " : emitPackNum : " + this.emitPackNum.get());
 	}
 
-	public Data2SinkKafka(final TrcConfiguration hconf, final OpDesc7FS opDesc,
+	public Data2SinkKafka(final ECConfiguration hconf, final OpDesc7FS opDesc,
 			final KafkaECProducer producer) {
 		super(opDesc);
 		// this.producer = producer;

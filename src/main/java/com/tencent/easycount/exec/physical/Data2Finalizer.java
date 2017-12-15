@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.exec.io.Data2Sink;
 import com.tencent.easycount.exec.io.db.Data2SinkDB;
 import com.tencent.easycount.exec.io.db.Data2SinkDBNormal;
@@ -27,7 +27,7 @@ public class Data2Finalizer implements Finalized {
 	// LoggerFactory.getLogger(Data2Finalizer.class);
 
 	final private HashMap<Integer, Data2Sink> tagId2Sinks;
-	private final TrcConfiguration hconf;
+	private final ECConfiguration hconf;
 	final private ConcurrentHashMap<String, KafkaECProducer> tubeProducers = new ConcurrentHashMap<String, KafkaECProducer>();
 	final private String taskId;
 	final private String execId;
@@ -39,7 +39,7 @@ public class Data2Finalizer implements Finalized {
 		}
 	}
 
-	public Data2Finalizer(final TrcConfiguration hconf, final String taskId,
+	public Data2Finalizer(final ECConfiguration hconf, final String taskId,
 			final String execId) {
 		this.hconf = hconf;
 		this.taskId = taskId;

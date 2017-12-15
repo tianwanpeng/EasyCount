@@ -47,7 +47,6 @@ public class OIUtils {
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	public static LazySimpleStructObjectInspector createLazyStructInspector(
 			final ArrayList<String> columnNames,
 			final ArrayList<TypeInfo> typeInfos, final byte[] separators) {

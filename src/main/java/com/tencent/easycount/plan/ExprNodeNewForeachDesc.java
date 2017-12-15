@@ -90,12 +90,11 @@ public class ExprNodeNewForeachDesc extends ExprNodeDesc {
 	 *
 	 * @throws UDFArgumentException
 	 */
-	@SuppressWarnings("deprecation")
 	public static ExprNodeGenericFuncDesc newInstance(
 			final GenericUDF genericUDF, final List<ExprNodeDesc> children)
-			throws UDFArgumentException {
+					throws UDFArgumentException {
 		final ObjectInspector[] childrenOIs = new ObjectInspector[children
-				.size()];
+		                                                          .size()];
 		for (int i = 0; i < childrenOIs.length; i++) {
 			childrenOIs[i] = children.get(i).getWritableObjectInspector();
 		}

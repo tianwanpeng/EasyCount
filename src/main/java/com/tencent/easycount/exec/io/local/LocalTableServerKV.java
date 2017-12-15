@@ -6,14 +6,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.ipc.ProtocolSignature;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.metastore.Table;
 
 public class LocalTableServerKV extends LocalTableServer {
 
 	private final ConcurrentHashMap<String, Writable> map;
 
-	public LocalTableServerKV(final Table tbl, final TrcConfiguration config) {
+	public LocalTableServerKV(final Table tbl, final ECConfiguration config) {
 		super(tbl, config);
 		this.map = new ConcurrentHashMap<String, Writable>();
 	}

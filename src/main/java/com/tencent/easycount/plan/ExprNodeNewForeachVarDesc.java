@@ -8,7 +8,7 @@ import org.apache.hadoop.hive.ql.plan.ExprNodeColumnDesc;
 import org.apache.hadoop.hive.ql.plan.ExprNodeDesc;
 
 import com.tencent.easycount.plan.ExprNodeNewColumnRefDesc.RefMode;
-import com.tencent.easycount.plan.TypeCheckCtxTRC.Var;
+import com.tencent.easycount.plan.TypeCheckCtxEC.Var;
 
 public class ExprNodeNewForeachVarDesc extends ExprNodeDesc {
 	private static final long serialVersionUID = 1L;

@@ -2,7 +2,7 @@ package com.tencent.easycount.driver;
 
 import org.ini4j.Ini;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.exec.physical.PhysicalExecGenerator;
 import com.tencent.easycount.metastore.MetaData;
 import com.tencent.easycount.metastore.MetaUtils;
@@ -27,7 +27,7 @@ public class TopologyGenerator {
 
 	}
 
-	static EcTopology generateTopology(final TrcConfiguration config,
+	static EcTopology generateTopology(final ECConfiguration config,
 			final Ini ini) throws Exception {
 
 		final EcTopology tt = new EcTopology();

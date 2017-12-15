@@ -25,7 +25,7 @@ import org.apache.hadoop.hive.ql.plan.ExprNodeDesc;
 import org.apache.hadoop.hive.serde2.typeinfo.TypeInfoFactory;
 import org.apache.hadoop.io.NullWritable;
 
-import com.tencent.easycount.plan.TypeCheckCtxTRC.Var;
+import com.tencent.easycount.plan.TypeCheckCtxEC.Var;
 
 public class ExprNodeNewDefineDesc extends ExprNodeDesc implements Serializable {
 

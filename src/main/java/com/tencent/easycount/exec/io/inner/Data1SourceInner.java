@@ -9,7 +9,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.exec.io.Data1Source;
 import com.tencent.easycount.exec.physical.Data1Generator;
 import com.tencent.easycount.exec.utils.OIUtils;
@@ -32,7 +32,7 @@ public class Data1SourceInner extends Data1Source {
 	private int ms;
 
 	public Data1SourceInner(String sourceId, OpDesc1TS opdesc,
-			Data1Generator msgEmitter, TrcConfiguration hconf) {
+			Data1Generator msgEmitter, ECConfiguration hconf) {
 		super(sourceId, opdesc, msgEmitter);
 		objectInspector = OIUtils.createLazyStructInspector(opdesc.getTable());
 		table = (TableInner) opdesc.getTable();

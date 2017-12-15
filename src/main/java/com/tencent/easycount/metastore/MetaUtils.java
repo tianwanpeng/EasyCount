@@ -7,7 +7,7 @@ import org.apache.hadoop.hive.serde2.typeinfo.TypeInfoFactory;
 import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.metastore.Table.TableType;
 import com.tencent.easycount.parse.ParseUtils;
 import com.tencent.easycount.parse.QB;
@@ -16,7 +16,7 @@ import com.tencent.easycount.parse.Query;
 public class MetaUtils {
 
 	public static MetaData getMetaData(final QB qb,
-			final TrcConfiguration config, final Ini ini) throws Exception {
+			final ECConfiguration config, final Ini ini) throws Exception {
 
 		final MetaData md = new MetaData();
 		// boolean testmode = config.getBoolean("testmode", false);

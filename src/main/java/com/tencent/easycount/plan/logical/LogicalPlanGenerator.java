@@ -29,10 +29,10 @@ import com.tencent.easycount.parse.Query.QueryMode;
 import com.tencent.easycount.parse.TrcParser;
 import com.tencent.easycount.plan.AggregationDescWrapper;
 import com.tencent.easycount.plan.AggregationDescWrapper.AggrMode;
-import com.tencent.easycount.plan.ColumnInfoTRC;
-import com.tencent.easycount.plan.RowResolverTRC;
-import com.tencent.easycount.plan.RowSchemaTRC;
-import com.tencent.easycount.plan.TypeCheckCtxTRC;
+import com.tencent.easycount.plan.ColumnInfoEC;
+import com.tencent.easycount.plan.RowResolverEC;
+import com.tencent.easycount.plan.RowSchemaEC;
+import com.tencent.easycount.plan.TypeCheckCtxEC;
 import com.tencent.easycount.plan.logical.JoinUtils.Condition;
 import com.tencent.easycount.util.constants.Constants;
 import com.tencent.easycount.util.graph.GraphPrinter;
@@ -48,7 +48,7 @@ public class LogicalPlanGenerator {
 	final private MetaData md;
 
 	final private HashMap<OpDesc, Query> op2Querys;
-	final private HashMap<OpDesc, RowResolverTRC> op2RR;
+	final private HashMap<OpDesc, RowResolverEC> op2RR;
 
 	public LogicalPlanGenerator(final ASTNodeTRC tree, final QB qb,
 			final MetaData md) {
@@ -57,7 +57,7 @@ public class LogicalPlanGenerator {
 		this.md = md;
 
 		this.op2Querys = new HashMap<OpDesc, Query>();
-		this.op2RR = new HashMap<OpDesc, RowResolverTRC>();
+		this.op2RR = new HashMap<OpDesc, RowResolverEC>();
 	}
 
 	/**
@@ -101,7 +101,7 @@ public class LogicalPlanGenerator {
 		 * 这要从root节点（通常都是ts）开始对所有的子节点进行递归处理和填充
 		 *
 		 */
-		new GraphWalker<RowResolverTRC>(new BuildOpDescInfoDispatcher(),
+		new GraphWalker<RowResolverEC>(new BuildOpDescInfoDispatcher(),
 				WalkMode.ROOT_FIRST_RECURSIVE, "generateLogicalPlan")
 				.walk(rootOpNodes);
 		final ArrayList<Node> rootOpsp = new ArrayList<>();
@@ -301,7 +301,7 @@ public class LogicalPlanGenerator {
 	 *
 	 */
 	private class BuildOpDescInfoDispatcher implements
-	Dispatcher<RowResolverTRC> {
+	Dispatcher<RowResolverEC> {
 		final private HashMap<Class<? extends OpDesc>, OpDescBuilder> opDescBuilders;
 
 		public BuildOpDescInfoDispatcher() {
@@ -321,10 +321,10 @@ public class LogicalPlanGenerator {
 		 * dispatcher 的结果是一个op到rowresolver的map
 		 */
 		@Override
-		public RowResolverTRC dispatch(final Node nd, final Stack<Node> stack,
-				final ArrayList<RowResolverTRC> nodeOutputs,
-				final HashMap<Node, RowResolverTRC> retMap) throws Exception {
-			final RowResolverTRC rr = this.opDescBuilders.get(nd.getClass())
+		public RowResolverEC dispatch(final Node nd, final Stack<Node> stack,
+				final ArrayList<RowResolverEC> nodeOutputs,
+				final HashMap<Node, RowResolverEC> retMap) throws Exception {
+			final RowResolverEC rr = this.opDescBuilders.get(nd.getClass())
 					.process(nd, stack, nodeOutputs, retMap);
 			if (rr != null) {
 				System.out.println("nd2RR : " + nd.getName() + " " + rr);
@@ -335,16 +335,16 @@ public class LogicalPlanGenerator {
 		@Override
 		public boolean needToDispatchChildren(final Node nd,
 				final Stack<Node> stack,
-				final ArrayList<RowResolverTRC> nodeOutputs,
-				final HashMap<Node, RowResolverTRC> retMap) {
+				final ArrayList<RowResolverEC> nodeOutputs,
+				final HashMap<Node, RowResolverEC> retMap) {
 			return retMap.get(nd) != null;
 		}
 	}
 
 	private interface OpDescBuilder {
-		public RowResolverTRC process(Node nd, Stack<Node> stack,
-				ArrayList<RowResolverTRC> nodeOutputs,
-				HashMap<Node, RowResolverTRC> retMap) throws Exception;
+		public RowResolverEC process(Node nd, Stack<Node> stack,
+				ArrayList<RowResolverEC> nodeOutputs,
+				HashMap<Node, RowResolverEC> retMap) throws Exception;
 	}
 
 	/**
@@ -356,9 +356,9 @@ public class LogicalPlanGenerator {
 	private class OpDescBuilder1TS implements OpDescBuilder {
 
 		@Override
-		public RowResolverTRC process(final Node nd, final Stack<Node> stack,
-				final ArrayList<RowResolverTRC> nodeOutputs,
-				final HashMap<Node, RowResolverTRC> retMap) {
+		public RowResolverEC process(final Node nd, final Stack<Node> stack,
+				final ArrayList<RowResolverEC> nodeOutputs,
+				final HashMap<Node, RowResolverEC> retMap) {
 			final OpDesc1TS opd = (OpDesc1TS) nd;
 
 			final Query query = LogicalPlanGenerator.this.op2Querys.get(opd);
@@ -373,7 +373,7 @@ public class LogicalPlanGenerator {
 			opd.setTable(table);
 			opd.setDimensionTable(query.isDimensionTable());
 
-			final RowResolverTRC outputRR = new RowResolverTRC();
+			final RowResolverEC outputRR = new RowResolverEC();
 			final ArrayList<String> outputColumnNames = new ArrayList<String>();
 			final ArrayList<TypeInfo> outputTypes = new ArrayList<TypeInfo>();
 			if ((table.getTableType() == TableType.stream)
@@ -386,11 +386,11 @@ public class LogicalPlanGenerator {
 						TypeInfoFactory.stringTypeInfo);
 				outputTypes.add(attrtype);
 				outputRR.put(tableAlias, Constants.dataAttrs,
-						new ColumnInfoTRC(Constants.dataAttrs, attrtype,
+						new ColumnInfoEC(Constants.dataAttrs, attrtype,
 								tableAlias, false));
 			}
 			for (final Field field : table.getFields()) {
-				final ColumnInfoTRC colInfo = new ColumnInfoTRC(
+				final ColumnInfoEC colInfo = new ColumnInfoEC(
 						field.getColumnName(), field.getType(), tableAlias,
 						false);
 				outputRR.put(tableAlias, field.getColumnName(), colInfo);
@@ -414,12 +414,12 @@ public class LogicalPlanGenerator {
 	private class OpDescBuilder2FIL implements OpDescBuilder {
 
 		@Override
-		public RowResolverTRC process(final Node nd, final Stack<Node> stack,
-				final ArrayList<RowResolverTRC> nodeOutputs,
-				final HashMap<Node, RowResolverTRC> retMap) throws Exception {
+		public RowResolverEC process(final Node nd, final Stack<Node> stack,
+				final ArrayList<RowResolverEC> nodeOutputs,
+				final HashMap<Node, RowResolverEC> retMap) throws Exception {
 			final OpDesc2FIL opd = (OpDesc2FIL) nd;
 			final OpDesc parent = (OpDesc) stack.get(stack.size() - 2);
-			final RowResolverTRC outputRR = LogicalPlanGenerator.this.op2RR
+			final RowResolverEC outputRR = LogicalPlanGenerator.this.op2RR
 					.get(parent);
 
 			final boolean having = "HAVING".equals(nd.getName());
@@ -436,15 +436,15 @@ public class LogicalPlanGenerator {
 	}
 
 	private ExprNodeDesc getExprNodeDescCached(final ASTNodeTRC expr,
-			final RowResolverTRC input) throws Exception {
-		final ColumnInfoTRC colInfo = input.getExpression(expr);
+			final RowResolverEC input) throws Exception {
+		final ColumnInfoEC colInfo = input.getExpression(expr);
 		if (colInfo != null) {
 			return new ExprNodeColumnDesc(colInfo.getType(),
 					colInfo.getInternalName(), colInfo.getTabAlias(),
 					colInfo.getIsVirtualCol(), colInfo.isSkewedCol());
 		}
 		final ExprNodeDesc res = LogicalPlanExprUtils.getExprNodeDesc(expr,
-				new TypeCheckCtxTRC(input));
+				new TypeCheckCtxEC(input));
 		if (res == null) {
 			System.err.println("warned : " + expr.toStringTree()
 					+ " from input : " + input + " is null");
@@ -454,9 +454,9 @@ public class LogicalPlanGenerator {
 
 	private class OpDescBuilder3JOIN implements OpDescBuilder {
 		@Override
-		public RowResolverTRC process(final Node nd, final Stack<Node> stack,
-				final ArrayList<RowResolverTRC> nodeOutputs,
-				final HashMap<Node, RowResolverTRC> retMap) throws Exception {
+		public RowResolverEC process(final Node nd, final Stack<Node> stack,
+				final ArrayList<RowResolverEC> nodeOutputs,
+				final HashMap<Node, RowResolverEC> retMap) throws Exception {
 
 			final OpDesc3JOIN opd = (OpDesc3JOIN) nd;
 			for (final OpDesc partent : opd.parentOps()) {
@@ -493,7 +493,7 @@ public class LogicalPlanGenerator {
 					joinDTableAliass, alias2KeyAsts);
 			// System.out.println("alias2KeyAsts : " + alias2KeyAsts);
 
-			final HashMap<String, RowResolverTRC> alias2InputRRs = new HashMap<String, RowResolverTRC>();
+			final HashMap<String, RowResolverEC> alias2InputRRs = new HashMap<String, RowResolverEC>();
 			// for (OpDesc partent : opd.parentOps()) {
 			// String alias = qb.getAliasByAstNode(op2Querys.get(partent)
 			// .getN());
@@ -508,10 +508,10 @@ public class LogicalPlanGenerator {
 			}
 
 			final HashMap<String, ExprNodeDesc> table2KeyExprs = new HashMap<String, ExprNodeDesc>();
-			final RowResolverTRC streamRR = alias2InputRRs.get(streamAlias);
+			final RowResolverEC streamRR = alias2InputRRs.get(streamAlias);
 			for (final String alias : alias2KeyAsts.keySet()) {
 				final Condition condition = alias2KeyAsts.get(alias);
-				final RowResolverTRC rr = alias2InputRRs.get(alias);
+				final RowResolverEC rr = alias2InputRRs.get(alias);
 				final ExprNodeDesc leftNodeDesc = getExprNodeDescCached(
 						condition.leftAst, condition.leftIsStream ? streamRR
 								: rr);
@@ -531,7 +531,7 @@ public class LogicalPlanGenerator {
 			}
 			opd.setAlias2ConditionKeyExprs(table2KeyExprs);
 
-			final RowResolverTRC outputRR = new RowResolverTRC();
+			final RowResolverEC outputRR = new RowResolverEC();
 			final ArrayList<String> outputColumnNames = new ArrayList<String>();
 
 			final HashMap<String, ArrayList<ExprNodeDesc>> alias2ExprDesc = new HashMap<String, ArrayList<ExprNodeDesc>>();
@@ -539,10 +539,10 @@ public class LogicalPlanGenerator {
 
 			int outputPos = 0;
 			final ArrayList<ExprNodeDesc> keyDesc1 = new ArrayList<ExprNodeDesc>();
-			final HashMap<String, ColumnInfoTRC> colalias2ColumnInfo1 = streamRR
+			final HashMap<String, ColumnInfoEC> colalias2ColumnInfo1 = streamRR
 					.getFieldMap(streamAlias);
 			for (final String colalias : colalias2ColumnInfo1.keySet()) {
-				final ColumnInfoTRC valueInfo = colalias2ColumnInfo1
+				final ColumnInfoEC valueInfo = colalias2ColumnInfo1
 						.get(colalias);
 				keyDesc1.add(new ExprNodeColumnDesc(valueInfo.getType(),
 						valueInfo.getInternalName(), valueInfo.getTabAlias(),
@@ -551,7 +551,7 @@ public class LogicalPlanGenerator {
 				outputPos++;
 				outputColumnNames.add(colName);
 				outputRR.put(streamAlias, colalias,
-						new ColumnInfoTRC(colName, valueInfo.getType(),
+						new ColumnInfoEC(colName, valueInfo.getType(),
 								streamAlias, valueInfo.getIsVirtualCol(),
 								valueInfo.isHiddenVirtualCol()));
 				outputTypes.add(valueInfo.getType());
@@ -560,10 +560,10 @@ public class LogicalPlanGenerator {
 
 			for (final String tabAlias : joinDTableAliass) {
 				final ArrayList<ExprNodeDesc> keyDesc = new ArrayList<ExprNodeDesc>();
-				final HashMap<String, ColumnInfoTRC> colalias2ColumnInfo = alias2InputRRs
+				final HashMap<String, ColumnInfoEC> colalias2ColumnInfo = alias2InputRRs
 						.get(tabAlias).getFieldMap(tabAlias);
 				for (final String colalias : colalias2ColumnInfo.keySet()) {
-					final ColumnInfoTRC valueInfo = colalias2ColumnInfo
+					final ColumnInfoEC valueInfo = colalias2ColumnInfo
 							.get(colalias);
 					keyDesc.add(new ExprNodeColumnDesc(valueInfo.getType(),
 							valueInfo.getInternalName(), valueInfo
@@ -572,7 +572,7 @@ public class LogicalPlanGenerator {
 					outputPos++;
 					outputColumnNames.add(colName);
 					outputRR.put(tabAlias, colalias,
-							new ColumnInfoTRC(colName, valueInfo.getType(),
+							new ColumnInfoEC(colName, valueInfo.getType(),
 									tabAlias, valueInfo.getIsVirtualCol(),
 									valueInfo.isHiddenVirtualCol()));
 					outputTypes.add(valueInfo.getType());
@@ -596,9 +596,9 @@ public class LogicalPlanGenerator {
 	private class OpDescBuilder4UNION implements OpDescBuilder {
 
 		@Override
-		public RowResolverTRC process(final Node nd, final Stack<Node> stack,
-				final ArrayList<RowResolverTRC> nodeOutputs,
-				final HashMap<Node, RowResolverTRC> retMap) {
+		public RowResolverEC process(final Node nd, final Stack<Node> stack,
+				final ArrayList<RowResolverEC> nodeOutputs,
+				final HashMap<Node, RowResolverEC> retMap) {
 
 			final OpDesc4UNION opd = (OpDesc4UNION) nd;
 
@@ -612,13 +612,13 @@ public class LogicalPlanGenerator {
 			final Query q = LogicalPlanGenerator.this.op2Querys.get(nd);
 			final String qAlias = LogicalPlanGenerator.this.qb
 					.getAliasByAstNode(q.getN());
-			final RowResolverTRC outputRR = new RowResolverTRC();
+			final RowResolverEC outputRR = new RowResolverEC();
 			final ArrayList<String> outputColumnNames = new ArrayList<String>();
 			final ArrayList<TypeInfo> outputTypes = new ArrayList<TypeInfo>();
 
-			final ArrayList<RowSchemaTRC> parentSchemas = new ArrayList<RowSchemaTRC>();
+			final ArrayList<RowSchemaEC> parentSchemas = new ArrayList<RowSchemaEC>();
 			for (final OpDesc partent : opd.parentOps()) {
-				final RowResolverTRC rr = LogicalPlanGenerator.this.op2RR
+				final RowResolverEC rr = LogicalPlanGenerator.this.op2RR
 						.get(partent);
 				parentSchemas.add(rr.getRowSchema());
 			}
@@ -636,19 +636,19 @@ public class LogicalPlanGenerator {
 			}
 
 			final OpDesc fistParent = opd.parentOps().iterator().next();
-			final RowResolverTRC firstParentRR = LogicalPlanGenerator.this.op2RR
+			final RowResolverEC firstParentRR = LogicalPlanGenerator.this.op2RR
 					.get(fistParent);
 			final String firstAlias = LogicalPlanGenerator.this.qb
 					.getAliasByAstNode(LogicalPlanGenerator.this.op2Querys.get(
 							fistParent).getN());
 			int pos = 0;
-			for (final Map.Entry<String, ColumnInfoTRC> lEntry : firstParentRR
+			for (final Map.Entry<String, ColumnInfoEC> lEntry : firstParentRR
 					.getFieldMap(firstAlias).entrySet()) {
-				final ColumnInfoTRC unionColInfo = new ColumnInfoTRC(
+				final ColumnInfoEC unionColInfo = new ColumnInfoEC(
 						lEntry.getValue());
 
 				final ArrayList<TypeInfo> columnInfoTRCs = new ArrayList<TypeInfo>();
-				for (final RowSchemaTRC rs : parentSchemas) {
+				for (final RowSchemaEC rs : parentSchemas) {
 					columnInfoTRCs.add(rs.getSignature().get(pos).getType());
 				}
 				final TypeInfo type = getCommonTypeInfoTRC(columnInfoTRCs);
@@ -699,14 +699,14 @@ public class LogicalPlanGenerator {
 	private class OpDescBuilder5GBY implements OpDescBuilder {
 
 		@Override
-		public RowResolverTRC process(final Node nd, final Stack<Node> stack,
-				final ArrayList<RowResolverTRC> nodeOutputs,
-				final HashMap<Node, RowResolverTRC> retMap) throws Exception {
+		public RowResolverEC process(final Node nd, final Stack<Node> stack,
+				final ArrayList<RowResolverEC> nodeOutputs,
+				final HashMap<Node, RowResolverEC> retMap) throws Exception {
 			final OpDesc5GBY opd = (OpDesc5GBY) nd;
 			final boolean mapMode = "MGBY".equals(opd.getName());
 
 			final OpDesc parent = (OpDesc) stack.get(stack.size() - 2);
-			final RowResolverTRC inputRR = LogicalPlanGenerator.this.op2RR
+			final RowResolverEC inputRR = LogicalPlanGenerator.this.op2RR
 					.get(parent);
 
 			// System.err.println(op2Querys);
@@ -751,15 +751,15 @@ public class LogicalPlanGenerator {
 
 		}
 
-		private RowResolverTRC processMGBY(final Node nd,
+		private RowResolverEC processMGBY(final Node nd,
 				final Stack<Node> stack,
-				final ArrayList<RowResolverTRC> nodeOutputs,
-				final HashMap<Node, RowResolverTRC> retMap) throws Exception {
+				final ArrayList<RowResolverEC> nodeOutputs,
+				final HashMap<Node, RowResolverEC> retMap) throws Exception {
 			final OpDesc5GBY opd = (OpDesc5GBY) nd;
 			final OpDesc parent = (OpDesc) stack.get(stack.size() - 2);
-			final RowResolverTRC inputRR = LogicalPlanGenerator.this.op2RR
+			final RowResolverEC inputRR = LogicalPlanGenerator.this.op2RR
 					.get(parent);
-			final RowResolverTRC outputRR = new RowResolverTRC();
+			final RowResolverEC outputRR = new RowResolverEC();
 			outputRR.setIsExprResolver(true);
 
 			final Query query = LogicalPlanGenerator.this.op2Querys.get(opd);
@@ -790,13 +790,13 @@ public class LogicalPlanGenerator {
 				outputColumnNames.add(columnName);
 				outputTypes.add(type);
 
-				outputRR.putExpression(grpbyExpr, new ColumnInfoTRC(columnName,
+				outputRR.putExpression(grpbyExpr, new ColumnInfoEC(columnName,
 						type, "", false));
 			}
 
 			outputColumnNames.add(Constants.gbyAggrTupleTime);
 			outputTypes.add(TypeInfoFactory.longTypeInfo);
-			outputRR.put("", Constants.gbyAggrTupleTime, new ColumnInfoTRC(
+			outputRR.put("", Constants.gbyAggrTupleTime, new ColumnInfoEC(
 					Constants.gbyAggrTupleTime, TypeInfoFactory.longTypeInfo,
 					"", false));
 
@@ -812,7 +812,7 @@ public class LogicalPlanGenerator {
 				for (int i = 1; i < value.getChildCount(); i++) {
 					final ASTNodeTRC paraExpr = (ASTNodeTRC) value.getChild(i);
 					final ExprNodeDesc paraExprNode = LogicalPlanExprUtils
-							.getExprNodeDesc(paraExpr, new TypeCheckCtxTRC(
+							.getExprNodeDesc(paraExpr, new TypeCheckCtxEC(
 									inputRR));
 					aggParameters.add(paraExprNode);
 				}
@@ -844,7 +844,7 @@ public class LogicalPlanGenerator {
 				outputColumnNames.add(columnName);
 				outputTypes.add(type);
 
-				outputRR.putExpression(value, new ColumnInfoTRC(columnName,
+				outputRR.putExpression(value, new ColumnInfoEC(columnName,
 						type, "", false));
 			}
 
@@ -877,15 +877,15 @@ public class LogicalPlanGenerator {
 			return null;
 		}
 
-		private RowResolverTRC processRGBY(final Node nd,
+		private RowResolverEC processRGBY(final Node nd,
 				final Stack<Node> stack,
-				final ArrayList<RowResolverTRC> nodeOutputs,
-				final HashMap<Node, RowResolverTRC> retMap) {
+				final ArrayList<RowResolverEC> nodeOutputs,
+				final HashMap<Node, RowResolverEC> retMap) {
 			final OpDesc5GBY opd = (OpDesc5GBY) nd;
 			final OpDesc parent = (OpDesc) stack.get(stack.size() - 2);
-			final RowResolverTRC inputRR = LogicalPlanGenerator.this.op2RR
+			final RowResolverEC inputRR = LogicalPlanGenerator.this.op2RR
 					.get(parent);
-			final RowResolverTRC outputRR = new RowResolverTRC();
+			final RowResolverEC outputRR = new RowResolverEC();
 			outputRR.setIsExprResolver(true);
 
 			final Query query = LogicalPlanGenerator.this.op2Querys.get(opd);
@@ -901,7 +901,7 @@ public class LogicalPlanGenerator {
 			int idx = 0;
 			for (int i = 0; i < grpByExprs.size(); ++i) {
 				final ASTNodeTRC grpbyExpr = grpByExprs.get(i);
-				final ColumnInfoTRC exprInfo = inputRR.getExpression(grpbyExpr);
+				final ColumnInfoEC exprInfo = inputRR.getExpression(grpbyExpr);
 
 				groupByKeys.add(new ExprNodeColumnDesc(exprInfo.getType(),
 						exprInfo.getInternalName(), exprInfo.getTabAlias(),
@@ -912,13 +912,13 @@ public class LogicalPlanGenerator {
 				outputColumnNames.add(columnName);
 				outputTypes.add(type);
 
-				outputRR.putExpression(grpbyExpr, new ColumnInfoTRC(columnName,
+				outputRR.putExpression(grpbyExpr, new ColumnInfoEC(columnName,
 						type, "", false));
 			}
 
 			outputColumnNames.add(Constants.gbyAggrTupleTime);
 			outputTypes.add(TypeInfoFactory.longTypeInfo);
-			outputRR.put("", Constants.gbyAggrTupleTime, new ColumnInfoTRC(
+			outputRR.put("", Constants.gbyAggrTupleTime, new ColumnInfoEC(
 					Constants.gbyAggrTupleTime, TypeInfoFactory.longTypeInfo,
 					"", false));
 
@@ -937,7 +937,7 @@ public class LogicalPlanGenerator {
 						.getChild(0).getText());
 				final ArrayList<ExprNodeDesc> aggParameters = new ArrayList<ExprNodeDesc>();
 
-				final ColumnInfoTRC paraExprInfo = inputRR.getExpression(value);
+				final ColumnInfoEC paraExprInfo = inputRR.getExpression(value);
 
 				final String paraExpression = paraExprInfo.getInternalName();
 				aggParameters
@@ -966,7 +966,7 @@ public class LogicalPlanGenerator {
 					outputColumnNames.add(columnName);
 					outputTypes.add(type);
 
-					outputRR.putExpression(value, new ColumnInfoTRC(columnName,
+					outputRR.putExpression(value, new ColumnInfoEC(columnName,
 							type, "", false));
 				} catch (final Exception e) {
 					e.printStackTrace();
@@ -1040,18 +1040,18 @@ public class LogicalPlanGenerator {
 
 	private class OpDescBuilder6SEL implements OpDescBuilder {
 		@Override
-		public RowResolverTRC process(final Node nd, final Stack<Node> stack,
-				final ArrayList<RowResolverTRC> nodeOutputs,
-				final HashMap<Node, RowResolverTRC> retMap) throws Exception {
+		public RowResolverEC process(final Node nd, final Stack<Node> stack,
+				final ArrayList<RowResolverEC> nodeOutputs,
+				final HashMap<Node, RowResolverEC> retMap) throws Exception {
 			final OpDesc6SEL opd = (OpDesc6SEL) nd;
-			final RowResolverTRC inputRR = LogicalPlanGenerator.this.op2RR
+			final RowResolverEC inputRR = LogicalPlanGenerator.this.op2RR
 					.get(stack.get(stack.size() - 2));
 			final Query q = LogicalPlanGenerator.this.op2Querys.get(opd);
 			String qAlias = LogicalPlanGenerator.this.qb.getAliasByAstNode(q
 					.getN());
 			final ASTNodeTRC selExpr = q.getSelectExpr();
 
-			final RowResolverTRC outputRR = new RowResolverTRC();
+			final RowResolverEC outputRR = new RowResolverEC();
 
 			final ArrayList<ExprNodeDesc> col_list = new ArrayList<ExprNodeDesc>();
 			final ArrayList<String> outputColumnNames = new ArrayList<String>();
@@ -1132,7 +1132,7 @@ public class LogicalPlanGenerator {
 					selOI = ((ListObjectInspector) selOI)
 							.getListElementObjectInspector();
 				}
-				final ColumnInfoTRC outputColumnInfo = new ColumnInfoTRC(
+				final ColumnInfoEC outputColumnInfo = new ColumnInfoEC(
 						columnName, selOI, qAlias, false);
 				outputRR.put(qAlias, colAlias, outputColumnInfo);
 
@@ -1182,14 +1182,14 @@ public class LogicalPlanGenerator {
 
 	private class OpDescBuilder7FS implements OpDescBuilder {
 		@Override
-		public RowResolverTRC process(final Node nd, final Stack<Node> stack,
-				final ArrayList<RowResolverTRC> nodeOutputs,
-				final HashMap<Node, RowResolverTRC> retMap) throws Exception {
+		public RowResolverEC process(final Node nd, final Stack<Node> stack,
+				final ArrayList<RowResolverEC> nodeOutputs,
+				final HashMap<Node, RowResolverEC> retMap) throws Exception {
 			final OpDesc7FS opd = (OpDesc7FS) nd;
 
 			// parent of FS must be SEL
 			final OpDesc6SEL parent = (OpDesc6SEL) stack.get(stack.size() - 2);
-			final RowResolverTRC inputRR = LogicalPlanGenerator.this.op2RR
+			final RowResolverEC inputRR = LogicalPlanGenerator.this.op2RR
 					.get(parent);
 
 			final Query query = LogicalPlanGenerator.this.op2Querys.get(opd);

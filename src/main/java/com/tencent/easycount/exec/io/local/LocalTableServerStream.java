@@ -6,14 +6,14 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.ipc.ProtocolSignature;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.metastore.Table;
 
 public class LocalTableServerStream extends LocalTableServer {
 
 	private final LinkedBlockingQueue<Writable> queue;
 
-	public LocalTableServerStream(final Table tbl, final TrcConfiguration config) {
+	public LocalTableServerStream(final Table tbl, final ECConfiguration config) {
 		super(tbl, config);
 		this.queue = new LinkedBlockingQueue<Writable>();
 	}

@@ -1,6 +1,6 @@
 package com.tencent.easycount.exec.logical;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.exec.io.TaskContext;
 import com.tencent.easycount.plan.logical.OpDesc;
 import com.tencent.easycount.plan.logical.OpDesc1TS;
@@ -14,7 +14,7 @@ import com.tencent.easycount.plan.logical.OpDesc7FS;
 public class OperatorFactory {
 
 	public static Operator<? extends OpDesc> getOperator(OpDesc opdesc,
-			TrcConfiguration hconf, TaskContext taskContext) {
+			ECConfiguration hconf, TaskContext taskContext) {
 		if (opdesc instanceof OpDesc1TS) {
 			return new Operator1TS((OpDesc1TS) opdesc, hconf, taskContext);
 		}

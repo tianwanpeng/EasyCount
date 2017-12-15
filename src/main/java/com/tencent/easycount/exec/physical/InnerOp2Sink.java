@@ -13,7 +13,7 @@ import org.apache.hadoop.io.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.exec.io.TaskContext;
 import com.tencent.easycount.exec.logical.Operator;
 import com.tencent.easycount.plan.logical.OpDesc;
@@ -42,7 +42,7 @@ public class InnerOp2Sink extends Operator<OpDesc> {
 		}
 	}
 
-	public InnerOp2Sink(final TrcConfiguration hconf,
+	public InnerOp2Sink(final ECConfiguration hconf,
 			final TaskContext taskContext, final OpDesc opDesc,
 			final OpDesc childOpDesc, final CallBack callback) {
 		super(new OpDesc() {

@@ -5,7 +5,7 @@ import java.io.UnsupportedEncodingException;
 import org.apache.hadoop.hive.ql.plan.ExprNodeDesc;
 import org.apache.hadoop.hive.ql.plan.ExprNodeDescUtils;
 
-import com.tencent.easycount.plan.RowResolverTRC;
+import com.tencent.easycount.plan.RowResolverEC;
 
 public class ParseStringUtil {
 	public static String getUnescapedName(ASTNodeTRC tableNameNode) {
@@ -182,7 +182,7 @@ public class ParseStringUtil {
 	}
 
 	public static String[] getColAlias(ASTNodeTRC selExpr, String defaultName,
-			RowResolverTRC inputRR, boolean includeFuncName, int colNum) {
+			RowResolverEC inputRR, boolean includeFuncName, int colNum) {
 		String colAlias = null;
 		String tabAlias = null;
 		String[] colRef = new String[2];

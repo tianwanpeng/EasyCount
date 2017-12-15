@@ -1,6 +1,6 @@
 package com.tencent.easycount.exec.io.local;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.exec.io.Data1Source;
 import com.tencent.easycount.exec.io.Data2Sink;
 import com.tencent.easycount.exec.physical.Data1Generator;
@@ -13,7 +13,7 @@ import com.tencent.easycount.plan.logical.OpDesc7FS;
 public class LocalModeUtils {
 
 	public static void setupTables(final MetaData md,
-			final TrcConfiguration config) {
+			final ECConfiguration config) {
 		for (final String tblalias : md.getTables().keySet()) {
 			final Table tbl = md.getTables().get(tblalias);
 			if ((tbl.getTableType() == TableType.stream)
@@ -37,7 +37,7 @@ public class LocalModeUtils {
 
 	public static Data1Source generateLocalDataSource(
 			final String taskId_OpTagIdx, final OpDesc1TS opDesc,
-			final Data1Generator data1Generator, final TrcConfiguration hconf) {
+			final Data1Generator data1Generator, final ECConfiguration hconf) {
 		if (opDesc.getTable().isKVTbl()) {
 			return new Data1SourceLocalKV(taskId_OpTagIdx, opDesc,
 					data1Generator, hconf);

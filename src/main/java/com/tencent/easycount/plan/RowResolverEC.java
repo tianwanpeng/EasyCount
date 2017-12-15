@@ -37,11 +37,11 @@ import com.tencent.easycount.parse.ASTNodeTRC;
  * Implementation of the Row Resolver.
  * 
  */
-public class RowResolverTRC implements Serializable {
+public class RowResolverEC implements Serializable {
 	private static final long serialVersionUID = 1L;
-	private RowSchemaTRC rowSchema;
+	private RowSchemaEC rowSchema;
 	// table alias --> columnAlias --> ColumnInfo
-	private HashMap<String, LinkedHashMap<String, ColumnInfoTRC>> rslvMap;
+	private HashMap<String, LinkedHashMap<String, ColumnInfoEC>> rslvMap;
 
 	// internalName --> [tableAlias, columnAlias]
 	private HashMap<String, String[]> invRslvMap;
@@ -53,12 +53,12 @@ public class RowResolverTRC implements Serializable {
 	private boolean isExprResolver;
 
 	@SuppressWarnings("unused")
-	private static final Log LOG = LogFactory.getLog(RowResolverTRC.class
+	private static final Log LOG = LogFactory.getLog(RowResolverEC.class
 			.getName());
 
-	public RowResolverTRC() {
-		rowSchema = new RowSchemaTRC();
-		rslvMap = new HashMap<String, LinkedHashMap<String, ColumnInfoTRC>>();
+	public RowResolverEC() {
+		rowSchema = new RowSchemaEC();
+		rslvMap = new HashMap<String, LinkedHashMap<String, ColumnInfoEC>>();
 		invRslvMap = new HashMap<String, String[]>();
 		expressionMap = new HashMap<String, ASTNodeTRC>();
 		isExprResolver = false;
@@ -71,7 +71,7 @@ public class RowResolverTRC implements Serializable {
 	 * entries is an empty-string ("") as the table alias together with the
 	 * string rendering of the ASTNodeTRC as the column alias.
 	 */
-	public void putExpression(ASTNodeTRC node, ColumnInfoTRC colInfo) {
+	public void putExpression(ASTNodeTRC node, ColumnInfoEC colInfo) {
 		String treeAsString = node.toStringTree();
 		expressionMap.put(treeAsString, node);
 		put("", treeAsString, colInfo);
@@ -81,7 +81,7 @@ public class RowResolverTRC implements Serializable {
 	 * Retrieves the ColumnInfo corresponding to a source expression which
 	 * exactly matches the string rendering of the given ASTNodeTRC.
 	 */
-	public ColumnInfoTRC getExpression(ASTNodeTRC node) {
+	public ColumnInfoEC getExpression(ASTNodeTRC node) {
 		return get("", node.toStringTree());
 	}
 
@@ -93,20 +93,20 @@ public class RowResolverTRC implements Serializable {
 		return expressionMap.get(node.toStringTree());
 	}
 
-	public void put(String tab_alias, String col_alias, ColumnInfoTRC colInfo) {
+	public void put(String tab_alias, String col_alias, ColumnInfoEC colInfo) {
 		if (tab_alias != null) {
 			tab_alias = tab_alias.toLowerCase();
 		}
 		col_alias = col_alias.toLowerCase();
 		if (rowSchema.getSignature() == null) {
-			rowSchema.setSignature(new ArrayList<ColumnInfoTRC>());
+			rowSchema.setSignature(new ArrayList<ColumnInfoEC>());
 		}
 
 		rowSchema.getSignature().add(colInfo);
 
-		LinkedHashMap<String, ColumnInfoTRC> f_map = rslvMap.get(tab_alias);
+		LinkedHashMap<String, ColumnInfoEC> f_map = rslvMap.get(tab_alias);
 		if (f_map == null) {
-			f_map = new LinkedHashMap<String, ColumnInfoTRC>();
+			f_map = new LinkedHashMap<String, ColumnInfoEC>();
 			rslvMap.put(tab_alias, f_map);
 		}
 		f_map.put(col_alias, colInfo);
@@ -141,21 +141,21 @@ public class RowResolverTRC implements Serializable {
 	 * @return ColumnInfo
 	 * @throws SemanticException
 	 */
-	public ColumnInfoTRC get(String tab_alias, String col_alias) {
+	public ColumnInfoEC get(String tab_alias, String col_alias) {
 		col_alias = col_alias.toLowerCase();
-		ColumnInfoTRC ret = null;
+		ColumnInfoEC ret = null;
 
 		if (tab_alias != null) {
 			tab_alias = tab_alias.toLowerCase();
-			HashMap<String, ColumnInfoTRC> f_map = rslvMap.get(tab_alias);
+			HashMap<String, ColumnInfoEC> f_map = rslvMap.get(tab_alias);
 			if (f_map == null) {
 				return null;
 			}
 			ret = f_map.get(col_alias);
 		} else {
 			boolean found = false;
-			for (LinkedHashMap<String, ColumnInfoTRC> cmap : rslvMap.values()) {
-				for (Map.Entry<String, ColumnInfoTRC> cmapEnt : cmap.entrySet()) {
+			for (LinkedHashMap<String, ColumnInfoEC> cmap : rslvMap.values()) {
+				for (Map.Entry<String, ColumnInfoEC> cmapEnt : cmap.entrySet()) {
 					if (col_alias.equalsIgnoreCase(cmapEnt.getKey())) {
 						if (found) {
 							// throw new SemanticException(
@@ -177,7 +177,7 @@ public class RowResolverTRC implements Serializable {
 	 * check if column name is already exist in RR
 	 */
 	public void checkColumn(String tableAlias, String columnAlias) {
-		ColumnInfoTRC prev = get(null, columnAlias);
+		ColumnInfoEC prev = get(null, columnAlias);
 		if (prev != null
 				&& (tableAlias == null || !tableAlias.equalsIgnoreCase(prev
 						.getTabAlias()))) {
@@ -186,7 +186,7 @@ public class RowResolverTRC implements Serializable {
 		}
 	}
 
-	public ArrayList<ColumnInfoTRC> getColumnInfos() {
+	public ArrayList<ColumnInfoEC> getColumnInfos() {
 		return rowSchema.getSignature();
 	}
 
@@ -203,20 +203,20 @@ public class RowResolverTRC implements Serializable {
 
 		int tables = rslvMap.size();
 
-		Map<String, ColumnInfoTRC> mapping = rslvMap.get(tableAlias);
+		Map<String, ColumnInfoEC> mapping = rslvMap.get(tableAlias);
 		if (mapping != null) {
-			for (Map.Entry<String, ColumnInfoTRC> entry : mapping.entrySet()) {
+			for (Map.Entry<String, ColumnInfoEC> entry : mapping.entrySet()) {
 				if (max > 0 && count >= max) {
 					break;
 				}
-				ColumnInfoTRC columnInfo = entry.getValue();
+				ColumnInfoEC columnInfo = entry.getValue();
 				if (!columnInfo.isHiddenVirtualCol()) {
 					columnNames.add(entry.getKey());
 					count++;
 				}
 			}
 		} else {
-			for (ColumnInfoTRC columnInfo : getColumnInfos()) {
+			for (ColumnInfoEC columnInfo : getColumnInfos()) {
 				if (max > 0 && count >= max) {
 					break;
 				}
@@ -237,7 +237,7 @@ public class RowResolverTRC implements Serializable {
 		return new ArrayList<String>(columnNames);
 	}
 
-	public HashMap<String, ColumnInfoTRC> getFieldMap(String tabAlias) {
+	public HashMap<String, ColumnInfoEC> getFieldMap(String tabAlias) {
 		if (tabAlias == null) {
 			return rslvMap.get(null);
 		} else {
@@ -248,7 +248,7 @@ public class RowResolverTRC implements Serializable {
 	public int getPosition(String internalName) {
 		int pos = -1;
 
-		for (ColumnInfoTRC var : rowSchema.getSignature()) {
+		for (ColumnInfoEC var : rowSchema.getSignature()) {
 			++pos;
 			if (var.getInternalName().equals(internalName)) {
 				return pos;
@@ -278,13 +278,13 @@ public class RowResolverTRC implements Serializable {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 
-		for (Map.Entry<String, LinkedHashMap<String, ColumnInfoTRC>> e : rslvMap
+		for (Map.Entry<String, LinkedHashMap<String, ColumnInfoEC>> e : rslvMap
 				.entrySet()) {
 			String tab = e.getKey();
 			sb.append(tab + "{");
-			HashMap<String, ColumnInfoTRC> f_map = e.getValue();
+			HashMap<String, ColumnInfoEC> f_map = e.getValue();
 			if (f_map != null) {
-				for (Map.Entry<String, ColumnInfoTRC> entry : f_map.entrySet()) {
+				for (Map.Entry<String, ColumnInfoEC> entry : f_map.entrySet()) {
 					sb.append("(" + entry.getKey() + ","
 							+ entry.getValue().toString() + ")");
 				}
@@ -294,11 +294,11 @@ public class RowResolverTRC implements Serializable {
 		return sb.toString();
 	}
 
-	public RowSchemaTRC getRowSchema() {
+	public RowSchemaEC getRowSchema() {
 		return rowSchema;
 	}
 
-	public HashMap<String, LinkedHashMap<String, ColumnInfoTRC>> getRslvMap() {
+	public HashMap<String, LinkedHashMap<String, ColumnInfoEC>> getRslvMap() {
 		return rslvMap;
 	}
 
@@ -314,12 +314,12 @@ public class RowResolverTRC implements Serializable {
 		this.isExprResolver = isExprResolver;
 	}
 
-	public void setRowSchema(RowSchemaTRC rowSchema) {
+	public void setRowSchema(RowSchemaEC rowSchema) {
 		this.rowSchema = rowSchema;
 	}
 
 	public void setRslvMap(
-			HashMap<String, LinkedHashMap<String, ColumnInfoTRC>> rslvMap) {
+			HashMap<String, LinkedHashMap<String, ColumnInfoEC>> rslvMap) {
 		this.rslvMap = rslvMap;
 	}
 
@@ -335,7 +335,7 @@ public class RowResolverTRC implements Serializable {
 		StringBuilder cols = new StringBuilder();
 		StringBuilder colTypes = new StringBuilder();
 
-		for (ColumnInfoTRC colInfo : getColumnInfos()) {
+		for (ColumnInfoEC colInfo : getColumnInfos()) {
 			if (cols.length() > 0) {
 				cols.append(',');
 				colTypes.append(':');

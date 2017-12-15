@@ -31,14 +31,21 @@ import org.apache.hadoop.hive.serde2.typeinfo.TypeInfoUtils;
  * (identified by a java class).
  **/
 
-public class ColumnInfoTRC implements Serializable {
+/**
+ * conains internalname, alias, table alias, and objectinspector
+ * 
+ * @author steven
+ *
+ */
+
+public class ColumnInfoEC implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	private String internalName;
 
 	private String alias = null; // [optional] alias of the column (external
-									// name
+	// name
 	// as seen by the users)
 	/**
 	 * Indicates whether the column is a skewed column.
@@ -59,36 +66,39 @@ public class ColumnInfoTRC implements Serializable {
 
 	private boolean isHiddenVirtualCol;
 
-	public ColumnInfoTRC() {
+	public ColumnInfoEC() {
 	}
 
-	public ColumnInfoTRC(String internalName, TypeInfo type, String tabAlias,
-			boolean isVirtualCol) {
+	public ColumnInfoEC(final String internalName, final TypeInfo type,
+			final String tabAlias, final boolean isVirtualCol) {
 		this(internalName, type, tabAlias, isVirtualCol, false);
 	}
 
-	public ColumnInfoTRC(String internalName,
-			@SuppressWarnings("rawtypes") Class type, String tabAlias,
-			boolean isVirtualCol) {
+	public ColumnInfoEC(final String internalName,
+			@SuppressWarnings("rawtypes") final Class type,
+			final String tabAlias, final boolean isVirtualCol) {
 		this(internalName, TypeInfoFactory
 				.getPrimitiveTypeInfoFromPrimitiveWritable(type), tabAlias,
 				isVirtualCol, false);
 	}
 
-	public ColumnInfoTRC(String internalName, TypeInfo type, String tabAlias,
-			boolean isVirtualCol, boolean isHiddenVirtualCol) {
+	public ColumnInfoEC(final String internalName, final TypeInfo type,
+			final String tabAlias, final boolean isVirtualCol,
+			final boolean isHiddenVirtualCol) {
 		this(internalName, TypeInfoUtils
 				.getStandardWritableObjectInspectorFromTypeInfo(type),
 				tabAlias, isVirtualCol, isHiddenVirtualCol);
 	}
 
-	public ColumnInfoTRC(String internalName, ObjectInspector objectInspector,
-			String tabAlias, boolean isVirtualCol) {
+	public ColumnInfoEC(final String internalName,
+			final ObjectInspector objectInspector, final String tabAlias,
+			final boolean isVirtualCol) {
 		this(internalName, objectInspector, tabAlias, isVirtualCol, false);
 	}
 
-	public ColumnInfoTRC(String internalName, ObjectInspector objectInspector,
-			String tabAlias, boolean isVirtualCol, boolean isHiddenVirtualCol) {
+	public ColumnInfoEC(final String internalName,
+			final ObjectInspector objectInspector, final String tabAlias,
+			final boolean isVirtualCol, final boolean isHiddenVirtualCol) {
 		this.internalName = internalName;
 		this.objectInspector = objectInspector;
 		this.tabAlias = tabAlias;
@@ -96,7 +106,7 @@ public class ColumnInfoTRC implements Serializable {
 		this.isHiddenVirtualCol = isHiddenVirtualCol;
 	}
 
-	public ColumnInfoTRC(ColumnInfoTRC columnInfo) {
+	public ColumnInfoEC(final ColumnInfoEC columnInfo) {
 		this.internalName = columnInfo.getInternalName();
 		this.alias = columnInfo.getAlias();
 		this.isSkewedCol = columnInfo.isSkewedCol();
@@ -107,36 +117,37 @@ public class ColumnInfoTRC implements Serializable {
 	}
 
 	public TypeInfo getType() {
-		return TypeInfoUtils.getTypeInfoFromObjectInspector(objectInspector);
+		return TypeInfoUtils
+				.getTypeInfoFromObjectInspector(this.objectInspector);
 	}
 
 	public ObjectInspector getObjectInspector() {
-		return objectInspector;
+		return this.objectInspector;
 	}
 
 	public String getInternalName() {
-		return internalName;
+		return this.internalName;
 	}
 
-	public void setType(TypeInfo type) {
-		objectInspector = TypeInfoUtils
+	public void setType(final TypeInfo type) {
+		this.objectInspector = TypeInfoUtils
 				.getStandardWritableObjectInspectorFromTypeInfo(type);
 	}
 
-	public void setInternalName(String internalName) {
+	public void setInternalName(final String internalName) {
 		this.internalName = internalName;
 	}
 
 	public String getTabAlias() {
-		return tabAlias;
+		return this.tabAlias;
 	}
 
 	public boolean getIsVirtualCol() {
-		return isVirtualCol;
+		return this.isVirtualCol;
 	}
 
 	public boolean isHiddenVirtualCol() {
-		return isHiddenVirtualCol;
+		return this.isHiddenVirtualCol;
 	}
 
 	/**
@@ -144,27 +155,27 @@ public class ColumnInfoTRC implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return tabAlias + ":" + alias + ":" + internalName + ":"
-				+ objectInspector.getTypeName();
+		return this.tabAlias + ":" + this.alias + ":" + this.internalName + ":"
+				+ this.objectInspector.getTypeName();
 	}
 
-	public void setAlias(String col_alias) {
-		alias = col_alias;
+	public void setAlias(final String col_alias) {
+		this.alias = col_alias;
 	}
 
 	public String getAlias() {
-		return alias;
+		return this.alias;
 	}
 
-	public void setTabAlias(String tabAlias) {
+	public void setTabAlias(final String tabAlias) {
 		this.tabAlias = tabAlias;
 	}
 
-	public void setVirtualCol(boolean isVirtualCol) {
+	public void setVirtualCol(final boolean isVirtualCol) {
 		this.isVirtualCol = isVirtualCol;
 	}
 
-	public void setHiddenVirtualCol(boolean isHiddenVirtualCol) {
+	public void setHiddenVirtualCol(final boolean isHiddenVirtualCol) {
 		this.isHiddenVirtualCol = isHiddenVirtualCol;
 	}
 
@@ -172,34 +183,34 @@ public class ColumnInfoTRC implements Serializable {
 	 * @return the isSkewedCol
 	 */
 	public boolean isSkewedCol() {
-		return isSkewedCol;
+		return this.isSkewedCol;
 	}
 
 	/**
 	 * @param isSkewedCol
 	 *            the isSkewedCol to set
 	 */
-	public void setSkewedCol(boolean isSkewedCol) {
+	public void setSkewedCol(final boolean isSkewedCol) {
 		this.isSkewedCol = isSkewedCol;
 	}
 
-	private boolean checkEquals(Object obj1, Object obj2) {
+	private boolean checkEquals(final Object obj1, final Object obj2) {
 		return obj1 == null ? obj2 == null : obj1.equals(obj2);
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof ColumnInfoTRC) || (obj == null)) {
+	public boolean equals(final Object obj) {
+		if (!(obj instanceof ColumnInfoEC) || (obj == null)) {
 			return false;
 		}
 
-		ColumnInfoTRC dest = (ColumnInfoTRC) obj;
-		if ((!checkEquals(internalName, dest.getInternalName()))
-				|| (!checkEquals(alias, dest.getAlias()))
+		final ColumnInfoEC dest = (ColumnInfoEC) obj;
+		if ((!checkEquals(this.internalName, dest.getInternalName()))
+				|| (!checkEquals(this.alias, dest.getAlias()))
 				|| (!checkEquals(getType(), dest.getType()))
-				|| (isSkewedCol != dest.isSkewedCol())
-				|| (isVirtualCol != dest.getIsVirtualCol())
-				|| (isHiddenVirtualCol != dest.isHiddenVirtualCol())) {
+				|| (this.isSkewedCol != dest.isSkewedCol())
+				|| (this.isVirtualCol != dest.getIsVirtualCol())
+				|| (this.isHiddenVirtualCol != dest.isHiddenVirtualCol())) {
 			return false;
 		}
 

@@ -56,7 +56,7 @@ public class GenericUDAFCountDistinct implements GenericUDAFResolver2 {
 		return new GenericUDAFCountDistinctEvaluator();
 	}
 
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings({ "deprecation", "resource" })
 	@Override
 	public GenericUDAFEvaluator getEvaluator(
 			final GenericUDAFParameterInfo paramInfo) throws SemanticException {
@@ -70,7 +70,7 @@ public class GenericUDAFCountDistinct implements GenericUDAFResolver2 {
 			assert !paramInfo.isDistinct() : "DISTINCT not supported with *";
 		}
 		return new GenericUDAFCountDistinctEvaluator()
-		.setCountAllColumns(paramInfo.isAllColumns());
+				.setCountAllColumns(paramInfo.isAllColumns());
 	}
 
 	/**
@@ -79,7 +79,7 @@ public class GenericUDAFCountDistinct implements GenericUDAFResolver2 {
 	 */
 	@SuppressWarnings("deprecation")
 	public static class GenericUDAFCountDistinctEvaluator extends
-	GenericUDAFEvaluator {
+			GenericUDAFEvaluator {
 		private boolean countAllColumns = false;
 		private BinaryObjectInspector partialOI;
 		private BinaryObjectInspector partialOIMerge;
@@ -162,8 +162,8 @@ public class GenericUDAFCountDistinct implements GenericUDAFResolver2 {
 							parameters.length); i++) {
 						hashcode = (hashcode * 31)
 								+ ((PrimitiveObjectInspector) this.paramOI[i])
-								.getPrimitiveJavaObject(parameters[i])
-								.hashCode();
+										.getPrimitiveJavaObject(parameters[i])
+										.hashCode();
 					}
 					((CountAgg) agg).value.add(longToByteArray(hashcode));
 				}

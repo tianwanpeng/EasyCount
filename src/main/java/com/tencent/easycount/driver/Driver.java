@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 
 import org.ini4j.Ini;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.driver.TopologyGenerator.EcTopology;
 import com.tencent.easycount.exec.io.local.LocalModeUtils;
 import com.tencent.easycount.udfnew.MyUDFUtils;
@@ -23,7 +23,7 @@ public class Driver {
 		/**
 		 * initialize conf
 		 */
-		final TrcConfiguration config = ConfigGenerator.generateConfig(args);
+		final ECConfiguration config = ConfigGenerator.generateConfig(args);
 
 		final InputStreamReader reader = new InputStreamReader(
 				new FileInputStream(new File(config.get("configfile",

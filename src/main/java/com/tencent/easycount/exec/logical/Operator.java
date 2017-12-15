@@ -14,7 +14,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.exec.io.TaskContext;
 import com.tencent.easycount.mon.MonKeys;
 import com.tencent.easycount.mon.MonStatusUpdater;
@@ -47,7 +47,7 @@ StatusPrintable {
 	protected Operator<? extends OpDesc>[] childOperatorsArray = null;
 	protected int[] childOperatorsTag;
 
-	protected TrcConfiguration configuration;
+	protected ECConfiguration configuration;
 
 	public static enum State {
 		UNINIT, // initialize() has not been called
@@ -103,7 +103,7 @@ StatusPrintable {
 
 	public abstract void printInternal(int printId);
 
-	public Operator(final T opDesc, final TrcConfiguration hconf,
+	public Operator(final T opDesc, final ECConfiguration hconf,
 			final TaskContext taskContext) {
 		this.opDesc = opDesc;
 		this.parentOperators = new ArrayList<Operator<? extends OpDesc>>();
@@ -112,7 +112,7 @@ StatusPrintable {
 		this.sNum = new AtomicLong(0);
 	}
 
-	public void initialize(final TrcConfiguration hconf,
+	public void initialize(final ECConfiguration hconf,
 			final TaskContext taskContext, final ObjectInspector[] inputOIs) {
 		this.configuration = hconf;
 		if (!areAllParentsInitialized()) {
@@ -163,12 +163,12 @@ StatusPrintable {
 		log.info(getPrintPrefix() + outputstr);
 	}
 
-	protected void initializeOp(final TrcConfiguration hconf,
+	protected void initializeOp(final ECConfiguration hconf,
 			final TaskContext taskContext) {
 		initializeChildren(hconf, taskContext);
 	}
 
-	protected void initializeChildren(final TrcConfiguration hconf,
+	protected void initializeChildren(final ECConfiguration hconf,
 			final TaskContext taskContext) {
 		this.state = State.INIT;
 		if (this.childOperators == null) {
@@ -180,7 +180,7 @@ StatusPrintable {
 		}
 	}
 
-	public void initialize(final TrcConfiguration hconf,
+	public void initialize(final ECConfiguration hconf,
 			final TaskContext taskContext, final ObjectInspector inputOI,
 			final int parentId) {
 		if (parentId >= this.inputObjInspectors.length) {

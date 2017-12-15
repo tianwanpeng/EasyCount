@@ -12,7 +12,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.exec.io.TaskContext;
 import com.tencent.easycount.plan.logical.OpDesc4UNION;
 import com.tencent.easycount.util.status.TDBankUtils;
@@ -30,14 +30,14 @@ public class Operator4UNION extends Operator<OpDesc4UNION> {
 	public void printInternal(int printId) {
 	}
 
-	public Operator4UNION(OpDesc4UNION opDesc, TrcConfiguration hconf,
+	public Operator4UNION(OpDesc4UNION opDesc, ECConfiguration hconf,
 			TaskContext taskContext) {
 		super(opDesc, hconf, taskContext);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected void initializeOp(TrcConfiguration hconf, TaskContext taskContext) {
+	protected void initializeOp(ECConfiguration hconf, TaskContext taskContext) {
 
 		int parents = parentOperators.size();
 		parentObjInspectors = new StructObjectInspector[parents];

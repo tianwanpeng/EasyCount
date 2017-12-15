@@ -12,7 +12,7 @@ import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.tuple.Fields;
 
 import com.google.common.util.concurrent.AtomicDouble;
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.plan.physical.PhysicalPlan;
 import com.tencent.easycount.plan.physical.TaskWork1Spout;
 import com.tencent.easycount.plan.physical.TaskWork2Bolt;
@@ -24,10 +24,10 @@ import com.tencent.easycount.util.graph.GraphWalker.WalkMode;
 
 public class PhysicalExecGenerator {
 	final private PhysicalPlan pPlan;
-	final private TrcConfiguration hconf;
+	final private ECConfiguration hconf;
 
 	public PhysicalExecGenerator(final PhysicalPlan pPlan,
-			final TrcConfiguration hconf) {
+			final ECConfiguration hconf) {
 		this.pPlan = pPlan;
 		this.hconf = hconf;
 	}

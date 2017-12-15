@@ -24,35 +24,35 @@ import java.util.ArrayList;
 /**
  * RowSchema Implementation.
  */
-public class RowSchemaTRC implements Serializable {
+public class RowSchemaEC implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private ArrayList<ColumnInfoTRC> signature;
+	private ArrayList<ColumnInfoEC> signature;
 
-	public RowSchemaTRC() {
+	public RowSchemaEC() {
 	}
 
 	@SuppressWarnings("unchecked")
-	public RowSchemaTRC(RowSchemaTRC that) {
-		this.signature = (ArrayList<ColumnInfoTRC>) that.signature.clone();
+	public RowSchemaEC(RowSchemaEC that) {
+		this.signature = (ArrayList<ColumnInfoEC>) that.signature.clone();
 	}
 
-	public RowSchemaTRC(ArrayList<ColumnInfoTRC> signature) {
+	public RowSchemaEC(ArrayList<ColumnInfoEC> signature) {
 		this.signature = signature;
 	}
 
-	public void setSignature(ArrayList<ColumnInfoTRC> signature) {
+	public void setSignature(ArrayList<ColumnInfoEC> signature) {
 		this.signature = signature;
 	}
 
-	public ArrayList<ColumnInfoTRC> getSignature() {
+	public ArrayList<ColumnInfoEC> getSignature() {
 		return signature;
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder('(');
-		for (ColumnInfoTRC col : signature) {
+		for (ColumnInfoEC col : signature) {
 			sb.append(col.toString());
 		}
 		sb.append(')');

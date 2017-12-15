@@ -15,7 +15,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.exec.io.TaskContext;
 import com.tencent.easycount.exec.logical.Operator;
 import com.tencent.easycount.exec.logical.Operator1TS;
@@ -40,7 +40,7 @@ public abstract class Task implements Node, Serializable, StatusPrintable {
 	private static Logger log = LoggerFactory.getLogger(Task.class);
 
 	final TaskWork taskWork;
-	protected TrcConfiguration hconf;
+	protected ECConfiguration hconf;
 	private final Properties properties = new Properties();
 
 	final HashMap<Integer, Task> taskId2ParentTask;
@@ -135,7 +135,7 @@ public abstract class Task implements Node, Serializable, StatusPrintable {
 
 		MyUDFUtils.initialize();
 		this.printId = new AtomicInteger(0);
-		this.hconf = new TrcConfiguration(this.properties);
+		this.hconf = new ECConfiguration(this.properties);
 
 		this.taskContext.taskId = getTaskId();
 		this.taskContext.execId = execId;
@@ -412,7 +412,7 @@ public abstract class Task implements Node, Serializable, StatusPrintable {
 				getName(), getTaskId(), execId, this.tupleProcessor);
 	}
 
-	abstract protected InnerOp2Sink generateSinkOp(TrcConfiguration hconf,
+	abstract protected InnerOp2Sink generateSinkOp(ECConfiguration hconf,
 			OpDesc opDesc, OpDesc childOpDesc);
 
 	@Override

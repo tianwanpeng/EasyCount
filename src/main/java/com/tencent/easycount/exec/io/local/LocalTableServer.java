@@ -11,7 +11,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.ipc.RPC;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.metastore.Table;
 import com.tencent.easycount.metastore.TableUtils;
 
@@ -27,7 +27,7 @@ public abstract class LocalTableServer implements LocalModeProtocol {
 
 	private DatagramSocket ds;
 
-	public LocalTableServer(final Table tbl, final TrcConfiguration config) {
+	public LocalTableServer(final Table tbl, final ECConfiguration config) {
 		this.tbl = tbl;
 		this.bindAddress = TableUtils.getLocalTableAddr(tbl);
 		this.port = TableUtils.getLocalTablePort(tbl);

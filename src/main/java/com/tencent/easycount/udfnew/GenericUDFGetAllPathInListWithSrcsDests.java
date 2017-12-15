@@ -34,7 +34,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorUtils;
 
 /**
  * GenericUDFArrayContains.
- * 
+ *
  */
 @Description(name = "getallpathwithdests", value = "_FUNC_(array, value) - Returns TRUE if the array contains value.", extended = "Example:\n"
 		+ "  > SELECT _FUNC_(array(1, 2, 3), 2) FROM src LIMIT 1;\n" + "  true")
@@ -57,7 +57,7 @@ public class GenericUDFGetAllPathInListWithSrcsDests extends GenericUDF {
 	private transient ObjectInspector destElementOI;
 
 	@Override
-	public ObjectInspector initialize(ObjectInspector[] arguments)
+	public ObjectInspector initialize(final ObjectInspector[] arguments)
 			throws UDFArgumentException {
 
 		// Check if two arguments were passed
@@ -72,36 +72,37 @@ public class GenericUDFGetAllPathInListWithSrcsDests extends GenericUDF {
 					+ "'s 1st param must be list , but input is : "
 					+ arguments[LIST_IDX].getClass());
 		}
-		listOI = (ListObjectInspector) arguments[LIST_IDX];
+		this.listOI = (ListObjectInspector) arguments[LIST_IDX];
 
-		ObjectInspector eleOI = listOI.getListElementObjectInspector();
+		final ObjectInspector eleOI = this.listOI
+				.getListElementObjectInspector();
 		if (!(eleOI instanceof ListObjectInspector)) {
 			throw new UDFArgumentException("The function " + FUNC_NAME
 					+ "'s 1st param element must be list , but input is : "
 					+ eleOI.getClass());
 		}
-		elementOI = (ListObjectInspector) eleOI;
+		this.elementOI = (ListObjectInspector) eleOI;
 
-		objOI = elementOI.getListElementObjectInspector();
-		ObjectInspector objOIStandard = ObjectInspectorUtils
-				.getStandardObjectInspector(objOI);
+		this.objOI = this.elementOI.getListElementObjectInspector();
+		final ObjectInspector objOIStandard = ObjectInspectorUtils
+				.getStandardObjectInspector(this.objOI);
 
 		if (!(arguments[SRCS_IDX] instanceof ListObjectInspector)) {
 			throw new UDFArgumentException("The function " + FUNC_NAME
 					+ "'s 2nd param must be list , but input is : "
 					+ arguments[SRCS_IDX]);
 		}
-		srcsOI = (ListObjectInspector) arguments[DESTS_IDX];
-		srcElementOI = srcsOI.getListElementObjectInspector();
-		ObjectInspector srcElementOIStandard = ObjectInspectorUtils
-				.getStandardObjectInspector(srcElementOI);
+		this.srcsOI = (ListObjectInspector) arguments[DESTS_IDX];
+		this.srcElementOI = this.srcsOI.getListElementObjectInspector();
+		final ObjectInspector srcElementOIStandard = ObjectInspectorUtils
+				.getStandardObjectInspector(this.srcElementOI);
 		if (!srcElementOIStandard.getClass().isAssignableFrom(
 				objOIStandard.getClass())
 				&& !objOIStandard.getClass().isAssignableFrom(
 						srcElementOIStandard.getClass())) {
 			throw new UDFArgumentException("The function " + FUNC_NAME
 					+ " listElementOI and mapKeyElementOI must be equal : "
-					+ srcElementOI + " : " + objOI);
+					+ this.srcElementOI + " : " + this.objOI);
 		}
 
 		if (!(arguments[DESTS_IDX] instanceof ListObjectInspector)) {
@@ -109,10 +110,10 @@ public class GenericUDFGetAllPathInListWithSrcsDests extends GenericUDF {
 					+ "'s 3rd param must be list , but input is : "
 					+ arguments[DESTS_IDX]);
 		}
-		destsOI = (ListObjectInspector) arguments[DESTS_IDX];
-		destElementOI = destsOI.getListElementObjectInspector();
-		ObjectInspector destElementOIStandard = ObjectInspectorUtils
-				.getStandardObjectInspector(destElementOI);
+		this.destsOI = (ListObjectInspector) arguments[DESTS_IDX];
+		this.destElementOI = this.destsOI.getListElementObjectInspector();
+		final ObjectInspector destElementOIStandard = ObjectInspectorUtils
+				.getStandardObjectInspector(this.destElementOI);
 
 		if (!destElementOIStandard.getClass().isAssignableFrom(
 				objOIStandard.getClass())
@@ -120,29 +121,30 @@ public class GenericUDFGetAllPathInListWithSrcsDests extends GenericUDF {
 						destElementOIStandard.getClass())) {
 			throw new UDFArgumentException("The function " + FUNC_NAME
 					+ " listElementOI and mapKeyElementOI must be equal : "
-					+ destElementOI + " : " + objOI);
+					+ this.destElementOI + " : " + this.objOI);
 		}
 
-		ObjectInspector pathOI = ObjectInspectorFactory
-				.getStandardListObjectInspector(objOI);
+		final ObjectInspector pathOI = ObjectInspectorFactory
+				.getStandardListObjectInspector(this.objOI);
 		return ObjectInspectorFactory.getStandardListObjectInspector(pathOI);
 
 	}
 
 	@Override
-	public Object evaluate(DeferredObject[] arguments) throws HiveException {
+	public Object evaluate(final DeferredObject[] arguments)
+			throws HiveException {
 
-		List<?> lists = listOI.getList(arguments[LIST_IDX].get());
+		final List<?> lists = this.listOI.getList(arguments[LIST_IDX].get());
 
-		HashMap<Object, HashSet<Object>> standardMap = new HashMap<Object, HashSet<Object>>();
-		for (Object list : lists) {
-			List<?> objs = elementOI.getList(list);
-			if (objs == null || objs.size() < 2) {
+		final HashMap<Object, HashSet<Object>> standardMap = new HashMap<Object, HashSet<Object>>();
+		for (final Object list : lists) {
+			final List<?> objs = this.elementOI.getList(list);
+			if ((objs == null) || (objs.size() < 2)) {
 				continue;
 			}
-			Object key = objs.get(0);
-			Object standardK = ObjectInspectorUtils.copyToStandardObject(key,
-					objOI);
+			final Object key = objs.get(0);
+			final Object standardK = ObjectInspectorUtils.copyToStandardObject(
+					key, this.objOI);
 
 			if (!standardMap.containsKey(standardK)) {
 				standardMap.put(standardK, new HashSet<Object>());
@@ -151,23 +153,23 @@ public class GenericUDFGetAllPathInListWithSrcsDests extends GenericUDF {
 			for (int i = 1; i < objs.size(); i++) {
 				standardMap.get(standardK).add(
 						ObjectInspectorUtils.copyToStandardObject(objs.get(i),
-								objOI));
+								this.objOI));
 			}
 		}
 
-		List<?> srclist = srcsOI.getList(arguments[SRCS_IDX].get());
-		HashSet<Object> srcsSet = new HashSet<Object>();
-		for (Object obj : srclist) {
-			Object sobj = ObjectInspectorUtils.copyToStandardObject(obj,
-					srcElementOI);
+		final List<?> srclist = this.srcsOI.getList(arguments[SRCS_IDX].get());
+		final HashSet<Object> srcsSet = new HashSet<Object>();
+		for (final Object obj : srclist) {
+			final Object sobj = ObjectInspectorUtils.copyToStandardObject(obj,
+					this.srcElementOI);
 			srcsSet.add(sobj);
 		}
 
-		List<?> list = destsOI.getList(arguments[DESTS_IDX].get());
-		HashSet<Object> destsSet = new HashSet<Object>();
-		for (Object obj : list) {
-			Object sobj = ObjectInspectorUtils.copyToStandardObject(obj,
-					destElementOI);
+		final List<?> list = this.destsOI.getList(arguments[DESTS_IDX].get());
+		final HashSet<Object> destsSet = new HashSet<Object>();
+		for (final Object obj : list) {
+			final Object sobj = ObjectInspectorUtils.copyToStandardObject(obj,
+					this.destElementOI);
 			destsSet.add(sobj);
 		}
 
@@ -176,13 +178,13 @@ public class GenericUDFGetAllPathInListWithSrcsDests extends GenericUDF {
 	}
 
 	private Object generateAllPath(
-			HashMap<Object, HashSet<Object>> standardMap,
-			HashSet<Object> srcsSet, HashSet<Object> destsSet) {
-		ArrayList<ArrayList<Object>> resObj = new ArrayList<ArrayList<Object>>();
+			final HashMap<Object, HashSet<Object>> standardMap,
+			final HashSet<Object> srcsSet, final HashSet<Object> destsSet) {
+		final ArrayList<ArrayList<Object>> resObj = new ArrayList<ArrayList<Object>>();
 
-		for (Object key : standardMap.keySet()) {
+		for (final Object key : standardMap.keySet()) {
 			if (srcsSet.contains(key)) {
-				LinkedHashSet<Object> set = new LinkedHashSet<Object>();
+				final LinkedHashSet<Object> set = new LinkedHashSet<Object>();
 				set.add(key);
 				generateAllPathFrom(set, key, standardMap, resObj, destsSet);
 			}
@@ -191,16 +193,18 @@ public class GenericUDFGetAllPathInListWithSrcsDests extends GenericUDF {
 		return resObj;
 	}
 
-	private void generateAllPathFrom(LinkedHashSet<Object> set, Object key,
-			HashMap<Object, HashSet<Object>> standardMap,
-			ArrayList<ArrayList<Object>> resObj, HashSet<Object> destsSet) {
-		HashSet<Object> values = standardMap.get(key);
+	private void generateAllPathFrom(final LinkedHashSet<Object> set,
+			final Object key,
+			final HashMap<Object, HashSet<Object>> standardMap,
+			final ArrayList<ArrayList<Object>> resObj,
+			final HashSet<Object> destsSet) {
+		final HashSet<Object> values = standardMap.get(key);
 		if (values == null) {
 			return;
 		}
 
-		for (Object value : values) {
-			if (set.contains(value) || value == null) {
+		for (final Object value : values) {
+			if (set.contains(value) || (value == null)) {
 				continue;
 			}
 			// LinkedHashSet<Object> setnew = new LinkedHashSet<Object>();
@@ -209,7 +213,7 @@ public class GenericUDFGetAllPathInListWithSrcsDests extends GenericUDF {
 			set.add(value);
 
 			if (destsSet.contains(value)) {
-				ArrayList<Object> path = new ArrayList<Object>();
+				final ArrayList<Object> path = new ArrayList<Object>();
 				path.addAll(set);
 				resObj.add(path);
 			}
@@ -221,13 +225,14 @@ public class GenericUDFGetAllPathInListWithSrcsDests extends GenericUDF {
 	}
 
 	@Override
-	public String getDisplayString(String[] children) {
+	public String getDisplayString(final String[] children) {
 		assert (children.length == ARG_COUNT);
 		return "getallpath(map)";
 	}
 
-	public static void main(String[] args) {
-		HashMap<Object, HashSet<Object>> standardMap = new HashMap<Object, HashSet<Object>>();
+	@SuppressWarnings("resource")
+	public static void main(final String[] args) {
+		final HashMap<Object, HashSet<Object>> standardMap = new HashMap<Object, HashSet<Object>>();
 		standardMap.put(1, new HashSet<Object>());
 		standardMap.get(1).add(2);
 		standardMap.get(1).add(3);

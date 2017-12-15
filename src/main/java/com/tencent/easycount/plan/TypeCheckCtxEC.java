@@ -33,7 +33,7 @@ import com.tencent.easycount.util.graph.RuleDispatcher.NodeProcessorCtx;
  * This class implements the context information that is used for typechecking
  * phase in query compilation.
  */
-public class TypeCheckCtxTRC implements NodeProcessorCtx {
+public class TypeCheckCtxEC implements NodeProcessorCtx {
 
 	public static class Var implements Serializable {
 		private static final long serialVersionUID = -2059121710700943209L;
@@ -99,7 +99,7 @@ public class TypeCheckCtxTRC implements NodeProcessorCtx {
 	 * The row resolver of the previous operator. This field is used to generate
 	 * expression descriptors from the expression ASTs.
 	 */
-	private RowResolverTRC inputRR;
+	private RowResolverEC inputRR;
 
 	private final HashMap<ASTNodeTRC, HashMap<String, Var>> astNode2VarInfos;
 	private final HashMap<ASTNodeTRC, Integer> astNode2LambdaIdx;
@@ -126,7 +126,7 @@ public class TypeCheckCtxTRC implements NodeProcessorCtx {
 	 * @param inputRR
 	 *            The input row resolver of the previous operator.
 	 */
-	public TypeCheckCtxTRC(final RowResolverTRC inputRR) {
+	public TypeCheckCtxEC(final RowResolverEC inputRR) {
 		setInputRR(inputRR);
 		this.error = null;
 		this.allowStatefulFunctions = false;
@@ -139,14 +139,14 @@ public class TypeCheckCtxTRC implements NodeProcessorCtx {
 	 * @param inputRR
 	 *            the inputRR to set
 	 */
-	public void setInputRR(final RowResolverTRC inputRR) {
+	public void setInputRR(final RowResolverEC inputRR) {
 		this.inputRR = inputRR;
 	}
 
 	/**
 	 * @return the inputRR
 	 */
-	public RowResolverTRC getInputRR() {
+	public RowResolverEC getInputRR() {
 		return this.inputRR;
 	}
 
@@ -192,7 +192,7 @@ public class TypeCheckCtxTRC implements NodeProcessorCtx {
 			this.lambdaExprs.add(parent);
 			this.astNode2LambdaIdx.put(parent, this.lambdaExprs.size());
 			this.astNode2VarInfos.put(parent,
-					new HashMap<String, TypeCheckCtxTRC.Var>());
+					new HashMap<String, TypeCheckCtxEC.Var>());
 		}
 		final String varInternalName = "var-"
 				+ this.astNode2LambdaIdx.get(parent) + "-" + varname;

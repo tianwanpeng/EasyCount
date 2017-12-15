@@ -14,7 +14,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorUtils.Object
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.exec.io.TaskContext;
 import com.tencent.easycount.plan.ExprNodeEvaluatorFactoryNew;
 import com.tencent.easycount.plan.logical.OpDesc6SEL;
@@ -33,7 +33,7 @@ public class Operator6SEL extends Operator<OpDesc6SEL> {
 	public void printInternal(int printId) {
 	}
 
-	public Operator6SEL(OpDesc6SEL opDesc, TrcConfiguration hconf,
+	public Operator6SEL(OpDesc6SEL opDesc, ECConfiguration hconf,
 			TaskContext taskContext) {
 		super(opDesc, hconf, taskContext);
 	}
@@ -43,7 +43,7 @@ public class Operator6SEL extends Operator<OpDesc6SEL> {
 	private int expandIdx = -1;
 
 	@Override
-	protected void initializeOp(TrcConfiguration hconf, TaskContext taskContext) {
+	protected void initializeOp(ECConfiguration hconf, TaskContext taskContext) {
 		// Just forward the row as is
 		if (getOpDesc().isSelStarNoCompute()) {
 			// initializeChildren();

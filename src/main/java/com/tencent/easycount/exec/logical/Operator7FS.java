@@ -10,7 +10,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory;
 import org.apache.hadoop.hive.serde2.objectinspector.StructField;
 import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.exec.io.TaskContext;
 import com.tencent.easycount.plan.logical.OpDesc7FS;
 import com.tencent.easycount.util.status.StatusPrintable;
@@ -36,13 +36,13 @@ public class Operator7FS extends Operator<OpDesc7FS> {
 	public void printInternal(int printId) {
 	}
 
-	public Operator7FS(OpDesc7FS opDesc, TrcConfiguration hconf,
+	public Operator7FS(OpDesc7FS opDesc, ECConfiguration hconf,
 			TaskContext taskContext) {
 		super(opDesc, hconf, taskContext);
 	}
 
 	@Override
-	protected void initializeOp(TrcConfiguration hconf, TaskContext taskContext) {
+	protected void initializeOp(ECConfiguration hconf, TaskContext taskContext) {
 		// try {
 		// ExprNodeDesc keyExprDesc = getOpDesc().getKeyExpr();
 		// if (keyExprDesc != null) {

@@ -10,7 +10,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.exec.io.Data1Source;
 import com.tencent.easycount.exec.io.DataIOUtils;
 import com.tencent.easycount.exec.io.inner.Data1SourceInner;
@@ -49,7 +49,7 @@ public class Data1Generator implements Closeable, StatusPrintable {
 		}
 	}
 
-	public Data1Generator(final TrcConfiguration hconf,
+	public Data1Generator(final ECConfiguration hconf,
 			final ArrayList<OpDesc> tsOpDescs, final String taskName,
 			final String taskId, final String execId,
 			final TupleProcessor tupleProcessor) {

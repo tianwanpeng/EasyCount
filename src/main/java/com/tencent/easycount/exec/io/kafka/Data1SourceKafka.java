@@ -6,7 +6,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.exec.io.Data1Source;
 import com.tencent.easycount.exec.physical.Data1Generator;
 import com.tencent.easycount.exec.utils.OIUtils;
@@ -29,7 +29,7 @@ public class Data1SourceKafka extends Data1Source {
 	}
 
 	public Data1SourceKafka(final String sourceId, final OpDesc1TS opdesc,
-			final Data1Generator msgEmitter, final TrcConfiguration hconf,
+			final Data1Generator msgEmitter, final ECConfiguration hconf,
 			final KafkaECConsumer consumer) {
 		super(sourceId, opdesc, msgEmitter);
 		final Table tbl = opdesc.getTable();

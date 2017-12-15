@@ -16,7 +16,7 @@ import org.apache.storm.tuple.Values;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.exec.physical.InnerOp2Sink.CallBack;
 import com.tencent.easycount.plan.logical.OpDesc;
 import com.tencent.easycount.plan.physical.TaskWork2Bolt;
@@ -109,7 +109,7 @@ public class Task2Bolt extends Task implements IRichBolt {
 	}
 
 	@Override
-	protected InnerOp2Sink generateSinkOp(final TrcConfiguration hconf,
+	protected InnerOp2Sink generateSinkOp(final ECConfiguration hconf,
 			final OpDesc opDesc, final OpDesc childOpDesc) {
 		return new InnerOp2Sink(hconf, this.taskContext, opDesc, childOpDesc,
 				this.callback);

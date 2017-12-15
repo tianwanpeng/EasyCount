@@ -28,7 +28,7 @@ import org.apache.hadoop.conf.Configuration;
 
 import com.tencent.easycount.util.constants.Constants;
 
-public class TrcConfiguration extends Configuration implements Serializable {
+public class ECConfiguration extends Configuration implements Serializable {
 
 	private static final long serialVersionUID = 3206775931810899825L;
 
@@ -286,11 +286,11 @@ public class TrcConfiguration extends Configuration implements Serializable {
 		}
 	}
 
-	public TrcConfiguration() {
+	public ECConfiguration() {
 		super();
 	}
 
-	public TrcConfiguration(final Properties properties) {
+	public ECConfiguration(final Properties properties) {
 		this();
 		this.reload(properties);
 	}

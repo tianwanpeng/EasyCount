@@ -24,7 +24,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectIn
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.exec.io.TaskContext;
 import com.tencent.easycount.plan.AggregationDescWrapper;
 import com.tencent.easycount.plan.AggregationDescWrapper.AggrMode;
@@ -94,14 +94,14 @@ public class Operator5GBY extends Operator<OpDesc5GBY> {
 				+ ",timeoutChecker:" + this.timeoutChecker.getStatus());
 	}
 
-	public Operator5GBY(final OpDesc5GBY opDesc, final TrcConfiguration hconf,
+	public Operator5GBY(final OpDesc5GBY opDesc, final ECConfiguration hconf,
 			final TaskContext taskContext) {
 		super(opDesc, hconf, taskContext);
 	}
 
 	@SuppressWarnings({ "unchecked" })
 	@Override
-	protected void initializeOp(final TrcConfiguration hconf,
+	protected void initializeOp(final ECConfiguration hconf,
 			final TaskContext taskContext) {
 
 		this.mapfast = hconf.getBoolean("gby.mapfast", false);

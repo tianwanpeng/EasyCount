@@ -1,6 +1,6 @@
 package com.tencent.easycount.exec.logical;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.exec.io.TaskContext;
 import com.tencent.easycount.plan.logical.OpDesc1TS;
 
@@ -16,7 +16,7 @@ public class Operator1TS extends Operator<OpDesc1TS> {
 	public void printInternal(int printId) {
 	}
 
-	public Operator1TS(OpDesc1TS opDesc, TrcConfiguration hconf,
+	public Operator1TS(OpDesc1TS opDesc, ECConfiguration hconf,
 			TaskContext taskContext) {
 		super(opDesc, hconf, taskContext);
 	}

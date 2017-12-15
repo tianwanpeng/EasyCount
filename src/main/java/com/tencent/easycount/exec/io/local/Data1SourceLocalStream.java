@@ -13,7 +13,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.ipc.RPC;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.exec.io.Data1Source;
 import com.tencent.easycount.exec.physical.Data1Generator;
 import com.tencent.easycount.exec.physical.Task.SOCallBack;
@@ -35,7 +35,7 @@ public class Data1SourceLocalStream extends Data1Source {
 
 	public Data1SourceLocalStream(final String sourceId,
 			final OpDesc1TS opDesc, final Data1Generator msgEmitter,
-			final TrcConfiguration hconf) {
+			final ECConfiguration hconf) {
 		super(sourceId, opDesc, msgEmitter);
 		final Table tbl = this.opdesc.getTable();
 		this.objectInspector = OIUtils.createLazyStructInspector(tbl);

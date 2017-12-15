@@ -7,12 +7,12 @@ import org.apache.storm.LocalCluster;
 import org.apache.storm.StormSubmitter;
 import org.apache.storm.generated.StormTopology;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 
 public class TopologySubmiter {
 	static void submitTopology(final StormTopology topology,
 			final String topologyName, final boolean localMode,
-			final TrcConfiguration config, final int workNum) {
+			final ECConfiguration config, final int workNum) {
 
 		final Config conf = new Config();
 		final Properties pro = config.getAllProperties();

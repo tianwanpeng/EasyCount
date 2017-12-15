@@ -22,7 +22,7 @@ import java.io.Serializable;
 
 import org.apache.hadoop.hive.ql.plan.ExprNodeDesc;
 
-import com.tencent.easycount.plan.TypeCheckCtxTRC.Var;
+import com.tencent.easycount.plan.TypeCheckCtxEC.Var;
 
 /**
  * ExprNodeNullDesc.

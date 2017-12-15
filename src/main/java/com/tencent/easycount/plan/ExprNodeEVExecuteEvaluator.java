@@ -33,7 +33,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.StructField;
 import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector;
 import org.apache.hadoop.hive.serde2.typeinfo.TypeInfoUtils;
 
-import com.tencent.easycount.plan.TypeCheckCtxTRC.Var;
+import com.tencent.easycount.plan.TypeCheckCtxEC.Var;
 
 /**
  * ExprNodeGenericFuncEvaluator.

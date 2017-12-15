@@ -8,7 +8,7 @@ import org.apache.hadoop.hive.serde2.lazy.LazyStruct;
 import org.apache.hadoop.hive.serde2.lazy.objectinspector.LazySimpleStructObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.exec.io.Data1Source;
 import com.tencent.easycount.exec.physical.Data1Generator;
 import com.tencent.easycount.exec.utils.OIUtils;
@@ -25,7 +25,7 @@ public class Data1SourceTest extends Data1Source {
 	}
 
 	public Data1SourceTest(String sourceId, OpDesc1TS opdesc,
-			Data1Generator msgEmitter, TrcConfiguration hconf) {
+			Data1Generator msgEmitter, ECConfiguration hconf) {
 		super(sourceId, opdesc, msgEmitter);
 
 		objectInspector = OIUtils.createLazyStructInspector(opdesc.getTable());

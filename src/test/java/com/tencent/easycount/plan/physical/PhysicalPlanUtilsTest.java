@@ -15,7 +15,7 @@ import org.ini4j.Profile.Section;
 import prefuse.data.Graph;
 import prefuse.data.io.GraphMLReader;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.metastore.MetaData;
 import com.tencent.easycount.metastore.MetaUtils;
 import com.tencent.easycount.parse.ASTNodeTRC;
@@ -63,7 +63,7 @@ public class PhysicalPlanUtilsTest {
 		// for (Node n : qb.getRootQueryNodes()) {
 		// System.out.println(n + " " + ((Query) n).getN().toStringTree());
 		// }
-		final TrcConfiguration config = new TrcConfiguration();
+		final ECConfiguration config = new ECConfiguration();
 		final URL url = new File(config.get("configfile", "lanzuan.ini"))
 		.toURI().toURL();
 		final Ini ini = new Ini(url);

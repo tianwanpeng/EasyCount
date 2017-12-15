@@ -8,10 +8,10 @@ import java.util.HashMap;
 import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 
 public class ConfigGenerator {
-	static TrcConfiguration generateConfig(final String[] args)
+	static ECConfiguration generateConfig(final String[] args)
 			throws IOException {
 		final HashMap<String, String> map = new HashMap<String, String>();
 		for (int i = 0; i < args.length; i++) {
@@ -25,7 +25,7 @@ public class ConfigGenerator {
 			map.put(strs[0].toLowerCase().trim(), strs[1]);
 		}
 
-		final TrcConfiguration config = new TrcConfiguration();
+		final ECConfiguration config = new ECConfiguration();
 		final String sysconfigfile = map.get("sysconfig");
 		if (sysconfigfile != null) {
 			final URL url = new File(sysconfigfile).toURI().toURL();
@@ -60,7 +60,7 @@ public class ConfigGenerator {
 		return config;
 	}
 
-	static void addSysteminfoToConfig(final TrcConfiguration config,
+	static void addSysteminfoToConfig(final ECConfiguration config,
 			final Ini ini) {
 		for (final String seckey : ini.keySet()) {
 			final Section section = ini.get(seckey);

@@ -14,7 +14,7 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.exec.io.kafka.KafkaECConsumer.KafkaProperties;
 import com.tencent.easycount.mon.MonKeys;
 import com.tencent.easycount.mon.MonStatusUpdater;
@@ -25,7 +25,7 @@ import com.tencent.easycount.util.status.TDBankUtils;
 public class KafkaECProducer implements Closeable, StatusPrintable {
 	private static Logger log = LoggerFactory.getLogger(KafkaProducer.class);
 
-	final private TrcConfiguration hconf;
+	final private ECConfiguration hconf;
 
 	private KafkaProducer<String, byte[]> producer;
 	private final String topic;
@@ -50,7 +50,7 @@ public class KafkaECProducer implements Closeable, StatusPrintable {
 		log.info(this.topic + " : msgSend : " + this.msgSend);
 	}
 
-	public KafkaECProducer(final TrcConfiguration hconf, final String topic,
+	public KafkaECProducer(final ECConfiguration hconf, final String topic,
 			final String taskId, final String execId) {
 		this.hconf = hconf;
 		this.topic = topic;

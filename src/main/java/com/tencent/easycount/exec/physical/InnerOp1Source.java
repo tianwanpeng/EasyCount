@@ -6,7 +6,7 @@ import org.apache.hadoop.hive.serde2.lazybinary.LazyBinaryStruct;
 import org.apache.hadoop.hive.serde2.typeinfo.StructTypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.TypeInfo;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.exec.io.TaskContext;
 import com.tencent.easycount.exec.logical.Operator;
 import com.tencent.easycount.exec.utils.OIUtils;
@@ -23,7 +23,7 @@ public class InnerOp1Source extends Operator<OpDesc> {
 	public void printInternal(final int printId) {
 	}
 
-	public InnerOp1Source(final TrcConfiguration hconf,
+	public InnerOp1Source(final ECConfiguration hconf,
 			final TaskContext taskContext, final String srcKey,
 			final int taskId, final int opTagIdx, final TypeInfo type) {
 		super(new OpDesc() {
@@ -44,7 +44,7 @@ public class InnerOp1Source extends Operator<OpDesc> {
 	}
 
 	@Override
-	protected void initializeOp(final TrcConfiguration hconf,
+	protected void initializeOp(final ECConfiguration hconf,
 			final TaskContext taskContext) {
 		final StructTypeInfo type = (StructTypeInfo) getOpDesc()
 				.getOutputType();

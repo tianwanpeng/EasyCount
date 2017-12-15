@@ -21,7 +21,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.exec.physical.Task.SOCallBack;
 import com.tencent.easycount.metastore.Table;
 import com.tencent.easycount.metastore.TableUtils;
@@ -37,7 +37,7 @@ Serializable {
 
 	private static Logger log = LoggerFactory.getLogger(KafkaECConsumer.class);
 
-	final private TrcConfiguration hconf;
+	final private ECConfiguration hconf;
 
 	private final KafkaConsumer<Integer, byte[]> consumer;
 	private final String topic;
@@ -92,7 +92,7 @@ Serializable {
 		}
 	}
 
-	public KafkaECConsumer(final TrcConfiguration hconf,
+	public KafkaECConsumer(final ECConfiguration hconf,
 			final String tubeMaster, final int tubePort, final String addrList,
 			final String topic, final String taskId, final String execId) {
 		this.hconf = hconf;

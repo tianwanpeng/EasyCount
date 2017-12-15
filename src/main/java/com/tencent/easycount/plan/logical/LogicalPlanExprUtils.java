@@ -39,7 +39,7 @@ import com.tencent.easycount.parse.ASTNodeTRC;
 import com.tencent.easycount.parse.ErrorMsg;
 import com.tencent.easycount.parse.ParseStringUtil;
 import com.tencent.easycount.parse.TrcParser;
-import com.tencent.easycount.plan.ColumnInfoTRC;
+import com.tencent.easycount.plan.ColumnInfoEC;
 import com.tencent.easycount.plan.ExprNodeNewAssignDesc;
 import com.tencent.easycount.plan.ExprNodeNewBlockDesc;
 import com.tencent.easycount.plan.ExprNodeNewColumnRefDesc;
@@ -54,9 +54,9 @@ import com.tencent.easycount.plan.ExprNodeNewGenerateDesc;
 import com.tencent.easycount.plan.ExprNodeNewGenericFuncDesc;
 import com.tencent.easycount.plan.ExprNodeNewIfDesc;
 import com.tencent.easycount.plan.ExprNodeNewVarDesc;
-import com.tencent.easycount.plan.RowResolverTRC;
-import com.tencent.easycount.plan.TypeCheckCtxTRC;
-import com.tencent.easycount.plan.TypeCheckCtxTRC.Var;
+import com.tencent.easycount.plan.RowResolverEC;
+import com.tencent.easycount.plan.TypeCheckCtxEC;
+import com.tencent.easycount.plan.TypeCheckCtxEC.Var;
 import com.tencent.easycount.util.constants.Constants;
 import com.tencent.easycount.util.graph.GraphWalker;
 import com.tencent.easycount.util.graph.GraphWalker.Dispatcher;
@@ -79,9 +79,9 @@ public class LogicalPlanExprUtils {
 		// just
 		// build the exprNodeFuncDesc with recursively built children.
 		final ASTNodeTRC expr = (ASTNodeTRC) nd;
-		final TypeCheckCtxTRC ctx = (TypeCheckCtxTRC) procCtx;
+		final TypeCheckCtxEC ctx = (TypeCheckCtxEC) procCtx;
 
-		final RowResolverTRC input = ctx.getInputRR();
+		final RowResolverEC input = ctx.getInputRR();
 		ExprNodeDesc desc = null;
 
 		if ((ctx == null) || (input == null)) {
@@ -89,7 +89,7 @@ public class LogicalPlanExprUtils {
 		}
 
 		// If the current subExpression is pre-calculated, as in Group-By etc.
-		final ColumnInfoTRC colInfo = input.getExpression(expr);
+		final ColumnInfoEC colInfo = input.getExpression(expr);
 		if (colInfo != null) {
 			desc = new ExprNodeColumnDesc(colInfo.getType(),
 					colInfo.getInternalName(), colInfo.getTabAlias(),
@@ -209,7 +209,7 @@ public class LogicalPlanExprUtils {
 				final NodeProcessorCtx procCtx,
 				final ArrayList<ExprNodeDesc> nodeOutputs) {
 
-			final TypeCheckCtxTRC ctx = (TypeCheckCtxTRC) procCtx;
+			final TypeCheckCtxEC ctx = (TypeCheckCtxEC) procCtx;
 			if (ctx.getError() != null) {
 				return null;
 			}
@@ -254,7 +254,7 @@ public class LogicalPlanExprUtils {
 				final NodeProcessorCtx procCtx,
 				final ArrayList<ExprNodeDesc> nodeOutputs) {
 
-			final TypeCheckCtxTRC ctx = (TypeCheckCtxTRC) procCtx;
+			final TypeCheckCtxEC ctx = (TypeCheckCtxEC) procCtx;
 			if (ctx.getError() != null) {
 				return null;
 			}
@@ -306,7 +306,7 @@ public class LogicalPlanExprUtils {
 				final NodeProcessorCtx procCtx,
 				final ArrayList<ExprNodeDesc> nodeOutputs) {
 
-			final TypeCheckCtxTRC ctx = (TypeCheckCtxTRC) procCtx;
+			final TypeCheckCtxEC ctx = (TypeCheckCtxEC) procCtx;
 			if (ctx.getError() != null) {
 				return null;
 			}
@@ -358,7 +358,7 @@ public class LogicalPlanExprUtils {
 				final NodeProcessorCtx procCtx,
 				final ArrayList<ExprNodeDesc> nodeOutputs) {
 
-			final TypeCheckCtxTRC ctx = (TypeCheckCtxTRC) procCtx;
+			final TypeCheckCtxEC ctx = (TypeCheckCtxEC) procCtx;
 			if (ctx.getError() != null) {
 				return null;
 			}
@@ -386,7 +386,7 @@ public class LogicalPlanExprUtils {
 				final NodeProcessorCtx procCtx,
 				final ArrayList<ExprNodeDesc> nodeOutputs) {
 
-			final TypeCheckCtxTRC ctx = (TypeCheckCtxTRC) procCtx;
+			final TypeCheckCtxEC ctx = (TypeCheckCtxEC) procCtx;
 			if (ctx.getError() != null) {
 				return null;
 			}
@@ -411,7 +411,7 @@ public class LogicalPlanExprUtils {
 				final NodeProcessorCtx procCtx,
 				final ArrayList<ExprNodeDesc> nodeOutputs) {
 
-			final TypeCheckCtxTRC ctx = (TypeCheckCtxTRC) procCtx;
+			final TypeCheckCtxEC ctx = (TypeCheckCtxEC) procCtx;
 			if (ctx.getError() != null) {
 				return null;
 			}
@@ -436,11 +436,11 @@ public class LogicalPlanExprUtils {
 		public ExprNodeDesc process(final Node nd, final Stack<Node> stack,
 				final NodeProcessorCtx procCtx,
 				final ArrayList<ExprNodeDesc> nodeOutputs) {
-			final TypeCheckCtxTRC ctx = (TypeCheckCtxTRC) procCtx;
+			final TypeCheckCtxEC ctx = (TypeCheckCtxEC) procCtx;
 			if (ctx.getError() != null) {
 				return null;
 			}
-			final ArrayList<Var> vars = new ArrayList<TypeCheckCtxTRC.Var>();
+			final ArrayList<Var> vars = new ArrayList<TypeCheckCtxEC.Var>();
 			for (int i = 0; i < nodeOutputs.size(); i++) {
 				vars.add(((ExprNodeNewVarDesc) nodeOutputs.get(i)).getVar());
 			}
@@ -458,7 +458,7 @@ public class LogicalPlanExprUtils {
 		public ExprNodeDesc process(final Node nd, final Stack<Node> stack,
 				final NodeProcessorCtx procCtx,
 				final ArrayList<ExprNodeDesc> nodeOutputs) {
-			final TypeCheckCtxTRC ctx = (TypeCheckCtxTRC) procCtx;
+			final TypeCheckCtxEC ctx = (TypeCheckCtxEC) procCtx;
 			if (ctx.getError() != null) {
 				return null;
 			}
@@ -824,7 +824,7 @@ public class LogicalPlanExprUtils {
 				final NodeProcessorCtx procCtx,
 				final ArrayList<ExprNodeDesc> nodeOutputs) {
 
-			final TypeCheckCtxTRC ctx = (TypeCheckCtxTRC) procCtx;
+			final TypeCheckCtxEC ctx = (TypeCheckCtxEC) procCtx;
 			if (ctx.getError() != null) {
 				return null;
 			}
@@ -893,7 +893,7 @@ public class LogicalPlanExprUtils {
 				final NodeProcessorCtx procCtx,
 				final ArrayList<ExprNodeDesc> nodeOutputs) {
 
-			final TypeCheckCtxTRC ctx = (TypeCheckCtxTRC) procCtx;
+			final TypeCheckCtxEC ctx = (TypeCheckCtxEC) procCtx;
 			if (ctx.getError() != null) {
 				return null;
 			}
@@ -955,7 +955,7 @@ public class LogicalPlanExprUtils {
 				final NodeProcessorCtx procCtx,
 				final ArrayList<ExprNodeDesc> nodeOutputs) {
 
-			final TypeCheckCtxTRC ctx = (TypeCheckCtxTRC) procCtx;
+			final TypeCheckCtxEC ctx = (TypeCheckCtxEC) procCtx;
 			if (ctx.getError() != null) {
 				return null;
 			}
@@ -1005,7 +1005,7 @@ public class LogicalPlanExprUtils {
 				final ArrayList<ExprNodeDesc> nodeOutputs)
 						throws SemanticException {
 
-			final TypeCheckCtxTRC ctx = (TypeCheckCtxTRC) procCtx;
+			final TypeCheckCtxEC ctx = (TypeCheckCtxEC) procCtx;
 			if (ctx.getError() != null) {
 				return null;
 			}
@@ -1018,7 +1018,7 @@ public class LogicalPlanExprUtils {
 			final ASTNodeTRC expr = (ASTNodeTRC) nd;
 			final ASTNodeTRC parent = stack.size() > 1 ? (ASTNodeTRC) stack
 					.get(stack.size() - 2) : null;
-					final RowResolverTRC input = ctx.getInputRR();
+					final RowResolverEC input = ctx.getInputRR();
 
 					if (expr.getType() != TrcParser.TOK_TABLE_OR_COL) {
 						ctx.setError(ErrorMsg.INVALID_COLUMN.getMsg(expr), expr);
@@ -1031,7 +1031,7 @@ public class LogicalPlanExprUtils {
 							.getChild(0).getText());
 
 					final boolean isTableAlias = input.hasTableAlias(tableOrCol);
-					final ColumnInfoTRC colInfo = input.get(null, tableOrCol);
+					final ColumnInfoEC colInfo = input.get(null, tableOrCol);
 
 					if (isTableAlias) {
 						if (colInfo != null) {
@@ -1272,7 +1272,7 @@ public class LogicalPlanExprUtils {
 		static ExprNodeDesc getXpathOrFuncExprNodeDesc(final ASTNodeTRC expr,
 				final boolean isFunction,
 				final ArrayList<ExprNodeDesc> children,
-				final TypeCheckCtxTRC ctx) throws Exception {
+				final TypeCheckCtxEC ctx) throws Exception {
 			// return the child directly if the conversion is redundant.
 			if (isRedundantConversionFunction(expr, isFunction, children)) {
 				assert (children.size() == 1);
@@ -1587,7 +1587,7 @@ public class LogicalPlanExprUtils {
 				final NodeProcessorCtx procCtx,
 				final ArrayList<ExprNodeDesc> nodeOutputs) throws Exception {
 
-			final TypeCheckCtxTRC ctx = (TypeCheckCtxTRC) procCtx;
+			final TypeCheckCtxEC ctx = (TypeCheckCtxEC) procCtx;
 
 			final ExprNodeDesc desc = processGByExpr(nd, procCtx);
 			if (desc != null) {
@@ -1652,7 +1652,7 @@ public class LogicalPlanExprUtils {
 			}
 
 			if (expr.getType() == TrcParser.TOK_ALLCOLREF) {
-				final RowResolverTRC input = ctx.getInputRR();
+				final RowResolverEC input = ctx.getInputRR();
 				final ExprNodeColumnListDesc columnList = new ExprNodeColumnListDesc();
 				assert expr.getChildCount() <= 1;
 				if (expr.getChildCount() == 1) {
@@ -1662,15 +1662,15 @@ public class LogicalPlanExprUtils {
 					assert child.getChildCount() == 1;
 					final String tableAlias = ParseStringUtil
 							.unescapeIdentifier(child.getChild(0).getText());
-					final HashMap<String, ColumnInfoTRC> columns = input
+					final HashMap<String, ColumnInfoEC> columns = input
 							.getFieldMap(tableAlias);
 					if (columns == null) {
 						// throw new SemanticException(
 						// ErrorMsg.INVALID_TABLE_ALIAS.getMsg(child));
 					}
-					for (final Map.Entry<String, ColumnInfoTRC> colMap : columns
+					for (final Map.Entry<String, ColumnInfoEC> colMap : columns
 							.entrySet()) {
-						final ColumnInfoTRC colInfo = colMap.getValue();
+						final ColumnInfoEC colInfo = colMap.getValue();
 						if (!colInfo.getIsVirtualCol()) {
 							columnList.addColumn(new ExprNodeColumnDesc(colInfo
 									.getType(), colInfo.getInternalName(),
@@ -1679,7 +1679,7 @@ public class LogicalPlanExprUtils {
 					}
 				} else {
 					// all columns (select *, for example)
-					for (final ColumnInfoTRC colInfo : input.getColumnInfos()) {
+					for (final ColumnInfoEC colInfo : input.getColumnInfos()) {
 						if (!colInfo.getIsVirtualCol()) {
 							columnList.addColumn(new ExprNodeColumnDesc(colInfo
 									.getType(), colInfo.getInternalName(),
@@ -1696,14 +1696,14 @@ public class LogicalPlanExprUtils {
 			if ((expr.getType() == TrcParser.DOT)
 					&& (expr.getChild(0).getType() == TrcParser.TOK_TABLE_OR_COL)
 					&& (nodeOutputs.get(0) == null)) {
-				final RowResolverTRC input = ctx.getInputRR();
+				final RowResolverEC input = ctx.getInputRR();
 				final String tableAlias = ParseStringUtil
 						.unescapeIdentifier(expr.getChild(0).getChild(0)
 								.getText());
 				// NOTE: tableAlias must be a valid non-ambiguous table alias,
 				// because we've checked that in TOK_TABLE_OR_COL's process
 				// method.
-				final ColumnInfoTRC colInfo = input.get(tableAlias,
+				final ColumnInfoEC colInfo = input.get(tableAlias,
 						((ExprNodeConstantDesc) nodeOutputs.get(1)).getValue()
 						.toString());
 
@@ -1757,8 +1757,8 @@ public class LogicalPlanExprUtils {
 			}
 
 			if (expr.getType() == TrcParser.TOK_FUNCTIONSTAR) {
-				final RowResolverTRC input = ctx.getInputRR();
-				for (final ColumnInfoTRC colInfo : input.getColumnInfos()) {
+				final RowResolverEC input = ctx.getInputRR();
+				for (final ColumnInfoEC colInfo : input.getColumnInfos()) {
 					if (!colInfo.getIsVirtualCol()) {
 						children.add(new ExprNodeColumnDesc(colInfo.getType(),
 								colInfo.getInternalName(), colInfo

@@ -25,7 +25,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.hadoop.hive.ql.plan.ExprNodeColumnDesc;
 import org.apache.hadoop.hive.ql.plan.ExprNodeDesc;
 
-import com.tencent.easycount.plan.TypeCheckCtxTRC.Var;
+import com.tencent.easycount.plan.TypeCheckCtxEC.Var;
 
 /**
  * ExprNodeColumnDesc.

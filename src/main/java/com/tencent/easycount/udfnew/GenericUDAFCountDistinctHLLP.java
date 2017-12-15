@@ -55,18 +55,18 @@ public class GenericUDAFCountDistinctHLLP implements GenericUDAFResolver2 {
 			.getLogger(GenericUDAFCountDistinctHLLP.class);
 
 	@Override
-	public GenericUDAFEvaluator getEvaluator(TypeInfo[] parameters)
+	public GenericUDAFEvaluator getEvaluator(final TypeInfo[] parameters)
 			throws SemanticException {
 		// This method implementation is preserved for backward compatibility.
 		return new GenericUDAFCountDistinctEvaluator();
 	}
 
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings({ "deprecation", "resource" })
 	@Override
-	public GenericUDAFEvaluator getEvaluator(GenericUDAFParameterInfo paramInfo)
-			throws SemanticException {
+	public GenericUDAFEvaluator getEvaluator(
+			final GenericUDAFParameterInfo paramInfo) throws SemanticException {
 
-		TypeInfo[] parameters = paramInfo.getParameters();
+		final TypeInfo[] parameters = paramInfo.getParameters();
 
 		if (parameters.length == 0) {
 			if (!paramInfo.isAllColumns()) {
@@ -75,36 +75,36 @@ public class GenericUDAFCountDistinctHLLP implements GenericUDAFResolver2 {
 			assert !paramInfo.isDistinct() : "DISTINCT not supported with *";
 		}
 		return new GenericUDAFCountDistinctEvaluator()
-				.setCountAllColumns(paramInfo.isAllColumns());
+		.setCountAllColumns(paramInfo.isAllColumns());
 	}
 
 	/**
 	 * GenericUDAFCountEvaluator.
-	 * 
+	 *
 	 */
 	@SuppressWarnings("deprecation")
 	public static class GenericUDAFCountDistinctEvaluator extends
-			GenericUDAFEvaluator {
+	GenericUDAFEvaluator {
 		private boolean countAllColumns = false;
 		private BinaryObjectInspector partialOIMerge;
 		private ObjectInspector[] paramOI;
 
 		@Override
-		public ObjectInspector init(Mode m, ObjectInspector[] parameters)
-				throws HiveException {
+		public ObjectInspector init(final Mode m,
+				final ObjectInspector[] parameters) throws HiveException {
 			super.init(m, parameters);
-			paramOI = parameters;
-			if (m == Mode.PARTIAL1 || m == Mode.PARTIAL2) {
+			this.paramOI = parameters;
+			if ((m == Mode.PARTIAL1) || (m == Mode.PARTIAL2)) {
 				return PrimitiveObjectInspectorFactory.writableBinaryObjectInspector;
 			} else {
-				partialOIMerge = (BinaryObjectInspector) parameters[0];
+				this.partialOIMerge = (BinaryObjectInspector) parameters[0];
 				return PrimitiveObjectInspectorFactory.writableLongObjectInspector;
 			}
 		}
 
 		private GenericUDAFCountDistinctEvaluator setCountAllColumns(
-				boolean countAllCols) {
-			countAllColumns = countAllCols;
+				final boolean countAllCols) {
+			this.countAllColumns = countAllCols;
 			return this;
 		}
 
@@ -115,35 +115,35 @@ public class GenericUDAFCountDistinctHLLP implements GenericUDAFResolver2 {
 
 			@Override
 			public int estimate() {
-				return value == null ? 0 : value.sizeof() / 8;
+				return this.value == null ? 0 : this.value.sizeof() / 8;
 			}
 		}
 
 		@Override
 		public AggregationBuffer getNewAggregationBuffer() throws HiveException {
-			CountAgg buffer = new CountAgg();
+			final CountAgg buffer = new CountAgg();
 			reset(buffer);
 			return buffer;
 		}
 
 		@Override
-		public void reset(AggregationBuffer agg) throws HiveException {
+		public void reset(final AggregationBuffer agg) throws HiveException {
 			((CountAgg) agg).value = new HyperLogLogPlus(16, 24);
 		}
 
 		@Override
-		public void iterate(AggregationBuffer agg, Object[] parameters)
-				throws HiveException {
+		public void iterate(final AggregationBuffer agg,
+				final Object[] parameters) throws HiveException {
 			// parameters == null means the input table/split is empty
 			if (parameters == null) {
 				return;
 			}
-			if (countAllColumns) {
+			if (this.countAllColumns) {
 				assert parameters.length == 0;
 			} else {
 				assert parameters.length > 0;
 				boolean countThisRow = true;
-				for (Object nextParam : parameters) {
+				for (final Object nextParam : parameters) {
 					if (nextParam == null) {
 						countThisRow = false;
 						break;
@@ -153,11 +153,10 @@ public class GenericUDAFCountDistinctHLLP implements GenericUDAFResolver2 {
 					long hashcode = 0;
 					for (int i = 0; i < Math.min(this.paramOI.length,
 							parameters.length); i++) {
-						hashcode = hashcode
-								* 31
-								+ ((PrimitiveObjectInspector) paramOI[i])
-										.getPrimitiveJavaObject(parameters[i])
-										.hashCode();
+						hashcode = (hashcode * 31)
+								+ ((PrimitiveObjectInspector) this.paramOI[i])
+								.getPrimitiveJavaObject(parameters[i])
+								.hashCode();
 					}
 					((CountAgg) agg).value.offer(hashcode);
 				}
@@ -165,35 +164,38 @@ public class GenericUDAFCountDistinctHLLP implements GenericUDAFResolver2 {
 		}
 
 		@Override
-		public void merge(AggregationBuffer agg, Object partial)
+		public void merge(final AggregationBuffer agg, final Object partial)
 				throws HiveException {
 			if (partial != null) {
 				try {
-					byte[] p = partialOIMerge.getPrimitiveJavaObject(partial);
-					if (p == null || p.length == 0) {
+					final byte[] p = this.partialOIMerge
+							.getPrimitiveJavaObject(partial);
+					if ((p == null) || (p.length == 0)) {
 						log.warn("partial is null");
 						return;
 					}
-					HyperLogLogPlus chllp = ((CountAgg) agg).value;
-					HyperLogLogPlus hllp = HyperLogLogPlus.Builder.build(p);
+					final HyperLogLogPlus chllp = ((CountAgg) agg).value;
+					final HyperLogLogPlus hllp = HyperLogLogPlus.Builder
+							.build(p);
 					chllp.addAll(hllp);
-				} catch (Exception e) {
+				} catch (final Exception e) {
 					log.error("merge : " + TDBankUtils.getExceptionStack(e));
 				}
 			}
 		}
 
 		@Override
-		public Object terminate(AggregationBuffer agg) throws HiveException {
+		public Object terminate(final AggregationBuffer agg)
+				throws HiveException {
 			return new LongWritable(((CountAgg) agg).value.cardinality());
 		}
 
 		@Override
-		public Object terminatePartial(AggregationBuffer agg)
+		public Object terminatePartial(final AggregationBuffer agg)
 				throws HiveException {
 			try {
 				return new BytesWritable(((CountAgg) agg).value.getBytes());
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				log.error("terminatePartial : "
 						+ TDBankUtils.getExceptionStack(e));
 			}

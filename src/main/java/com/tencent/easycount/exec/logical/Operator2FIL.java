@@ -7,7 +7,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.PrimitiveObjectInspector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 import com.tencent.easycount.exec.io.TaskContext;
 import com.tencent.easycount.plan.ExprNodeEvaluatorFactoryNew;
 import com.tencent.easycount.plan.logical.OpDesc2FIL;
@@ -24,13 +24,13 @@ public class Operator2FIL extends Operator<OpDesc2FIL> {
 	public void printInternal(int printId) {
 	}
 
-	public Operator2FIL(OpDesc2FIL opDesc, TrcConfiguration hconf,
+	public Operator2FIL(OpDesc2FIL opDesc, ECConfiguration hconf,
 			TaskContext taskContext) {
 		super(opDesc, hconf, taskContext);
 	}
 
 	@Override
-	protected void initializeOp(TrcConfiguration hconf, TaskContext taskContext) {
+	protected void initializeOp(ECConfiguration hconf, TaskContext taskContext) {
 		try {
 			ExprNodeDesc predicate = getOpDesc().getPredicate();
 			conditionEvaluator = ExprNodeEvaluatorFactoryNew.get(predicate);

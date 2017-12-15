@@ -2,7 +2,7 @@ package com.tencent.easycount.mon;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.tencent.easycount.conf.TrcConfiguration;
+import com.tencent.easycount.conf.ECConfiguration;
 
 public class MonStatusUtils {
 	transient volatile static private ConcurrentHashMap<String, MonStatusUpdater> id2updater = null;
@@ -28,7 +28,7 @@ public class MonStatusUtils {
 	}
 
 	public static MonStatusUpdater getTubeMonStatusUpdater(
-			final TrcConfiguration hconf) {
+			final ECConfiguration hconf) {
 		final String tubeMaster = hconf.get("moniter.tube.master",
 				"tl-vip-tube-master");
 		final int tubePort = hconf.getInt("moniter.tube.port", 8609);
